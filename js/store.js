@@ -2,7 +2,7 @@
  * LUMIÈRE — Central data store (localStorage)
  */
 const LumiereStore = (() => {
-  const KEY = 'kwanzou_store_v7';
+  const KEY = 'kwanzou_store_v8';
 
   const defaults = {
     settings: {
@@ -71,11 +71,13 @@ const LumiereStore = (() => {
     merged.settings.tagline = defaults.settings.tagline;
     merged.settings.taglineAr = defaults.settings.taglineAr;
     merged.settings.taglineEn = defaults.settings.taglineEn;
+    merged.settings.subtitle = defaults.settings.subtitle;
     merged.settings.subtitleAr = defaults.settings.subtitleAr;
+    merged.settings.subtitleEn = defaults.settings.subtitleEn;
     merged.settings.announcementAr = defaults.settings.announcementAr;
+    merged.settings.heroImage = defaults.settings.heroImage;
     merged.settings.heroAccent1 = defaults.settings.heroAccent1;
     merged.settings.heroAccent2 = defaults.settings.heroAccent2;
-    merged.settings.heroImage = defaults.settings.heroImage;
     merged.categories = clone(defaults.categories);
     merged.products = clone(defaults.products);
     merged.collections = clone(defaults.collections);

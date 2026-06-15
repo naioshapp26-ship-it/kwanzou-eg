@@ -17,6 +17,7 @@
     </div>
   </main>
   <div id="site-footer"></div>
+  <div class="toast" id="toast"><span id="toastMessage"></span></div>
   <script src="js/store.js"></script>
   <script src="js/i18n.js"></script>
   <script src="js/auth.js"></script>
@@ -30,14 +31,25 @@
       renderCart();
       window.addEventListener('lumiere:langchange', () => { LumiereI18n.applyTranslations(); LumiereLayout.init('shop'); renderCart(); });
     });
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      document.getElementById('toastMessage').textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3500);
+    }
+
     function renderCart() {
       const el = document.getElementById('cartContent');
       const items = KwanzouCart.get();
       const products = LumiereStore.get().products;
+      const session = LumiereAuth.getSession();
+
       if (!items.length) {
-        el.innerHTML = `<div class="cart-empty"><p data-i18n="cart_empty">${LumiereI18n.t('cart_empty')}</p><a href="shop.html" class="btn btn-primary">${LumiereI18n.t('shop_all')}</a></div>`;
+        el.innerHTML = `<div class="cart-empty"><p>${LumiereI18n.t('cart_empty')}</p><a href="shop.html" class="btn btn-primary">${LumiereI18n.t('shop_all')}</a></div>`;
         return;
       }
+
       let total = 0;
       const rows = items.map(item => {
         const p = products.find(x => x.id === item.id);
@@ -52,7 +64,60 @@
           <button class="cart-item__remove" onclick="KwanzouCart.remove('${p.id}');renderCart()">✕</button>
         </div>`;
       }).join('');
-      el.innerHTML = `${rows}<div class="cart-summary"><strong>${LumiereI18n.t('cart_total')}: ${KwanzouCart.formatPrice(total)}</strong><button class="btn btn-primary btn-full">${LumiereI18n.t('checkout')}</button></div>`;
+
+      el.innerHTML = `
+        <div class="cart-layout">
+          <div class="cart-items">${rows}</div>
+          <div class="cart-sidebar">
+            <div class="cart-summary">
+              <strong>${LumiereI18n.t('cart_total')}: ${KwanzouCart.formatPrice(total)}</strong>
+            </div>
+            <form class="checkout-form" id="checkoutForm">
+              <h2>${LumiereI18n.t('checkout_title')}</h2>
+              <div class="form-group">
+                <label>${LumiereI18n.t('checkout_name')}</label>
+                <input type="text" name="name" required value="${session?.name || ''}">
+              </div>
+              <div class="form-group">
+                <label>${LumiereI18n.t('checkout_phone')}</label>
+                <input type="tel" name="phone" required value="${session?.phone || ''}">
+              </div>
+              <div class="form-group">
+                <label>${LumiereI18n.t('checkout_email')}</label>
+                <input type="email" name="email" value="${session?.email || ''}">
+              </div>
+              <button type="submit" class="btn btn-primary btn-full">${LumiereI18n.t('checkout_submit')}</button>
+            </form>
+          </div>
+        </div>`;
+
+      document.getElementById('checkoutForm').onsubmit = async e => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const name = (fd.get('name') || '').trim();
+        const phone = (fd.get('phone') || '').trim();
+        const email = (fd.get('email') || '').trim();
+        if (!name || !phone) {
+          showToast(LumiereI18n.t('checkout_error'));
+          return;
+        }
+        const orderItems = items.map(item => {
+          const p = products.find(x => x.id === item.id);
+          return { id: item.id, name: LumiereI18n.localized(p, 'name') || p?.name, qty: item.qty, price: p?.price || 0 };
+        }).filter(i => i.name);
+        await LumiereStore.init();
+        LumiereStore.placeOrder({
+          customerName: name,
+          customerEmail: email,
+          customerPhone: phone,
+          items: orderItems,
+          total,
+          userId: session?.id || null
+        });
+        items.forEach(i => KwanzouCart.remove(i.id));
+        showToast(LumiereI18n.t('checkout_success'));
+        setTimeout(() => { window.location.href = session ? 'account.html' : 'shop.html'; }, 1500);
+      };
     }
   </script>
 </body>

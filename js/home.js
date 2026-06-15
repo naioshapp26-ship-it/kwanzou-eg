@@ -2,19 +2,24 @@
  * Homepage dynamic rendering — with safe fallbacks
  */
 const HERO_FALLBACK = {
-  bg: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1920&q=85',
-  a1: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=650&q=80',
-  a2: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=650&q=80'
+  bg: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=1920&q=85',
+  a1: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=650&q=80',
+  a2: 'https://images.unsplash.com/photo-1596462502278-27bfdd403348?w=650&q=80'
 };
+
+function sortedCategories(categories) {
+  return [...categories].sort((a, b) => (a.sort ?? 99) - (b.sort ?? 99));
+}
 
 function renderHomepage() {
   try {
     const data = LumiereStore.get();
     if (!data) throw new Error('No store data');
 
-    const { settings, categories, products, collections, testimonials } = data;
+    const { settings, categories, products, testimonials } = data;
+    const sortedCats = sortedCategories(categories);
 
-    const tagline = LumiereI18n.localizedSettings(settings, 'tagline') || settings.taglineAr || 'Kwanzou EG — إكسسوارات ودهب على ذوقك';
+    const tagline = LumiereI18n.localizedSettings(settings, 'tagline') || settings.taglineAr || 'Kwanzou EG — استالس، شنط، ميكب وبرفانات';
     const parts = tagline.includes('،') ? tagline.split('، ') : tagline.split(' — ');
     const heroTitle = document.getElementById('heroTitle');
     const heroSubtitle = document.getElementById('heroSubtitle');
@@ -27,15 +32,16 @@ function renderHomepage() {
     if (heroAccent2) heroAccent2.src = settings.heroAccent2 || HERO_FALLBACK.a2;
     if (heroTitle) {
       const line1 = (parts[0] || 'Kwanzou EG').trim();
-      const line2 = (parts[1] || 'إكسسوارات ودهب على ذوقك').trim();
+      const line2 = (parts[1] || 'استالس، شنط، ميكب وبرفانات').trim();
       heroTitle.innerHTML = `<span class="hero-title__brand">${line1}</span><em class="hero-title__tagline">${line2}</em>`;
     }
     if (heroSubtitle) heroSubtitle.textContent = LumiereI18n.localizedSettings(settings, 'subtitle') || settings.subtitleAr || '';
 
     const catGrid = document.getElementById('categoriesGrid');
-    if (catGrid && categories) {
-      catGrid.innerHTML = categories.slice(0, 7).map((cat, i) => `
-        <a href="shop.html?cat=${cat.slug}" class="category-card ${i === 0 ? 'category-card--large' : ''}">
+    if (catGrid && sortedCats.length) {
+      catGrid.className = 'categories-grid categories-grid--4';
+      catGrid.innerHTML = sortedCats.map(cat => `
+        <a href="shop.html?cat=${cat.slug}" class="category-card">
           <img src="${cat.image}" alt="${LumiereI18n.translateCategory(cat)}" loading="lazy">
           <div class="category-card__content">
             <h3>${LumiereI18n.translateCategory(cat)}</h3>
@@ -49,26 +55,9 @@ function renderHomepage() {
       featuredGrid.innerHTML = products.filter(p => p.featured).slice(0, 4).map(p => ProductUI.cardHTML(p)).join('');
     }
 
-    const collectionsGrid = document.getElementById('collectionsGrid');
-    if (collectionsGrid && collections) {
-      collectionsGrid.innerHTML = collections.map(col => {
-        const title = LumiereI18n.getLang() === 'ar' ? (col.titleAr || col.title).replace('\\n', '<br>') : (col.titleEn || col.title).replace('\\n', '<br>');
-        const label = LumiereI18n.getLang() === 'ar' ? (col.labelAr || col.label) : (col.labelEn || col.label);
-        const slug = col.id === 'col-1' ? 'jewelry' : col.id === 'col-2' ? 'handbags' : 'jewelry';
-        return `<a href="shop.html?cat=${slug}" class="collection-banner">
-          <img src="${col.image}" alt="" loading="lazy">
-          <div class="collection-banner__overlay"></div>
-          <div class="collection-banner__content">
-            <span class="collection-label">${label}</span>
-            <h3>${title}</h3>
-            <span class="link-arrow">${LumiereI18n.t('coll_discover')}</span>
-          </div></a>`;
-      }).join('');
-    }
-
     const bestsellersGrid = document.getElementById('bestsellersGrid');
     if (bestsellersGrid && products) {
-      bestsellersGrid.innerHTML = products.filter(p => p.bestseller).slice(0, 5).map(p => ProductUI.cardHTML(p, true)).join('');
+      bestsellersGrid.innerHTML = products.filter(p => p.bestseller).slice(0, 4).map(p => ProductUI.cardHTML(p, true)).join('');
     }
 
     const testimonialsGrid = document.getElementById('testimonialsGrid');

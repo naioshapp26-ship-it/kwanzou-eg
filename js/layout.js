@@ -9,11 +9,15 @@ const LumiereLayout = (() => {
     return `${base}${settings?.logo || 'assets/logo.png'}`;
   }
 
+  function sortedCategories(categories) {
+    return [...categories].sort((a, b) => (a.sort ?? 99) - (b.sort ?? 99));
+  }
+
   function renderHeader(active = '') {
     const session = LumiereAuth.getSession();
     const data = LumiereStore.get();
     const settings = data.settings;
-    const categories = data.categories;
+    const categories = sortedCategories(data.categories);
     const accountLink = session
       ? (session.role === 'superadmin' ? `${base}admin/index.html` : `${base}account.html`)
       : `${base}login.html`;
@@ -21,7 +25,7 @@ const LumiereLayout = (() => {
     const announcement = LumiereI18n.localizedSettings(settings, 'announcement');
     const logo = logoPath(settings);
 
-    const catLinks = categories.slice(0, 7).map(cat => {
+    const catLinks = categories.map(cat => {
       const label = LumiereI18n.translateCategory(cat);
       const isActive = active === cat.slug ? ' active' : '';
       return `<a href="${base}shop.html?cat=${cat.slug}" class="header-cat${isActive}">${label}</a>`;
@@ -56,8 +60,6 @@ const LumiereLayout = (() => {
         <a href="${base}index.html" class="header-cat${active === 'home' ? ' active' : ''}">${LumiereI18n.t('nav_home')}</a>
         <a href="${base}shop.html" class="header-cat${active === 'shop' ? ' active' : ''}">${LumiereI18n.t('shop_all')}</a>
         ${catLinks}
-        <a href="${base}index.html#bestsellers" class="header-cat">${LumiereI18n.t('nav_bestsellers')}</a>
-        <a href="${base}index.html#collections" class="header-cat">${LumiereI18n.t('nav_collections')}</a>
       </nav>
       <div class="mobile-menu" id="mobileMenu">
         <form class="header-search mobile-search" action="${base}shop.html" method="get">
@@ -78,8 +80,12 @@ const LumiereLayout = (() => {
 
   function renderFooter() {
     const s = LumiereStore.get().settings;
+    const categories = sortedCategories(LumiereStore.get().categories);
     const logo = logoPath(s);
     const year = new Date().getFullYear();
+    const shopLinks = categories.map(c =>
+      `<li><a href="${base}shop.html?cat=${c.slug}">${LumiereI18n.translateCategory(c)}</a></li>`
+    ).join('');
     return `
     <footer class="footer">
       <div class="container">
@@ -89,10 +95,8 @@ const LumiereLayout = (() => {
             <p>${LumiereI18n.t('footer_desc')}</p>
           </div>
           <div class="footer-links"><h4>${LumiereI18n.t('footer_shop')}</h4><ul>
-            <li><a href="${base}shop.html?cat=jewelry">${LumiereI18n.t('quick_jewelry')}</a></li>
-            <li><a href="${base}shop.html?cat=handbags">${LumiereI18n.t('quick_handbags')}</a></li>
-            <li><a href="${base}shop.html?cat=watches">${LumiereI18n.t('quick_watches')}</a></li>
-            <li><a href="${base}shop.html?cat=earrings">${LumiereI18n.t('quick_earrings')}</a></li>
+            ${shopLinks}
+            <li><a href="${base}shop.html">${LumiereI18n.t('shop_all')}</a></li>
           </ul></div>
           <div class="footer-links"><h4>${LumiereI18n.t('footer_account')}</h4><ul>
             <li><a href="${base}login.html">${LumiereI18n.t('footer_signin')}</a></li>

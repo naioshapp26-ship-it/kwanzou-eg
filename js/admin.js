@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('adminUserName').textContent = session.name;
   initNavigation();
   renderDashboard();
+  renderOrders();
   renderProducts();
   renderCategories();
   renderCollections();
@@ -32,6 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     LumiereI18n.bindLangSwitch();
     const active = document.querySelector('.admin-nav__item.active')?.dataset.section || 'dashboard';
     switchSection(active);
+    if (active === 'orders') renderOrders();
   });
 });
 
@@ -39,12 +41,14 @@ function switchSection(section) {
   document.querySelectorAll('.admin-nav__item').forEach(n => n.classList.toggle('active', n.dataset.section === section));
   document.querySelectorAll('.admin-section').forEach(s => s.classList.toggle('active', s.id === `sec-${section}`));
   const titles = {
-    dashboard: 'admin_dashboard', products: 'admin_products', categories: 'admin_categories',
+    dashboard: 'admin_dashboard', orders: 'admin_orders', products: 'admin_products', categories: 'admin_categories',
     collections: 'admin_collections', settings: 'admin_settings', users: 'admin_users',
     testimonials: 'admin_testimonials', newsletter: 'admin_newsletter'
   };
   document.getElementById('adminPageTitle').textContent = LumiereI18n.t(titles[section] || section);
   document.getElementById('adminSidebar')?.classList.remove('open');
+  if (section === 'orders') renderOrders();
+  if (section === 'dashboard') renderDashboard();
 }
 
 function initNavigation() {
@@ -58,13 +62,50 @@ function initNavigation() {
 
 function renderDashboard() {
   const data = LumiereStore.get();
+  const orders = LumiereStore.getAllOrders();
+  document.getElementById('dashOrders').textContent = orders.length;
+  document.getElementById('dashPending').textContent = orders.filter(o => o.status === 'Pending').length;
   document.getElementById('dashProducts').textContent = data.products.length;
-  document.getElementById('dashCategories').textContent = data.categories.length;
   document.getElementById('dashCustomers').textContent = data.users.filter(u => u.role === 'customer').length;
-  document.getElementById('dashNewsletter').textContent = data.newsletter.length;
   document.getElementById('dashRecentProducts').innerHTML = data.products.slice(-3).reverse().map(p =>
-    `<div class="dash-product-row"><img src="${p.image}" alt=""><span>${p.name}</span><span>$${p.price}</span></div>`
+    `<div class="dash-product-row"><img src="${p.image}" alt=""><span>${p.name}</span><span>${p.price} ${data.settings.currencySymbol || 'EGP'}</span></div>`
   ).join('');
+}
+
+function renderOrders() {
+  const orders = LumiereStore.getAllOrders();
+  const tbody = document.getElementById('ordersTableBody');
+  if (!tbody) return;
+  if (!orders.length) {
+    tbody.innerHTML = `<tr><td colspan="7">${LumiereI18n.t('admin_order_empty')}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = orders.map(o => {
+    const itemsText = (o.items || []).map(i => `${i.name} ×${i.qty}`).join(', ');
+    const statusLabel = LumiereI18n.translateStatus(o.status);
+    return `<tr>
+      <td><strong>${o.id}</strong></td>
+      <td>${o.customerName || '—'}<br><small>${o.customerEmail || ''}</small></td>
+      <td>${o.customerPhone || '—'}</td>
+      <td>${o.date}</td>
+      <td>${itemsText}</td>
+      <td>${o.total?.toLocaleString()} ${LumiereStore.get().settings.currencySymbol || 'EGP'}</td>
+      <td>
+        <select class="order-status-select" data-id="${o.id}">
+          <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>${LumiereI18n.t('status_pending')}</option>
+          <option value="Shipped" ${o.status === 'Shipped' ? 'selected' : ''}>${LumiereI18n.t('status_shipped')}</option>
+          <option value="Delivered" ${o.status === 'Delivered' ? 'selected' : ''}>${LumiereI18n.t('status_delivered')}</option>
+        </select>
+      </td>
+    </tr>`;
+  }).join('');
+  tbody.querySelectorAll('.order-status-select').forEach(sel => {
+    sel.onchange = () => {
+      LumiereStore.updateOrderStatus(sel.dataset.id, sel.value);
+      renderOrders();
+      renderDashboard();
+    };
+  });
 }
 
 function renderProducts() {

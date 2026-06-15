@@ -36,7 +36,7 @@ function renderShop() {
 
   document.getElementById('shopFilters').innerHTML = [
     { slug: '', label: LumiereI18n.t('shop_all') },
-    ...data.categories.slice(0, 7).map(c => ({ slug: c.slug, label: LumiereI18n.translateCategory(c) }))
+    ...[...data.categories].sort((a, b) => (a.sort ?? 99) - (b.sort ?? 99)).map(c => ({ slug: c.slug, label: LumiereI18n.translateCategory(c) }))
   ].map(f => `<a href="shop.html${f.slug ? '?cat=' + f.slug : ''}" class="filter-chip${f.slug === catSlug ? ' active' : ''}">${f.label}</a>`).join('');
 
   const sortEl = document.getElementById('shopSort');

@@ -16,6 +16,7 @@
     </div>
     <nav class="admin-nav">
       <button class="admin-nav__item active" data-section="dashboard"><span>📊</span> <span data-i18n="admin_dashboard">Dashboard</span></button>
+      <button class="admin-nav__item" data-section="orders"><span>🛒</span> <span data-i18n="admin_orders">Orders</span></button>
       <button class="admin-nav__item" data-section="products"><span>💎</span> <span data-i18n="admin_products">Products</span></button>
       <button class="admin-nav__item" data-section="categories"><span>📁</span> <span data-i18n="admin_categories">Categories</span></button>
       <button class="admin-nav__item" data-section="collections"><span>✨</span> <span data-i18n="admin_collections">Collections</span></button>
@@ -44,10 +45,10 @@
       <!-- Dashboard -->
       <section class="admin-section active" id="sec-dashboard">
         <div class="admin-stats-grid">
+          <div class="admin-stat"><span class="admin-stat__num" id="dashOrders">0</span><span data-i18n="admin_dash_orders">Orders</span></div>
+          <div class="admin-stat"><span class="admin-stat__num" id="dashPending">0</span><span data-i18n="admin_dash_pending">Pending</span></div>
           <div class="admin-stat"><span class="admin-stat__num" id="dashProducts">0</span><span>Products</span></div>
-          <div class="admin-stat"><span class="admin-stat__num" id="dashCategories">0</span><span>Categories</span></div>
           <div class="admin-stat"><span class="admin-stat__num" id="dashCustomers">0</span><span>Customers</span></div>
-          <div class="admin-stat"><span class="admin-stat__num" id="dashNewsletter">0</span><span>Subscribers</span></div>
         </div>
         <div class="admin-cards-row">
           <div class="admin-card">
@@ -68,6 +69,27 @@
           <h3>Reset Demo Data</h3>
           <p>Restore all products, categories, and settings to defaults.</p>
           <button class="btn btn-sm btn-outline" id="resetDataBtn">Reset to Defaults</button>
+        </div>
+      </section>
+
+      <!-- Orders -->
+      <section class="admin-section" id="sec-orders">
+        <div class="admin-section-header">
+          <h2 data-i18n="admin_orders">Orders</h2>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr>
+              <th data-i18n="account_order_id">Order ID</th>
+              <th data-i18n="admin_order_customer">Customer</th>
+              <th data-i18n="admin_order_phone">Phone</th>
+              <th data-i18n="account_date">Date</th>
+              <th data-i18n="admin_order_items">Items</th>
+              <th data-i18n="account_total">Total</th>
+              <th data-i18n="account_status">Status</th>
+            </tr></thead>
+            <tbody id="ordersTableBody"></tbody>
+          </table>
         </div>
       </section>
 

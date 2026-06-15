@@ -20,6 +20,7 @@
       <button class="admin-nav__item" data-section="products"><span>💎</span> <span data-i18n="admin_products">Products</span></button>
       <button class="admin-nav__item" data-section="categories"><span>📁</span> <span data-i18n="admin_categories">Categories</span></button>
       <button class="admin-nav__item" data-section="collections"><span>✨</span> <span data-i18n="admin_collections">Collections</span></button>
+      <button class="admin-nav__item" data-section="appearance"><span>🎨</span> <span data-i18n="admin_appearance">Brand & Colors</span></button>
       <button class="admin-nav__item" data-section="settings"><span>⚙️</span> <span data-i18n="admin_settings">Site Settings</span></button>
       <button class="admin-nav__item" data-section="users"><span>👥</span> <span data-i18n="admin_users">Customers</span></button>
       <button class="admin-nav__item" data-section="testimonials"><span>💬</span> <span data-i18n="admin_testimonials">Testimonials</span></button>
@@ -87,6 +88,7 @@
               <th data-i18n="admin_order_items">Items</th>
               <th data-i18n="account_total">Total</th>
               <th data-i18n="account_status">Status</th>
+              <th data-i18n="admin_actions">Actions</th>
             </tr></thead>
             <tbody id="ordersTableBody"></tbody>
           </table>
@@ -123,27 +125,79 @@
 
       <!-- Collections -->
       <section class="admin-section" id="sec-collections">
-        <h2>Editorial Collections</h2>
+        <div class="admin-section-header">
+          <h2 data-i18n="admin_collections">Collections</h2>
+          <button class="btn btn-primary btn-sm" id="addCollectionBtn" data-i18n="admin_add_collection">+ Add Collection</button>
+        </div>
         <div class="collections-admin-grid" id="collectionsAdminGrid"></div>
+      </section>
+
+      <!-- Appearance / Brand -->
+      <section class="admin-section" id="sec-appearance">
+        <h2 data-i18n="admin_appearance">Brand & Colors</h2>
+        <form id="appearanceForm" class="admin-form admin-form--wide">
+          <div class="admin-form-grid">
+            <div class="admin-card">
+              <h3 data-i18n="admin_logo_title">Logo</h3>
+              <div class="image-upload-group" id="logoUploadGroup">
+                <img id="logoPreview" class="image-preview image-preview--logo" src="../assets/logo.png" alt="Logo">
+                <input type="url" id="setLogoUrl" placeholder="https://...">
+                <input type="file" accept="image/*" id="setLogoFile" class="image-file-input">
+                <small data-i18n="admin_image_hint">Paste a URL or upload from your device (max 800KB)</small>
+              </div>
+            </div>
+            <div class="admin-card">
+              <h3 data-i18n="admin_colors_title">Brand Colors</h3>
+              <div class="color-grid">
+                <label><span data-i18n="admin_color_accent">Accent (Gold)</span><input type="color" id="themeAccent" value="#C9A962"></label>
+                <label><span data-i18n="admin_color_accent_dark">Accent Dark</span><input type="color" id="themeAccentDark" value="#A8893E"></label>
+                <label><span data-i18n="admin_color_primary">Primary Text</span><input type="color" id="themePrimary" value="#2C2420"></label>
+                <label><span data-i18n="admin_color_bg">Background</span><input type="color" id="themeBackground" value="#FAF8F5"></label>
+                <label><span data-i18n="admin_color_cream">Cream</span><input type="color" id="themeCream" value="#F5F0EB"></label>
+                <label><span data-i18n="admin_color_secondary">Secondary Text</span><input type="color" id="themeSecondary" value="#6B5E54"></label>
+              </div>
+              <div class="theme-preview" id="themePreview">
+                <span class="theme-preview__chip" id="previewAccent"></span>
+                <span class="theme-preview__chip" id="previewBg"></span>
+                <span class="theme-preview__chip" id="previewPrimary"></span>
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" data-i18n="admin_save">Save</button>
+        </form>
       </section>
 
       <!-- Settings -->
       <section class="admin-section" id="sec-settings">
-        <h2>Site Settings</h2>
-        <form id="settingsForm" class="admin-form">
-          <div class="form-row">
-            <div class="form-group"><label>Brand Name</label><input type="text" id="setBrand" required></div>
-            <div class="form-group"><label>Currency Symbol</label><input type="text" id="setCurrency" maxlength="3"></div>
+        <h2 data-i18n="admin_settings">Site Settings</h2>
+        <form id="settingsForm" class="admin-form admin-form--wide">
+          <div class="admin-form-grid">
+            <div class="admin-card">
+              <h3 data-i18n="admin_general">General</h3>
+              <div class="form-row">
+                <div class="form-group"><label data-i18n="admin_brand_name">Brand Name</label><input type="text" id="setBrand" required></div>
+                <div class="form-group"><label data-i18n="admin_currency">Currency Symbol</label><input type="text" id="setCurrency" maxlength="5"></div>
+              </div>
+              <div class="form-group"><label data-i18n="admin_announcement">Announcement Bar</label><input type="text" id="setAnnouncement"></div>
+              <div class="form-group"><label data-i18n="admin_announcement_ar">Announcement (Arabic)</label><input type="text" id="setAnnouncementAr"></div>
+            </div>
+            <div class="admin-card">
+              <h3 data-i18n="admin_hero">Homepage Hero</h3>
+              <div class="form-group"><label data-i18n="admin_hero_tagline_ar">Hero Tagline (Arabic)</label><input type="text" id="setTaglineAr"></div>
+              <div class="form-group"><label data-i18n="admin_hero_tagline_en">Hero Tagline (English)</label><input type="text" id="setTaglineEn"></div>
+              <div class="form-group"><label data-i18n="admin_hero_subtitle_ar">Hero Subtitle (Arabic)</label><textarea id="setSubtitleAr" rows="2"></textarea></div>
+              <div class="form-group"><label data-i18n="admin_hero_subtitle_en">Hero Subtitle (English)</label><textarea id="setSubtitleEn" rows="2"></textarea></div>
+            </div>
           </div>
-          <div class="form-group"><label>Hero Title (use comma to split lines)</label><input type="text" id="setTagline"></div>
-          <div class="form-group"><label>Hero Subtitle</label><textarea id="setSubtitle" rows="2"></textarea></div>
-          <div class="form-group"><label>Announcement Bar</label><input type="text" id="setAnnouncement"></div>
-          <div class="form-row">
-            <div class="form-group"><label>Hero Background Image URL</label><input type="url" id="setHeroImage"></div>
-            <div class="form-group"><label>Hero Accent 1 URL</label><input type="url" id="setHeroAccent1"></div>
+          <div class="admin-card" style="margin-top:20px">
+            <h3 data-i18n="admin_hero_images">Hero Images</h3>
+            <div class="hero-images-grid">
+              <div class="image-upload-group"><label data-i18n="admin_hero_bg">Background</label><img id="heroBgPreview" class="image-preview" alt=""><input type="url" id="setHeroImage"><input type="file" accept="image/*" class="image-file-input" data-target="setHeroImage" data-preview="heroBgPreview"></div>
+              <div class="image-upload-group"><label data-i18n="admin_hero_accent1">Accent 1</label><img id="heroA1Preview" class="image-preview" alt=""><input type="url" id="setHeroAccent1"><input type="file" accept="image/*" class="image-file-input" data-target="setHeroAccent1" data-preview="heroA1Preview"></div>
+              <div class="image-upload-group"><label data-i18n="admin_hero_accent2">Accent 2</label><img id="heroA2Preview" class="image-preview" alt=""><input type="url" id="setHeroAccent2"><input type="file" accept="image/*" class="image-file-input" data-target="setHeroAccent2" data-preview="heroA2Preview"></div>
+            </div>
           </div>
-          <div class="form-group"><label>Hero Accent 2 URL</label><input type="url" id="setHeroAccent2"></div>
-          <button type="submit" class="btn btn-primary">Save Settings</button>
+          <button type="submit" class="btn btn-primary" data-i18n="admin_save">Save Settings</button>
         </form>
       </section>
 
@@ -160,7 +214,10 @@
 
       <!-- Testimonials -->
       <section class="admin-section" id="sec-testimonials">
-        <h2>Testimonials</h2>
+        <div class="admin-section-header">
+          <h2 data-i18n="admin_testimonials">Testimonials</h2>
+          <button class="btn btn-primary btn-sm" id="addTestimonialBtn" data-i18n="admin_add_testimonial">+ Add Review</button>
+        </div>
         <div id="testimonialsAdminList"></div>
       </section>
 
@@ -188,6 +245,7 @@
 
   <script src="../js/store.js"></script>
   <script src="../js/i18n.js"></script>
+  <script src="../js/theme.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/admin.js"></script>
 </body>

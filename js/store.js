@@ -2,12 +2,21 @@
  * LUMIÈRE — Central data store (localStorage)
  */
 const LumiereStore = (() => {
-  const KEY = 'kwanzou_store_v8';
+  const KEY = 'kwanzou_store_v9';
 
   const defaults = {
     settings: {
       brandName: 'Kwanzou EG',
       logo: 'assets/logo.png',
+      theme: {
+        primary: '#2C2420',
+        accent: '#C9A962',
+        accentLight: '#D4BC7A',
+        accentDark: '#A8893E',
+        background: '#FAF8F5',
+        cream: '#F5F0EB',
+        textSecondary: '#6B5E54'
+      },
       tagline: 'Kwanzou EG — Made to complete your elegance',
       taglineAr: 'Kwanzou EG — إكسسوارات ودهب على ذوقك',
       taglineEn: 'Kwanzou EG — Made to complete your elegance',
@@ -64,25 +73,15 @@ const LumiereStore = (() => {
   }
 
   function mergeDefaults(data) {
-    const merged = clone(defaults);
-    if (!data || typeof data !== 'object') return merged;
-
-    merged.settings = { ...merged.settings, ...(data.settings || {}) };
-    merged.settings.tagline = defaults.settings.tagline;
-    merged.settings.taglineAr = defaults.settings.taglineAr;
-    merged.settings.taglineEn = defaults.settings.taglineEn;
-    merged.settings.subtitle = defaults.settings.subtitle;
-    merged.settings.subtitleAr = defaults.settings.subtitleAr;
-    merged.settings.subtitleEn = defaults.settings.subtitleEn;
-    merged.settings.announcementAr = defaults.settings.announcementAr;
-    merged.settings.heroImage = defaults.settings.heroImage;
-    merged.settings.heroAccent1 = defaults.settings.heroAccent1;
-    merged.settings.heroAccent2 = defaults.settings.heroAccent2;
-    merged.categories = clone(defaults.categories);
-    merged.products = clone(defaults.products);
-    merged.collections = clone(defaults.collections);
-    merged.testimonials = clone(defaults.testimonials);
-    merged.users = (data.users && data.users.length) ? data.users : merged.users;
+    if (!data || typeof data !== 'object') return clone(defaults);
+    const merged = clone(data);
+    merged.settings = { ...defaults.settings, ...(data.settings || {}) };
+    merged.settings.theme = { ...defaults.settings.theme, ...(data.settings?.theme || {}) };
+    merged.categories = data.categories?.length ? data.categories : clone(defaults.categories);
+    merged.products = data.products?.length ? data.products : clone(defaults.products);
+    merged.collections = data.collections?.length ? data.collections : clone(defaults.collections);
+    merged.testimonials = data.testimonials?.length ? data.testimonials : clone(defaults.testimonials);
+    merged.users = data.users?.length ? data.users : clone(defaults.users);
     merged.newsletter = data.newsletter || [];
     merged.orders = Array.isArray(data.orders) ? data.orders : [];
     merged.cart = data.cart || {};
@@ -241,10 +240,30 @@ const LumiereStore = (() => {
     });
   }
 
+  function addCollection(col) {
+    return update(data => {
+      col.id = 'col-' + Date.now();
+      data.collections.push(col);
+    });
+  }
+
   function updateCollection(id, patch) {
     return update(data => {
       const idx = data.collections.findIndex(c => c.id === id);
       if (idx !== -1) Object.assign(data.collections[idx], patch);
+    });
+  }
+
+  function deleteCollection(id) {
+    return update(data => {
+      data.collections = data.collections.filter(c => c.id !== id);
+    });
+  }
+
+  function addTestimonial(t) {
+    return update(data => {
+      t.id = 't-' + Date.now();
+      data.testimonials.push(t);
     });
   }
 
@@ -255,9 +274,32 @@ const LumiereStore = (() => {
     });
   }
 
+  function deleteTestimonial(id) {
+    return update(data => {
+      data.testimonials = data.testimonials.filter(t => t.id !== id);
+    });
+  }
+
   function addNewsletter(email) {
     return update(data => {
       if (!data.newsletter.includes(email)) data.newsletter.push(email);
+    });
+  }
+
+  function deleteNewsletter(email) {
+    return update(data => {
+      data.newsletter = data.newsletter.filter(e => e !== email);
+    });
+  }
+
+  function deleteOrder(orderId) {
+    return update(data => {
+      const order = data.orders.find(o => o.id === orderId);
+      data.orders = data.orders.filter(o => o.id !== orderId);
+      if (order?.userId) {
+        const user = data.users.find(u => u.id === order.userId);
+        if (user?.orders) user.orders = user.orders.filter(o => o.id !== orderId);
+      }
     });
   }
 
@@ -312,8 +354,10 @@ const LumiereStore = (() => {
     findUser, findUserById, addUser, updateUser, deleteUser,
     addProduct, updateProduct, deleteProduct,
     updateSettings, addCategory, updateCategory, deleteCategory,
-    updateCollection, updateTestimonial, addNewsletter,
-    placeOrder, getAllOrders, updateOrderStatus
+    addCollection, updateCollection, deleteCollection,
+    addTestimonial, updateTestimonial, deleteTestimonial,
+    addNewsletter, deleteNewsletter,
+    placeOrder, getAllOrders, updateOrderStatus, deleteOrder
   };
 })();
 

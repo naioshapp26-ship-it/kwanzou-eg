@@ -18,7 +18,13 @@ function renderHomepage() {
 
     const { settings, categories, products, testimonials } = data;
     const sortedCats = sortedCategories(categories);
-    const heroDefaults = LumiereStore.defaults?.settings || {};
+    const lang = LumiereI18n.getLang();
+    const heroTagline = lang === 'ar'
+      ? (settings.taglineAr || LumiereI18n.t('hero_tagline'))
+      : (settings.taglineEn || settings.tagline || LumiereI18n.t('hero_tagline'));
+    const heroSub = lang === 'ar'
+      ? (settings.subtitleAr || LumiereI18n.t('hero_subtitle'))
+      : (settings.subtitleEn || settings.subtitle || LumiereI18n.t('hero_subtitle'));
 
     const heroTitle = document.getElementById('heroTitle');
     const heroSubtitle = document.getElementById('heroSubtitle');
@@ -26,13 +32,13 @@ function renderHomepage() {
     const heroAccent1 = document.getElementById('heroAccent1');
     const heroAccent2 = document.getElementById('heroAccent2');
 
-    if (heroImage) heroImage.src = heroDefaults.heroImage || HERO_FALLBACK.bg;
-    if (heroAccent1) heroAccent1.src = heroDefaults.heroAccent1 || HERO_FALLBACK.a1;
-    if (heroAccent2) heroAccent2.src = heroDefaults.heroAccent2 || HERO_FALLBACK.a2;
+    if (heroImage) heroImage.src = settings.heroImage || HERO_FALLBACK.bg;
+    if (heroAccent1) heroAccent1.src = settings.heroAccent1 || HERO_FALLBACK.a1;
+    if (heroAccent2) heroAccent2.src = settings.heroAccent2 || HERO_FALLBACK.a2;
     if (heroTitle) {
-      heroTitle.innerHTML = `<span class="hero-title__brand">Kwanzou EG</span><em class="hero-title__tagline">${LumiereI18n.t('hero_tagline')}</em>`;
+      heroTitle.innerHTML = `<span class="hero-title__brand">${settings.brandName || 'Kwanzou EG'}</span><em class="hero-title__tagline">${heroTagline}</em>`;
     }
-    if (heroSubtitle) heroSubtitle.textContent = LumiereI18n.t('hero_subtitle');
+    if (heroSubtitle) heroSubtitle.textContent = heroSub;
 
     const catGrid = document.getElementById('categoriesGrid');
     if (catGrid && sortedCats.length) {

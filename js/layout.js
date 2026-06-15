@@ -6,7 +6,9 @@ const LumiereLayout = (() => {
   const base = isAdmin ? '../' : '';
 
   function logoPath(settings) {
-    return `${base}${settings?.logo || 'assets/logo.png'}`;
+    const logo = settings?.logo || 'assets/logo.png';
+    if (logo.startsWith('data:') || logo.startsWith('http://') || logo.startsWith('https://')) return logo;
+    return `${base}${logo}`;
   }
 
   function sortedCategories(categories) {
@@ -117,6 +119,9 @@ const LumiereLayout = (() => {
   }
 
   function init(active = '') {
+    try {
+      LumiereTheme.apply(LumiereStore.get().settings);
+    } catch (_) {}
     const headerEl = document.getElementById('site-header');
     const footerEl = document.getElementById('site-footer');
     try {

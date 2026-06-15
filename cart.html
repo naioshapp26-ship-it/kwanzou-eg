@@ -40,6 +40,76 @@
       setTimeout(() => t.classList.remove('show'), 3500);
     }
 
+    function markFieldError(input, msgKey) {
+      const group = input.closest('.form-group');
+      if (!group) return;
+      group.classList.add('field-error');
+      input.classList.add('input-error');
+      const msg = group.querySelector('.field-error-msg');
+      if (msg) msg.textContent = LumiereI18n.t(msgKey);
+    }
+
+    function clearFieldErrors(form) {
+      form.querySelectorAll('.form-group').forEach(g => g.classList.remove('field-error'));
+      form.querySelectorAll('input').forEach(i => i.classList.remove('input-error'));
+    }
+
+    function validateCheckoutForm(form) {
+      clearFieldErrors(form);
+      const nameInput = form.querySelector('[name="name"]');
+      const phoneInput = form.querySelector('[name="phone"]');
+      let valid = true;
+      let firstInvalid = null;
+
+      if (!nameInput.value.trim()) {
+        markFieldError(nameInput, 'checkout_name_required');
+        valid = false;
+        firstInvalid = nameInput;
+      }
+      if (!phoneInput.value.trim()) {
+        markFieldError(phoneInput, 'checkout_phone_required');
+        valid = false;
+        firstInvalid = firstInvalid || phoneInput;
+      }
+
+      if (!valid) {
+        firstInvalid?.focus();
+        showToast(LumiereI18n.t('checkout_error'));
+      }
+      return valid;
+    }
+
+    function showOrderConfirmation(order, orderItems) {
+      const el = document.getElementById('cartContent');
+      const sym = LumiereStore.get().settings.currencySymbol || 'ج.م';
+      const session = LumiereAuth.getSession();
+      const itemsHtml = orderItems.map(i =>
+        `<li>${i.name} × ${i.qty} — ${(i.price * i.qty).toLocaleString()} ${sym}</li>`
+      ).join('');
+
+      el.innerHTML = `
+        <div class="order-success">
+          <div class="order-success__icon">✓</div>
+          <h2>${LumiereI18n.t('checkout_success_title')}</h2>
+          <p>${LumiereI18n.t('checkout_success_desc')}</p>
+          <div class="order-success__card">
+            <p><strong>${LumiereI18n.t('checkout_order_id')}:</strong> ${order.id}</p>
+            <p><strong>${LumiereI18n.t('checkout_name')}:</strong> ${order.customerName}</p>
+            <p><strong>${LumiereI18n.t('checkout_phone')}:</strong> ${order.customerPhone}</p>
+            <p><strong>${LumiereI18n.t('cart_total')}:</strong> ${order.total?.toLocaleString()} ${sym}</p>
+            <div class="order-success__items">
+              <strong>${LumiereI18n.t('checkout_items')}:</strong>
+              <ul>${itemsHtml}</ul>
+            </div>
+          </div>
+          <div class="order-success__actions">
+            ${session ? `<a href="account.html" class="btn btn-primary">${LumiereI18n.t('checkout_view_orders')}</a>` : ''}
+            <a href="shop.html" class="btn btn-outline">${LumiereI18n.t('checkout_back_shop')}</a>
+          </div>
+        </div>`;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
     function renderCart() {
       const el = document.getElementById('cartContent');
       const items = KwanzouCart.get();
@@ -73,41 +143,51 @@
             <div class="cart-summary">
               <strong>${LumiereI18n.t('cart_total')}: ${KwanzouCart.formatPrice(total)}</strong>
             </div>
-            <form class="checkout-form" id="checkoutForm">
+            <form class="checkout-form" id="checkoutForm" novalidate>
               <h2>${LumiereI18n.t('checkout_title')}</h2>
+              <p class="checkout-form__hint">${LumiereI18n.t('checkout_required_hint')}</p>
               <div class="form-group">
-                <label>${LumiereI18n.t('checkout_name')}</label>
-                <input type="text" name="name" required value="${session?.name || ''}">
+                <label>${LumiereI18n.t('checkout_name')} <span class="required">*</span></label>
+                <input type="text" name="name" autocomplete="name" value="${session?.name || ''}">
+                <span class="field-error-msg"></span>
               </div>
               <div class="form-group">
-                <label>${LumiereI18n.t('checkout_phone')}</label>
-                <input type="tel" name="phone" required value="${session?.phone || ''}">
+                <label>${LumiereI18n.t('checkout_phone')} <span class="required">*</span></label>
+                <input type="tel" name="phone" autocomplete="tel" inputmode="tel" placeholder="01xxxxxxxxx" value="${session?.phone || ''}">
+                <span class="field-error-msg"></span>
               </div>
               <div class="form-group">
                 <label>${LumiereI18n.t('checkout_email')}</label>
-                <input type="email" name="email" value="${session?.email || ''}">
+                <input type="email" name="email" autocomplete="email" value="${session?.email || ''}">
               </div>
               <button type="submit" class="btn btn-primary btn-full">${LumiereI18n.t('checkout_submit')}</button>
             </form>
           </div>
         </div>`;
 
-      document.getElementById('checkoutForm').onsubmit = async e => {
+      const form = document.getElementById('checkoutForm');
+      form.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', () => {
+          input.classList.remove('input-error');
+          input.closest('.form-group')?.classList.remove('field-error');
+        });
+      });
+
+      form.onsubmit = async e => {
         e.preventDefault();
-        const fd = new FormData(e.target);
+        if (!validateCheckoutForm(form)) return;
+
+        const fd = new FormData(form);
         const name = (fd.get('name') || '').trim();
         const phone = (fd.get('phone') || '').trim();
         const email = (fd.get('email') || '').trim();
-        if (!name || !phone) {
-          showToast(LumiereI18n.t('checkout_error'));
-          return;
-        }
         const orderItems = items.map(item => {
           const p = products.find(x => x.id === item.id);
           return { id: item.id, name: LumiereI18n.localized(p, 'name') || p?.name, qty: item.qty, price: p?.price || 0 };
         }).filter(i => i.name);
+
         await LumiereStore.init();
-        LumiereStore.placeOrder({
+        const order = LumiereStore.placeOrder({
           customerName: name,
           customerEmail: email,
           customerPhone: phone,
@@ -115,9 +195,10 @@
           total,
           userId: session?.id || null
         });
+
         items.forEach(i => KwanzouCart.remove(i.id));
-        showToast(LumiereI18n.t('checkout_success'));
-        setTimeout(() => { window.location.href = session ? 'account.html' : 'shop.html'; }, 1500);
+        KwanzouCart.updateUI();
+        showOrderConfirmation(order, orderItems);
       };
     }
   </script>

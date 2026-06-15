@@ -2,9 +2,9 @@
  * Homepage dynamic rendering — with safe fallbacks
  */
 const HERO_FALLBACK = {
-  bg: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=1920&q=85',
-  a1: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=650&q=80',
-  a2: 'https://images.unsplash.com/photo-1596462502278-27bfdd403348?w=650&q=80'
+  bg: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1920&q=85',
+  a1: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=650&q=80',
+  a2: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=650&q=80'
 };
 
 function sortedCategories(categories) {
@@ -19,7 +19,7 @@ function renderHomepage() {
     const { settings, categories, products, testimonials } = data;
     const sortedCats = sortedCategories(categories);
 
-    const tagline = LumiereI18n.localizedSettings(settings, 'tagline') || settings.taglineAr || 'Kwanzou EG — استالس، شنط، ميكب وبرفانات';
+    const tagline = LumiereI18n.localizedSettings(settings, 'tagline') || settings.taglineAr || 'Kwanzou EG — إكسسوارات ودهب على ذوقك';
     const parts = tagline.includes('،') ? tagline.split('، ') : tagline.split(' — ');
     const heroTitle = document.getElementById('heroTitle');
     const heroSubtitle = document.getElementById('heroSubtitle');
@@ -32,7 +32,7 @@ function renderHomepage() {
     if (heroAccent2) heroAccent2.src = settings.heroAccent2 || HERO_FALLBACK.a2;
     if (heroTitle) {
       const line1 = (parts[0] || 'Kwanzou EG').trim();
-      const line2 = (parts[1] || 'استالس، شنط، ميكب وبرفانات').trim();
+      const line2 = (parts[1] || 'إكسسوارات ودهب على ذوقك').trim();
       heroTitle.innerHTML = `<span class="hero-title__brand">${line1}</span><em class="hero-title__tagline">${line2}</em>`;
     }
     if (heroSubtitle) heroSubtitle.textContent = LumiereI18n.localizedSettings(settings, 'subtitle') || settings.subtitleAr || '';

@@ -72,7 +72,7 @@ const LumiereI18n = (() => {
       hero_eyebrow: 'القاهرة · الإسكندرية · الجيزة',
       hero_badge: '✦ شحن مجاني للطلبات +1,500 ج.م',
       hero_cta_shop: 'تسوق دلوقتي',
-      hero_cta_explore: 'شوف الاستالس',
+      hero_cta_explore: 'شوف الدهب',
       hero_scroll: 'انزل',
       quick_accessories: 'استالس',
       quick_handbags: 'شنط',

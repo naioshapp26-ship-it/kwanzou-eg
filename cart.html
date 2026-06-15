@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cart | Kwanzou EG</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/shop.css">
+</head>
+<body data-page-title="cart_title">
+  <div id="site-header"></div>
+  <main class="cart-page">
+    <div class="container">
+      <h1 data-i18n="cart_title">Shopping Bag</h1>
+      <div id="cartContent"></div>
+    </div>
+  </main>
+  <div id="site-footer"></div>
+  <script src="js/store.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/layout.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      LumiereI18n.init();
+      await LumiereStore.init();
+      LumiereLayout.init('shop');
+      renderCart();
+      window.addEventListener('lumiere:langchange', () => { LumiereI18n.applyTranslations(); LumiereLayout.init('shop'); renderCart(); });
+    });
+    function renderCart() {
+      const el = document.getElementById('cartContent');
+      const items = KwanzouCart.get();
+      const products = LumiereStore.get().products;
+      if (!items.length) {
+        el.innerHTML = `<div class="cart-empty"><p data-i18n="cart_empty">${LumiereI18n.t('cart_empty')}</p><a href="shop.html" class="btn btn-primary">${LumiereI18n.t('shop_all')}</a></div>`;
+        return;
+      }
+      let total = 0;
+      const rows = items.map(item => {
+        const p = products.find(x => x.id === item.id);
+        if (!p) return '';
+        const sub = p.price * item.qty;
+        total += sub;
+        const name = LumiereI18n.localized(p, 'name') || p.name;
+        return `<div class="cart-item">
+          <a href="product.html?id=${p.id}"><img src="${p.image}" alt=""></a>
+          <div class="cart-item__info"><a href="product.html?id=${p.id}"><strong>${name}</strong></a><span>${KwanzouCart.formatPrice(p.price)} × ${item.qty}</span></div>
+          <div class="cart-item__total">${KwanzouCart.formatPrice(sub)}</div>
+          <button class="cart-item__remove" onclick="KwanzouCart.remove('${p.id}');renderCart()">✕</button>
+        </div>`;
+      }).join('');
+      el.innerHTML = `${rows}<div class="cart-summary"><strong>${LumiereI18n.t('cart_total')}: ${KwanzouCart.formatPrice(total)}</strong><button class="btn btn-primary btn-full">${LumiereI18n.t('checkout')}</button></div>`;
+    }
+  </script>
+</body>
+</html>

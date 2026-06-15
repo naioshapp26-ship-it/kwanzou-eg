@@ -1,0 +1,13 @@
+{
+  "name": "kwanzou-eg",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Kwanzou EG — luxury jewelry & accessories store",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account | LUMIÈRE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/auth.css">
+</head>
+<body class="auth-page" data-page-title="register_title">
+  <div class="auth-lang"><button type="button" class="lang-switch" id="langSwitch">English</button></div>
+  <div class="auth-split">
+    <div class="auth-visual">
+      <img src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=1200&q=80" alt="">
+      <div class="auth-visual__overlay">
+        <a href="index.html" class="logo-link-auth"><img src="assets/logo.png" alt="Kwanzou EG" class="auth-logo"></a>
+        <p data-i18n="register_visual">Join LUMIÈRE.</p>
+      </div>
+    </div>
+    <div class="auth-form-panel">
+      <a href="index.html" class="auth-back" data-i18n="login_back">← Back</a>
+      <div class="auth-form-wrap">
+        <h1 data-i18n="register_heading">Create Account</h1>
+        <p class="auth-sub" data-i18n="register_sub">Register for orders and wishlist.</p>
+        <div class="auth-alert" id="authError" hidden></div>
+        <form id="registerForm" class="auth-form">
+          <div class="form-group">
+            <label for="name" data-i18n="register_name">Full Name</label>
+            <input type="text" id="name" required>
+          </div>
+          <div class="form-group">
+            <label for="email" data-i18n="login_email">Email</label>
+            <input type="email" id="email" required>
+          </div>
+          <div class="form-group">
+            <label for="phone" data-i18n="register_phone">Phone</label>
+            <input type="tel" id="phone">
+          </div>
+          <div class="form-group">
+            <label for="password" data-i18n="login_password">Password</label>
+            <input type="password" id="password" required minlength="6">
+          </div>
+          <button type="submit" class="btn btn-primary btn-full" data-i18n="register_submit">Create Account</button>
+        </form>
+        <p class="auth-switch"><span data-i18n="register_have">Have account?</span> <a href="login.html" data-i18n="register_signin">Sign In</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/store.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    LumiereI18n.init();
+    LumiereI18n.bindLangSwitch();
+    window.addEventListener('lumiere:langchange', () => LumiereI18n.applyTranslations());
+
+    document.getElementById('registerForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const result = LumiereAuth.register({
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        password: document.getElementById('password').value
+      });
+      const errEl = document.getElementById('authError');
+      if (!result.ok) {
+        errEl.textContent = LumiereI18n.t(result.error);
+        errEl.hidden = false;
+        return;
+      }
+      window.location.href = 'account.html';
+    });
+  </script>
+</body>
+</html>

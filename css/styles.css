@@ -1675,8 +1675,14 @@ html[dir="rtl"] body {
 
 html[dir="rtl"] .hero-title,
 html[dir="rtl"] .section-title,
-html[dir="rtl"] .logo {
+html[dir="rtl"] .logo,
+html[dir="rtl"] .category-card h3,
+html[dir="rtl"] .header-cat,
+html[dir="rtl"] .product-name,
+html[dir="rtl"] .shop-header h1,
+html[dir="rtl"] .collection-banner h3 {
   font-family: 'Cairo', var(--font-display);
+  font-weight: 600;
 }
 
 html[dir="rtl"] .hero-content {

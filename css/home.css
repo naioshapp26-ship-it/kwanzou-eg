@@ -110,8 +110,9 @@ html[dir="rtl"] .hero--premium .hero-title {
 }
 
 html[dir="rtl"] .hero--premium .hero-title__brand {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  letter-spacing: 0.1em;
+  font-family: 'Cairo', sans-serif;
+  letter-spacing: 0;
+  font-weight: 700;
 }
 
 html[dir="ltr"] .hero--premium .hero-title__tagline {

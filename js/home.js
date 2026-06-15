@@ -14,7 +14,7 @@ function renderHomepage() {
 
     const { settings, categories, products, collections, testimonials } = data;
 
-    const tagline = LumiereI18n.localizedSettings(settings, 'tagline') || settings.taglineAr || 'Kwanzou EG، صُنعت لتُكمّل أناقتك';
+    const tagline = LumiereI18n.localizedSettings(settings, 'tagline') || settings.taglineAr || 'Kwanzou EG — إكسسوارات ودهب على ذوقك';
     const parts = tagline.includes('،') ? tagline.split('، ') : tagline.split(' — ');
     const heroTitle = document.getElementById('heroTitle');
     const heroSubtitle = document.getElementById('heroSubtitle');
@@ -27,7 +27,7 @@ function renderHomepage() {
     if (heroAccent2) heroAccent2.src = settings.heroAccent2 || HERO_FALLBACK.a2;
     if (heroTitle) {
       const line1 = (parts[0] || 'Kwanzou EG').trim();
-      const line2 = (parts[1] || 'صُنعت لتُكمّل أناقتك').trim();
+      const line2 = (parts[1] || 'إكسسوارات ودهب على ذوقك').trim();
       heroTitle.innerHTML = `<span class="hero-title__brand">${line1}</span><em class="hero-title__tagline">${line2}</em>`;
     }
     if (heroSubtitle) heroSubtitle.textContent = LumiereI18n.localizedSettings(settings, 'subtitle') || settings.subtitleAr || '';

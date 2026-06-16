@@ -45,9 +45,11 @@ const LumiereLayout = (() => {
       { ar: 'طبقات', en: 'Layered Necklaces', query: 'layer' }
     ],
     earrings: [
-      { ar: 'حلق صغير', en: 'Stud Earrings', query: 'stud' },
-      { ar: 'حلق طويل', en: 'Drop Earrings', query: 'drop' },
-      { ar: 'حلق كاجوال', en: 'Daily Earrings', query: 'earring' }
+      { ar: 'حلقان مجموعة', en: 'Earrings Set', query: 'set' },
+      { ar: 'حلقان زيركون', en: 'Zircon Earrings', query: 'zircon' },
+      { ar: 'حلقان صيفي', en: 'Summer Earrings', query: 'summer' },
+      { ar: 'حلقان كوري', en: 'Korean Earrings', query: 'korean' },
+      { ar: 'حلقان سواريه', en: 'Evening Earrings', query: 'evening' }
     ],
     bracelets: [
       { ar: 'أساور ناعمة', en: 'Minimal Bracelets', query: 'bracelet' },
@@ -158,6 +160,97 @@ const LumiereLayout = (() => {
       </ul>`;
   }
 
+  function shopHref(cat = '', query = '', href = '') {
+    if (href) return href.startsWith('http') || href.startsWith('tel:') || href.startsWith('mailto:')
+      ? href
+      : `${base}${href.replace(/^\//, '')}`;
+    const params = new URLSearchParams();
+    if (cat) params.set('cat', cat);
+    if (query) params.set('q', query);
+    const qs = params.toString();
+    return `${base}shop.html${qs ? `?${qs}` : ''}`;
+  }
+
+  function menuText(item) {
+    if (item.i18n) return LumiereI18n.t(item.i18n);
+    return LumiereI18n.getLang() === 'ar' ? item.ar : item.en;
+  }
+
+  function resolveMobileSubs(item, products, categories) {
+    if (item.subs) return item.subs;
+    if (!item.slug) return [];
+    const category = categories.find(c => c.slug === item.slug) || { slug: item.slug };
+    return buildSubcategories(category, products).map(sub => ({
+      ar: sub.ar,
+      en: sub.en,
+      cat: item.cat || item.slug,
+      query: sub.query
+    }));
+  }
+
+  function renderMobileSubLink(sub) {
+    const label = menuText(sub);
+    const href = shopHref(sub.cat || sub.slug || '', sub.query || '', sub.href || '');
+    return `<a class="mobile-menu__sub-link" href="${href}">${label}</a>`;
+  }
+
+  function renderMobileSideMenu(products, categories) {
+    const catalog = [
+      { type: 'link', href: `${base}index.html`, i18n: 'nav_home' },
+      { type: 'link', href: shopHref('', 'sale'), ar: 'UP TO 50%', en: 'UP TO 50%' },
+      { type: 'expandable', slug: 'necklaces', ar: 'سلاسل', en: 'Necklaces' },
+      { type: 'expandable', slug: 'bracelets', ar: 'أساور', en: 'Bracelets' },
+      {
+        type: 'expandable',
+        cat: 'accessories',
+        ar: 'حلقان',
+        en: 'Earrings',
+        subs: SUBCATEGORY_HINTS.earrings
+      },
+      { type: 'link', cat: 'accessories', query: 'anklet', ar: 'خلخال', en: 'Anklet' },
+      { type: 'expandable', slug: 'rings', ar: 'خواتم', en: 'Rings' },
+      { type: 'link', cat: 'accessories', query: 'piercing', ar: 'بيرسينج', en: 'Piercing' },
+      { type: 'link', cat: 'accessories', query: 'gift', ar: 'هدايا', en: 'Gifts' },
+      { type: 'link', cat: 'accessories', query: 'kids', ar: 'أطفال', en: 'Children' },
+      {
+        type: 'expandable',
+        ar: 'منتجات أخرى',
+        en: 'Other Products',
+        subs: [
+          { ar: 'برفانات', en: 'Perfumes', cat: 'perfumes' },
+          { ar: 'شنط', en: 'Bags', cat: 'handbags' }
+        ]
+      },
+      {
+        type: 'expandable',
+        i18n: 'footer_about_title',
+        subs: [
+          { i18n: 'footer_customer_service', href: 'account.html' },
+          { i18n: 'bs_title', href: 'shop.html?sort=bestseller' },
+          { i18n: 'footer_contact_us', href: FOOTER_PHONE_HREF }
+        ]
+      }
+    ];
+
+    return catalog.map(item => {
+      if (item.type === 'link') {
+        const href = item.href || shopHref(item.cat || '', item.query || '');
+        return `<a class="mobile-menu__row mobile-menu__row--link" href="${href}">${menuText(item)}</a>`;
+      }
+
+      const subs = resolveMobileSubs(item, products, categories);
+      const subHtml = subs.map(renderMobileSubLink).join('');
+      return `
+        <div class="mobile-menu__group">
+          <button type="button" class="mobile-menu__row mobile-menu__row--toggle" aria-expanded="false">
+            <span class="mobile-menu__label">${menuText(item)}</span>
+            <span class="mobile-menu__icon" aria-hidden="true">+</span>
+          </button>
+          <div class="mobile-menu__subpanel">${subHtml}</div>
+        </div>`;
+    }).join('');
+  }
+
   function inferBottomActive(active, categories) {
     const path = window.location.pathname.toLowerCase();
     const file = path.split('/').pop() || 'index.html';
@@ -188,10 +281,7 @@ const LumiereLayout = (() => {
     const announcement = LumiereI18n.localizedSettings(settings, 'announcement');
     const logo = logoPath(settings);
 
-    const mobileCatLinks = categories.map(cat => {
-      const label = LumiereI18n.translateCategory(cat);
-      return `<li><a href="${base}shop.html?cat=${cat.slug}">${label}</a></li>`;
-    }).join('');
+    const mobileSideMenu = renderMobileSideMenu(products, categories);
 
     const categoriesActive = active === 'shop' || categories.some(c => c.slug === active) ? ' active' : '';
     const categoryNavItems = categories.map(cat => {
@@ -249,17 +339,10 @@ const LumiereLayout = (() => {
           <input type="search" name="q" placeholder="${LumiereI18n.t('search_placeholder')}">
           <button type="submit">🔍</button>
         </form>
-        <ul class="mobile-menu__links">
-          <li><a href="${base}index.html">${LumiereI18n.t('nav_home')}</a></li>
-        </ul>
-        <div class="mobile-menu__products">
-          <p class="mobile-menu__products-title">${LumiereI18n.t('nav_categories')}</p>
-          <ul class="mobile-menu__products-list">
-            <li><a href="${base}shop.html">${LumiereI18n.t('nav_shop_all')}</a></li>
-            ${mobileCatLinks}
-          </ul>
-        </div>
-        <ul class="mobile-menu__links">
+        <nav class="mobile-menu__catalog" aria-label="${LumiereI18n.t('nav_categories')}">
+          ${mobileSideMenu}
+        </nav>
+        <ul class="mobile-menu__links mobile-menu__links--compact">
           <li><a href="${accountLink}">${session ? LumiereI18n.t('nav_account') : LumiereI18n.t('nav_signin')}</a></li>
           <li><a href="${base}cart.html">${LumiereI18n.t('nav_bag')}</a></li>
           <li><button type="button" class="lang-switch mobile-lang">${LumiereI18n.t('lang_switch')}</button></li>
@@ -403,6 +486,7 @@ const LumiereLayout = (() => {
     LumiereI18n.bindLangSwitch(headerEl || document);
     LumiereI18n.bindLangSwitch(document.getElementById('mobileMenu') || document);
     initMobileMenu();
+    initMobileMenuAccordions();
     initCategoriesDropdown();
     initHeaderScroll();
   }
@@ -480,6 +564,20 @@ const LumiereLayout = (() => {
       menu?.classList.remove('active');
       document.body.style.overflow = '';
     }));
+  }
+
+  function initMobileMenuAccordions() {
+    const menu = document.getElementById('mobileMenu');
+    menu?.querySelectorAll('.mobile-menu__row--toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const group = btn.closest('.mobile-menu__group');
+        if (!group) return;
+        const isOpen = group.classList.toggle('open');
+        btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        const icon = btn.querySelector('.mobile-menu__icon');
+        if (icon) icon.textContent = isOpen ? '−' : '+';
+      });
+    });
   }
 
   function initHeaderScroll() {

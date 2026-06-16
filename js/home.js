@@ -12,19 +12,12 @@ function renderHomepage() {
 
     const { products, categories } = data;
     const allProducts = products || [];
-    const mid = Math.ceil(allProducts.length / 2);
-    const firstHalf = allProducts.slice(0, mid);
-    const secondHalf = allProducts.slice(mid);
 
     const catalogProducts = document.getElementById('catalogProducts');
-    const catalogProductsMore = document.getElementById('catalogProductsMore');
     const categoryCloud = document.getElementById('categoryCloud');
 
     if (catalogProducts) {
-      catalogProducts.innerHTML = firstHalf.map(p => ProductUI.cardHTML(p)).join('');
-    }
-    if (catalogProductsMore) {
-      catalogProductsMore.innerHTML = secondHalf.map(p => ProductUI.cardHTML(p)).join('');
+      catalogProducts.innerHTML = allProducts.map(p => ProductUI.cardHTML(p)).join('');
     }
     if (categoryCloud) {
       categoryCloud.innerHTML = sortedCategories(categories).map(cat => {

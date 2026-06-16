@@ -69,8 +69,11 @@ const ProductUI = {
     if (p.featured || p.badge === 'Best Seller' || p.badge === 'الأكتر مبيعاً') {
       badges.push(`<span class="wc-badge wc-badge--featured">${LumiereI18n.t('badge_featured')}</span>`);
     }
+    if (p.badge === 'New' || p.badge === 'جديد') {
+      badges.push(`<span class="wc-badge wc-badge--new">${LumiereI18n.t('badge_new')}</span>`);
+    }
     const sale = this.salePrice(p);
-    if (p.onSale || sale || p.badge === 'New' || p.badge === 'جديد') {
+    if (p.onSale || sale) {
       badges.push(`<span class="wc-badge wc-badge--sale">${LumiereI18n.t('badge_sale')}</span>`);
     }
     if (p.limited || p.badge === 'Limited' || p.badge === 'كمية محدودة' || (p.stock != null && p.stock <= 10)) {
@@ -104,7 +107,6 @@ const ProductUI = {
       <div class="wc-product__body">
         <h2 class="wc-product__title"><a href="${url}">${name}</a></h2>
         <span class="wc-product__sku">${LumiereI18n.t('sku_label')}: ${sku}</span>
-        ${p.rating ? `<span class="wc-product__rating">${stars}</span>` : ''}
         <div class="wc-product__footer">
           <span class="wc-product__price">${this.priceHTML(p)}</span>
           <button type="button" class="wc-product__cart btn-add-cart" data-id="${p.id}">${LumiereI18n.t('add_cart')}</button>

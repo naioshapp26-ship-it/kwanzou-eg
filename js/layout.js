@@ -15,6 +15,129 @@ const LumiereLayout = (() => {
     return [...categories].sort((a, b) => (a.sort ?? 99) - (b.sort ?? 99));
   }
 
+  const SUBCATEGORY_HINTS = {
+    accessories: [
+      { ar: 'إكسسوارات يومية', en: 'Daily Accessories', query: 'daily' },
+      { ar: 'قطع ترند', en: 'Trending Pieces', query: 'trend' },
+      { ar: 'هدايا بنات', en: 'Gift Picks', query: 'gift' }
+    ],
+    handbags: [
+      { ar: 'شنط كروس', en: 'Crossbody Bags', query: 'crossbody' },
+      { ar: 'شنط ميني', en: 'Mini Bags', query: 'mini bag' },
+      { ar: 'شنط كبيرة', en: 'Tote Bags', query: 'tote' }
+    ],
+    perfumes: [
+      { ar: 'برفانات يومية', en: 'Daily Perfumes', query: 'daily perfume' },
+      { ar: 'روائح مسائية', en: 'Evening Scents', query: 'oud' },
+      { ar: 'هدايا عطور', en: 'Perfume Gifts', query: 'gift set' }
+    ],
+    necklaces: [
+      { ar: 'سلاسل ناعمة', en: 'Minimal Chains', query: 'chain' },
+      { ar: 'دلايات', en: 'Pendant Necklaces', query: 'pendant' },
+      { ar: 'طبقات', en: 'Layered Necklaces', query: 'layer' }
+    ],
+    earrings: [
+      { ar: 'حلق صغير', en: 'Stud Earrings', query: 'stud' },
+      { ar: 'حلق طويل', en: 'Drop Earrings', query: 'drop' },
+      { ar: 'حلق كاجوال', en: 'Daily Earrings', query: 'earring' }
+    ],
+    bracelets: [
+      { ar: 'أساور ناعمة', en: 'Minimal Bracelets', query: 'bracelet' },
+      { ar: 'أساور ستايل', en: 'Statement Bracelets', query: 'cuff' },
+      { ar: 'أطقم أساور', en: 'Stack Sets', query: 'stack' }
+    ],
+    rings: [
+      { ar: 'خواتم يومية', en: 'Daily Rings', query: 'ring' },
+      { ar: 'خواتم ترند', en: 'Statement Rings', query: 'statement ring' },
+      { ar: 'خواتم ستاك', en: 'Stackable Rings', query: 'stack' }
+    ],
+    watches: [
+      { ar: 'ساعات كلاسيك', en: 'Classic Watches', query: 'classic' },
+      { ar: 'ساعات ستايل', en: 'Fashion Watches', query: 'watch' },
+      { ar: 'هدايا ساعات', en: 'Watch Gifts', query: 'gift watch' }
+    ],
+    sunglasses: [
+      { ar: 'نظارات كلاسيك', en: 'Classic Glasses', query: 'classic' },
+      { ar: 'نظارات كاجوال', en: 'Daily Glasses', query: 'glasses' },
+      { ar: 'نظارات صيفي', en: 'Summer Styles', query: 'summer' }
+    ],
+    scarves: [
+      { ar: 'طرح قطن', en: 'Cotton Scarves', query: 'cotton' },
+      { ar: 'طرح شيفون', en: 'Chiffon Scarves', query: 'chiffon' },
+      { ar: 'ألوان محايدة', en: 'Neutral Tones', query: 'neutral' }
+    ],
+    'new-arrivals': [
+      { ar: 'وصل جديد', en: 'Just Dropped', query: 'new' },
+      { ar: 'الأكثر رواجًا', en: 'Trending Now', query: 'trend' },
+      { ar: 'مختارات الأسبوع', en: 'Weekly Picks', query: 'featured' }
+    ]
+  };
+
+  function subcategoryLabel(subcat) {
+    if (typeof subcat === 'string') return subcat;
+    return LumiereI18n.getLang() === 'ar'
+      ? (subcat.ar || subcat.nameAr || subcat.en || subcat.name || '')
+      : (subcat.en || subcat.name || subcat.ar || subcat.nameAr || '');
+  }
+
+  function buildSubcategories(category, products) {
+    const explicit = Array.isArray(category.subcategories) ? category.subcategories : [];
+    const explicitItems = explicit.map(item => {
+      if (typeof item === 'string') return { ar: item, en: item, query: item };
+      return {
+        ar: item.ar || item.nameAr || item.name || item.en,
+        en: item.en || item.name || item.ar || item.nameAr,
+        query: item.query || item.slug || item.en || item.name || item.ar || item.nameAr
+      };
+    });
+
+    if (explicitItems.length) return explicitItems;
+
+    const hints = SUBCATEGORY_HINTS[category.slug] || [
+      { ar: 'الأكثر طلبًا', en: 'Most Popular', query: 'popular' },
+      { ar: 'وصل جديد', en: 'New In', query: 'new' },
+      { ar: 'مختارات مميزة', en: 'Featured Picks', query: 'featured' }
+    ];
+
+    const fromProducts = (products || [])
+      .filter(p => p.categorySlug === category.slug)
+      .slice(0, 3)
+      .map(p => ({
+        ar: p.nameAr || p.name,
+        en: p.name || p.nameAr,
+        query: p.name || p.nameAr
+      }));
+
+    const merged = [...hints, ...fromProducts];
+    const seen = new Set();
+    return merged.filter(item => {
+      const key = (item.query || item.en || item.ar || '').toLowerCase();
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    }).slice(0, 6);
+  }
+
+  function renderMegaSubmenu(category, products, base) {
+    const label = LumiereI18n.translateCategory(category);
+    const subs = buildSubcategories(category, products);
+    const items = subs.map(sub => {
+      const subLabel = subcategoryLabel(sub);
+      const query = sub.query || subLabel;
+      return `<li><a href="${base}shop.html?cat=${category.slug}&q=${encodeURIComponent(query)}">${subLabel}</a></li>`;
+    }).join('');
+
+    return `
+      <div class="nav-mega" role="menu" aria-label="${label}">
+        <div class="nav-mega__inner">
+          <h4 class="nav-mega__title">${label}</h4>
+          <ul class="nav-mega__list">
+            ${items}
+          </ul>
+        </div>
+      </div>`;
+  }
+
   function renderCategoryDropdown(categories, base) {
     const listItems = categories.map(cat => {
       const label = LumiereI18n.translateCategory(cat);
@@ -32,6 +155,7 @@ const LumiereLayout = (() => {
     const data = LumiereStore.get();
     const settings = data.settings;
     const categories = sortedCategories(data.categories);
+    const products = data.products || [];
     const accountLink = session
       ? (session.role === 'superadmin' ? `${base}admin/index.html` : `${base}account.html`)
       : `${base}login.html`;
@@ -45,6 +169,15 @@ const LumiereLayout = (() => {
     }).join('');
 
     const categoriesActive = active === 'shop' || categories.some(c => c.slug === active) ? ' active' : '';
+    const categoryNavItems = categories.map(cat => {
+      const label = LumiereI18n.translateCategory(cat);
+      const activeClass = active === cat.slug ? ' active' : '';
+      return `
+        <div class="nav-item nav-item--mega">
+          <a href="${base}shop.html?cat=${cat.slug}" class="header-cat${activeClass}">${label}</a>
+          ${renderMegaSubmenu(cat, products, base)}
+        </div>`;
+    }).join('');
 
     return `
     <div class="announcement-bar"><p>${announcement}</p></div>
@@ -73,6 +206,7 @@ const LumiereLayout = (() => {
       </div>
       <nav class="header-nav container" id="headerNav" aria-label="Main">
         <a href="${base}index.html" class="header-cat${active === 'home' ? ' active' : ''}">${LumiereI18n.t('nav_home')}</a>
+        ${categoryNavItems}
         <div class="nav-dropdown" id="categoriesDropdown">
           <button type="button" class="header-cat nav-dropdown__trigger${categoriesActive}" aria-expanded="false" aria-haspopup="true" aria-controls="categoriesPanel">
             ${LumiereI18n.t('nav_categories')}

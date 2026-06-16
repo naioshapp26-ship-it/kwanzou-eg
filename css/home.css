@@ -1,6 +1,7 @@
 /* Kwanzou EG — Homepage polish */
 
 main { display: block; overflow-x: hidden; }
+.home-main { padding-bottom: 24px; }
 
 /* ===== Premium Hero ===== */
 .hero--premium {
@@ -246,6 +247,53 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 /* Hide old floating products */
 .hero--premium .hero-products { display: none; }
 
+/* ===== Home category tabs (Floukaa-inspired) ===== */
+.home-tabs-wrap {
+  position: sticky;
+  top: 116px;
+  z-index: 120;
+  margin-top: -26px;
+  padding-bottom: 10px;
+}
+
+.home-tabs-scroller {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 10px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(212, 196, 176, 0.48);
+  box-shadow: 0 14px 28px rgba(44, 36, 32, 0.14);
+  backdrop-filter: blur(8px);
+  scrollbar-width: none;
+}
+
+.home-tabs-scroller::-webkit-scrollbar { display: none; }
+
+.home-tab-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border: 1px solid rgba(212, 196, 176, 0.45);
+  background: var(--ivory);
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.home-tab-pill:hover {
+  color: var(--text-primary);
+  background: var(--cream);
+  border-color: rgba(201, 169, 98, 0.65);
+  transform: translateY(-1px);
+}
+
 /* ===== Section rhythm ===== */
 .home-section {
   position: relative;
@@ -358,6 +406,7 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 }
 
 @media (max-width: 992px) {
+  .home-tabs-wrap { top: 72px; margin-top: -16px; }
   .hero__inner {
     grid-template-columns: 1fr;
     text-align: center;
@@ -376,5 +425,7 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 @media (max-width: 576px) {
   .hero--premium { min-height: auto; }
   .hero__visual { height: 260px; }
+  .home-tabs-wrap { top: 62px; }
+  .home-tabs-scroller { border-radius: 16px; }
   .section { padding: 72px 0; }
 }

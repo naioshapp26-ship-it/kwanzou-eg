@@ -12,10 +12,10 @@
   <link rel="stylesheet" href="css/home.css">
   <link rel="stylesheet" href="css/catalog.css">
 </head>
-<body class="catalog-store" data-page-title="meta_title">
+<body data-page-title="meta_title">
   <div id="site-header"></div>
 
-  <main class="catalog-main">
+  <main class="home-main">
     <section class="hero hero--premium">
       <div class="hero-bg">
         <img id="heroImage" class="hero-image" src="" alt="Kwanzou Hero" loading="eager">
@@ -28,7 +28,7 @@
           <p id="heroSubtitle" class="hero-subtitle"></p>
           <div class="hero-actions">
             <a href="shop.html" class="btn btn-primary" data-i18n="hero_cta_shop">تسوق دلوقتي</a>
-            <a id="heroExploreLink" href="shop.html" class="btn btn-outline" data-i18n="hero_cta_explore">شوف الدهب</a>
+            <a id="heroExploreLink" href="shop.html" class="btn btn-outline" data-i18n="hero_cta_explore">شوف الأقسام</a>
           </div>
         </div>
         <div class="hero__visual">
@@ -43,20 +43,100 @@
       </div>
     </section>
 
-    <section class="catalog-banner">
-      <h2 data-i18n="home_collection_title">NEW EXCLUSIVE COLLECTION</h2>
-      <p data-i18n="home_collection_desc">New Exclusive Collection with new designs</p>
-    </section>
-
-    <section class="catalog-section">
+    <section class="home-tabs-wrap" id="homeTabs">
       <div class="container">
-        <ul class="products" id="catalogProducts"></ul>
+        <nav class="home-tabs-scroller" id="categoryTabs" aria-label="Shop categories"></nav>
       </div>
     </section>
 
-    <section class="catalog-section">
+    <section class="new-arrivals section home-section section--cream" id="newArrivals">
       <div class="container">
-        <div class="category-cloud" id="categoryCloud"></div>
+        <div class="section-header section-header--row">
+          <div>
+            <span class="section-eyebrow reveal" data-i18n="na_eyebrow">وصل حديثاً</span>
+            <h2 class="section-title reveal" data-i18n="na_title">جديد عندنا</h2>
+          </div>
+          <a href="shop.html?cat=new-arrivals" class="link-arrow reveal" data-i18n="na_view_all">شوف الجديد ←</a>
+        </div>
+        <ul class="products" id="newArrivalsGrid"></ul>
+      </div>
+    </section>
+
+    <section class="bestsellers section home-section section--ivory" id="bestsellers">
+      <div class="container">
+        <div class="section-header section-header--row">
+          <div>
+            <span class="section-eyebrow reveal" data-i18n="bs_eyebrow">الناس بتحبها</span>
+            <h2 class="section-title reveal" data-i18n="bs_title">الأكتر مبيعاً</h2>
+          </div>
+          <a href="shop.html?sort=bestseller" class="link-arrow reveal" data-i18n="featured_view_all">شوف الكل ←</a>
+        </div>
+        <ul class="products" id="bestsellersGrid"></ul>
+      </div>
+    </section>
+
+    <section class="featured section home-section section--cream" id="featured">
+      <div class="container">
+        <div class="section-header section-header--row">
+          <div>
+            <span class="section-eyebrow reveal" data-i18n="featured_eyebrow">مختارين ليك</span>
+            <h2 class="section-title reveal" data-i18n="featured_title">حاجات مميزة</h2>
+          </div>
+          <a href="shop.html" class="link-arrow reveal" data-i18n="featured_view_all">شوف الكل ←</a>
+        </div>
+        <ul class="products" id="featuredGrid"></ul>
+      </div>
+    </section>
+
+    <section class="promo-banner section home-section" id="promo">
+      <div class="container">
+        <div class="promo-banner__inner reveal">
+          <div class="promo-banner__content">
+            <span class="section-eyebrow" data-i18n="promo_eyebrow">عرض حصري</span>
+            <h2 class="promo-banner__title" data-i18n="promo_title">مجموعة الربيع</h2>
+            <p class="promo-banner__desc" data-i18n="promo_desc">إكسسوارات وبرفانات مختارة بخصم لفترة محدودة.</p>
+            <a href="shop.html?cat=perfumes" class="btn btn-primary" data-i18n="promo_cta">اكتشفي العرض</a>
+          </div>
+          <div class="promo-banner__visual">
+            <img id="promoImage" src="https://images.unsplash.com/photo-1541643600914-78b084683601?w=900&q=85" alt="" loading="lazy">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="testimonials section home-section section--ivory" id="testimonials">
+      <div class="container">
+        <div class="section-header section-header--center">
+          <span class="section-eyebrow reveal" data-i18n="reviews_eyebrow">آراء الناس</span>
+          <h2 class="section-title reveal" data-i18n="reviews_title">عملاءنا قالوا إيه</h2>
+        </div>
+        <div class="testimonials-grid" id="testimonialsGrid"></div>
+      </div>
+    </section>
+
+    <section class="instagram section home-section section--cream" id="instagram">
+      <div class="container">
+        <div class="section-header section-header--center">
+          <span class="section-eyebrow reveal" data-i18n="insta_eyebrow">@kwanzou.eg</span>
+          <h2 class="section-title reveal" data-i18n="insta_title">ستايل وإلهام</h2>
+          <a href="https://instagram.com/kwanzou.eg" class="link-arrow reveal" target="_blank" rel="noopener" data-i18n="insta_follow">تابعينا على إنستجرام</a>
+        </div>
+        <div class="instagram-grid" id="instagramGrid"></div>
+      </div>
+    </section>
+
+    <section class="newsletter section home-section" id="newsletter">
+      <div class="newsletter-bg"></div>
+      <div class="container">
+        <div class="newsletter-content reveal">
+          <span class="section-eyebrow" data-i18n="news_eyebrow">عروض خاصة</span>
+          <h2 class="section-title" data-i18n="news_title">سجّلي مع Kwanzou</h2>
+          <p data-i18n="news_desc">هتوصلك عروض جديدة ومنتجات لسه نازلة.</p>
+          <form class="newsletter-form" id="newsletterForm">
+            <input type="email" data-i18n-placeholder="news_placeholder" placeholder="اكتب إيميلك" required>
+            <button type="submit" class="btn btn-primary" data-i18n="news_subscribe">سجّل</button>
+          </form>
+        </div>
       </div>
     </section>
   </main>

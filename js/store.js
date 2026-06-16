@@ -86,12 +86,6 @@ const LumiereStore = (() => {
     merged.settings = { ...defaults.settings, ...(data.settings || {}) };
     merged.settings.theme = { ...defaults.settings.theme, ...(data.settings?.theme || {}) };
     merged.categories = data.categories?.length ? clone(data.categories) : clone(defaults.categories);
-    defaults.categories.forEach(defCat => {
-      if (!merged.categories.some(c => c.slug === defCat.slug)) {
-        merged.categories.push(clone(defCat));
-      }
-    });
-    merged.categories.sort((a, b) => (a.sort ?? 99) - (b.sort ?? 99));
     merged.products = data.products?.length ? data.products : clone(defaults.products);
     merged.collections = data.collections?.length ? data.collections : clone(defaults.collections);
     merged.testimonials = data.testimonials?.length ? data.testimonials : clone(defaults.testimonials);

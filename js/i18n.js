@@ -10,7 +10,7 @@ const LumiereI18n = (() => {
       meta_title: 'Kwanzou EG | استالس، شنط، ميكب وبرفانات',
       meta_desc: 'Kwanzou EG — إكسسوارات استالس، شنط، ميكب وبرفانات في مصر.',
       nav_home: 'الرئيسية',
-      nav_shop: 'تسوق',
+      nav_categories: 'الأقسام',
       nav_shop_all: 'كل المنتجات',
       shop_all: 'كل المنتجات',
       shop_title: 'تسوق | Kwanzou EG',
@@ -309,7 +309,7 @@ const LumiereI18n = (() => {
       meta_title: 'Kwanzou EG | Luxury Accessories',
       meta_desc: 'Kwanzou EG — Luxury accessories and jewelry in Egypt.',
       nav_home: 'Home',
-      nav_shop: 'Shop',
+      nav_categories: 'Categories',
       nav_shop_all: 'All Products',
       shop_all: 'All Products',
       shop_title: 'Shop | Kwanzou EG',
@@ -608,14 +608,19 @@ const LumiereI18n = (() => {
   };
 
   const categoryKeys = {
-    accessories: { ar: 'إكسسوارات', en: 'Accessories' },
+    jewelry: { ar: 'دهب', en: 'Gold' },
+    gold: { ar: 'دهب', en: 'Gold' },
+    necklaces: { ar: 'سلاسل', en: 'Chains' },
+    earrings: { ar: 'حلق', en: 'Earrings' },
     handbags: { ar: 'شنط', en: 'Bags' },
+    watches: { ar: 'ساعات', en: 'Watches' },
+    scarves: { ar: 'طرح', en: 'Scarves' },
+    sunglasses: { ar: 'نظارات', en: 'Glasses' },
+    'new-arrivals': { ar: 'جديد', en: 'New Arrivals' },
     perfumes: { ar: 'برفانات', en: 'Perfumes' },
-    necklaces: { ar: 'سلاسل', en: 'Necklaces' },
+    accessories: { ar: 'إكسسوارات', en: 'Accessories' },
     bracelets: { ar: 'أساور', en: 'Bracelets' },
     rings: { ar: 'خواتم', en: 'Rings' },
-    watches: { ar: 'ساعات', en: 'Watches' },
-    'new-arrivals': { ar: 'جديد', en: 'New Arrivals' },
     makeup: { ar: 'ميكب', en: 'Makeup' }
   };
 

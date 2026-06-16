@@ -197,7 +197,6 @@ const LumiereLayout = (() => {
     }).join('');
 
     return `
-    <div class="announcement-bar"><p>${announcement}</p></div>
     <header class="site-header" id="header">
       <div class="header-main container">
         <button class="nav-toggle" aria-label="Menu" id="navToggle"><span></span><span></span><span></span></button>
@@ -242,18 +241,17 @@ const LumiereLayout = (() => {
           <input type="search" name="q" placeholder="${LumiereI18n.t('search_placeholder')}">
           <button type="submit">🔍</button>
         </form>
-        <ul>
+        <ul class="mobile-menu__links">
           <li><a href="${base}index.html">${LumiereI18n.t('nav_home')}</a></li>
-          <li class="mobile-categories">
-            <button type="button" class="mobile-categories__toggle" id="mobileCategoriesToggle" aria-expanded="false">
-              ${LumiereI18n.t('nav_categories')}
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
-            </button>
-            <ul class="mobile-categories__list" id="mobileCategoriesList">
-              <li><a href="${base}shop.html">${LumiereI18n.t('nav_shop_all')}</a></li>
-              ${mobileCatLinks}
-            </ul>
-          </li>
+        </ul>
+        <div class="mobile-menu__products">
+          <p class="mobile-menu__products-title">${LumiereI18n.t('nav_categories')}</p>
+          <ul class="mobile-menu__products-list">
+            <li><a href="${base}shop.html">${LumiereI18n.t('nav_shop_all')}</a></li>
+            ${mobileCatLinks}
+          </ul>
+        </div>
+        <ul class="mobile-menu__links">
           <li><a href="${accountLink}">${session ? LumiereI18n.t('nav_account') : LumiereI18n.t('nav_signin')}</a></li>
           <li><a href="${base}cart.html">${LumiereI18n.t('nav_bag')}</a></li>
           <li><button type="button" class="lang-switch mobile-lang">${LumiereI18n.t('lang_switch')}</button></li>

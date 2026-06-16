@@ -418,13 +418,13 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 
   .hero__inner {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(108px, 34%);
-    align-items: center;
+    grid-template-columns: minmax(0, 1fr) minmax(88px, 30%);
+    align-items: start;
     gap: 10px;
     width: 100%;
     height: 100%;
     min-height: 0;
-    padding: 14px 14px 12px;
+    padding: 12px 14px 12px;
     text-align: start;
   }
 
@@ -436,19 +436,23 @@ html[dir="ltr"] .hero__badge { right: 5%; }
     border: none;
     border-radius: 0;
     backdrop-filter: none;
+    position: relative;
+    z-index: 2;
   }
 
   .hero__visual {
     position: relative;
     inset: auto;
     width: 100%;
-    height: 100%;
-    max-height: 220px;
+    height: auto;
+    max-height: 170px;
     margin: 0;
+    margin-top: -6px;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     pointer-events: none;
+    z-index: 1;
   }
 
   .hero__card {
@@ -458,8 +462,8 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   }
 
   .hero__card--main {
-    width: 102px;
-    height: 142px;
+    width: 92px;
+    height: 128px;
     margin: 0 !important;
     border-radius: 16px;
     border-width: 3px;
@@ -546,14 +550,19 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   }
 
   .hero__inner {
-    grid-template-columns: minmax(0, 1fr) minmax(96px, 32%);
+    grid-template-columns: minmax(0, 1fr) minmax(80px, 28%);
     gap: 8px;
-    padding: 12px 12px 10px;
+    padding: 10px 12px 10px;
+  }
+
+  .hero__visual {
+    margin-top: -10px;
+    max-height: 150px;
   }
 
   .hero__card--main {
-    width: 94px;
-    height: 130px;
+    width: 84px;
+    height: 118px;
   }
 
   .home-tabs-scroller { border-radius: 16px; }

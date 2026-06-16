@@ -47,7 +47,9 @@ app.put('/api/store', async (req, res) => {
 app.use(express.static(ROOT, {
   maxAge: '1d',
   setHeaders(res, filePath) {
-    if (filePath.endsWith('.html')) res.setHeader('Cache-Control', 'no-cache');
+    if (/\.(html|js|css)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+    }
   }
 }));
 

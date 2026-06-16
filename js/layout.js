@@ -336,6 +336,12 @@ const LumiereLayout = (() => {
     </footer>`;
   }
 
+  function stripTopAnnouncementBar() {
+    document.querySelectorAll('.announcement-bar').forEach(el => {
+      if (!el.closest('.mobile-menu')) el.remove();
+    });
+  }
+
   function init(active = '') {
     try {
       LumiereTheme.apply(LumiereStore.get().settings);
@@ -344,6 +350,7 @@ const LumiereLayout = (() => {
     const footerEl = document.getElementById('site-footer');
     try {
       if (headerEl) headerEl.innerHTML = renderHeader(active);
+      stripTopAnnouncementBar();
     } catch (err) {
       console.error('Header render error:', err);
     }

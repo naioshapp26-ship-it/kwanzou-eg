@@ -82,11 +82,16 @@ button {
    Announcement Bar
    ============================================ */
 .announcement-bar {
-  display: none;
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  border: none !important;
   background: var(--text-primary);
   color: var(--cream);
   text-align: center;
-  padding: 10px 24px;
   font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1450,7 +1455,7 @@ button {
     display: block;
   }
 
-  .mobile-menu__announcement {
+  .mobile-menu.active .mobile-menu__announcement {
     display: block;
   }
 
@@ -1519,8 +1524,7 @@ button {
   }
 
   .announcement-bar {
-    font-size: 0.65rem;
-    padding: 8px 16px;
+    display: none !important;
   }
 
   .hero-content {

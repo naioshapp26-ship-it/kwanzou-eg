@@ -238,8 +238,9 @@ body.catalog-store .logo-img {
 }
 
 body.catalog-store .announcement-bar {
+  display: none !important;
   font-size: 0.78rem;
-  padding: 8px 12px;
+  padding: 0;
 }
 
 @media (max-width: 992px) {

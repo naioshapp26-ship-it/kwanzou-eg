@@ -7,11 +7,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/shop.css">
+  <link rel="stylesheet" href="css/catalog.css">
 </head>
-<body data-page-title="shop_title">
+<body class="catalog-store" data-page-title="shop_title">
   <div id="site-header"></div>
 
-  <main class="shop-page">
+  <main class="shop-page catalog-mode">
     <div class="container">
       <nav class="breadcrumb" id="breadcrumb"></nav>
       <div class="shop-header">
@@ -27,7 +28,7 @@
           <option value="rating" data-i18n="sort_rating">Top Rated</option>
         </select>
       </div>
-      <div class="products-grid" id="shopGrid"></div>
+      <ul class="products" id="shopGrid"></ul>
       <p class="shop-empty" id="shopEmpty" hidden data-i18n="shop_empty">No products found.</p>
     </div>
   </main>

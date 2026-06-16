@@ -41,7 +41,7 @@ function renderOrders(user) {
   const orders = user.orders || [];
   const tbody = document.getElementById('ordersTableBody');
   const recent = document.getElementById('recentOrders');
-  const shopLink = `<a href="index.html#featured">${LumiereI18n.t('account_shop')}</a>`;
+  const shopLink = `<a href="index.html">${LumiereI18n.t('account_shop')}</a>`;
 
   if (!orders.length) {
     tbody.innerHTML = `<tr><td colspan="5" class="empty-msg">${LumiereI18n.t('account_no_orders')} ${shopLink}</td></tr>`;
@@ -74,19 +74,12 @@ function renderWishlist(user) {
   const wishlist = (user.wishlist || []).map(id => products.find(p => p.id === id)).filter(Boolean);
 
   if (!wishlist.length) {
-    grid.innerHTML = `<p class="empty-msg">${LumiereI18n.t('account_empty_wishlist')} <a href="index.html#featured">${LumiereI18n.t('account_shop')}</a></p>`;
+    grid.innerHTML = `<p class="empty-msg">${LumiereI18n.t('account_empty_wishlist')} <a href="index.html">${LumiereI18n.t('account_shop')}</a></p>`;
     return;
   }
 
-  grid.innerHTML = wishlist.map(p => `
-    <article class="product-card product-card--compact">
-      <div class="product-card__image"><img src="${p.image}" alt="${p.name}"></div>
-      <div class="product-card__info">
-        <h3 class="product-name">${LumiereI18n.localized(p, 'name') || p.name}</h3>
-        <p class="product-price">$${p.price.toLocaleString()}</p>
-      </div>
-    </article>
-  `).join('');
+  grid.innerHTML = wishlist.map(p => ProductUI.cardHTML(p)).join('');
+  ProductUI.bindCartButtons(grid);
 }
 
 function renderProfile(user) {

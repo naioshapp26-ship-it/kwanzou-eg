@@ -54,29 +54,63 @@ const ProductUI = {
     return KwanzouCart.formatPrice(price);
   },
 
-  cardHTML(p, compact = false) {
+  sku(p) {
+    return p.sku || String(p.id).replace(/^p/i, 'P').toUpperCase();
+  },
+
+  salePrice(p) {
+    if (p.salePrice && p.salePrice < p.price) return p.salePrice;
+    if (p.discount && p.discount > 0) return Math.round(p.price * (1 - p.discount / 100));
+    return null;
+  },
+
+  badgesHTML(p) {
+    const badges = [];
+    if (p.featured || p.badge === 'Best Seller' || p.badge === 'الأكتر مبيعاً') {
+      badges.push(`<span class="wc-badge wc-badge--featured">${LumiereI18n.t('badge_featured')}</span>`);
+    }
+    const sale = this.salePrice(p);
+    if (p.onSale || sale || p.badge === 'New' || p.badge === 'جديد') {
+      badges.push(`<span class="wc-badge wc-badge--sale">${LumiereI18n.t('badge_sale')}</span>`);
+    }
+    if (p.limited || p.badge === 'Limited' || p.badge === 'كمية محدودة' || (p.stock != null && p.stock <= 10)) {
+      badges.push(`<span class="wc-badge wc-badge--limited">${LumiereI18n.t('badge_limited')}</span>`);
+    }
+    const pct = p.discount || (sale ? Math.round((1 - sale / p.price) * 100) : 0);
+    if (pct >= 5) badges.push(`<span class="wc-badge wc-badge--discount">-${pct}%</span>`);
+    return badges.length ? `<div class="wc-product__badges">${badges.join('')}</div>` : '';
+  },
+
+  priceHTML(p) {
+    const sale = this.salePrice(p);
+    if (sale && sale < p.price) {
+      return `<del>${this.formatPrice(p.price)}</del>${this.formatPrice(sale)}`;
+    }
+    return this.formatPrice(p.price);
+  },
+
+  cardHTML(p) {
     const name = LumiereI18n.localized(p, 'name') || p.name;
-    const stars = '★'.repeat(p.rating) + '☆'.repeat(5 - p.rating);
-    const badge = p.badge ? `<span class="badge badge--${p.badge.includes('Best') ? 'bestseller' : 'new'}">${LumiereI18n.translateBadge(p.badge)}</span>` : '';
     const url = this.url(p.id);
+    const sku = this.sku(p);
+    const stars = '★'.repeat(p.rating || 0) + '☆'.repeat(5 - (p.rating || 0));
 
     return `
-    <article class="product-card ${compact ? 'product-card--compact' : ''} reveal">
-      <a href="${url}" class="product-card__link">
-        <div class="product-card__image">
-          <img src="${p.image}" alt="${name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&q=80'">
-          ${badge ? `<div class="product-card__badges">${badge}</div>` : ''}
-        </div>
-        <div class="product-card__info">
-          ${compact ? '' : `<div class="product-rating"><span class="stars">${stars}</span><span class="rating-count">(${p.reviews})</span></div>`}
-          <h3 class="product-name">${name}</h3>
-          ${compact ? '' : `<p class="product-category">${LumiereI18n.productCategory(p)}</p>`}
-          <p class="product-price">${this.formatPrice(p.price)}</p>
-        </div>
+    <li class="wc-product">
+      <a href="${url}" class="wc-product__image-wrap">
+        <img src="${p.image}" alt="${name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&q=80'">
+        ${this.badgesHTML(p)}
       </a>
-      <button class="wishlist-btn" data-id="${p.id}" aria-label="Wishlist"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>
-      <button class="btn btn-sm btn-add-cart" data-id="${p.id}">${LumiereI18n.t('add_cart')}</button>
-    </article>`;
+      <div class="wc-product__body">
+        <h2 class="wc-product__title"><a href="${url}">${name}</a></h2>
+        <span class="wc-product__sku">${LumiereI18n.t('sku_label')}: ${sku}</span>
+        ${p.rating ? `<span class="wc-product__rating">${stars}</span>` : ''}
+        <div class="wc-product__footer">
+          <span class="wc-product__price">${this.priceHTML(p)}</span>
+          <button type="button" class="wc-product__cart btn-add-cart" data-id="${p.id}">${LumiereI18n.t('add_cart')}</button>
+        </div>
+      </div>
+    </li>`;
   },
 
   filterByCategory(products, slug) {

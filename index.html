@@ -3,139 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Kwanzou EG — استالس، شنط، ميكب وبرفانات في مصر.">
-  <title>Kwanzou EG | استالس، شنط، ميكب وبرفانات</title>
+  <meta name="description" content="Kwanzou EG — إكسسوارات، شنط، برفانات وأكتر في مصر.">
+  <title>Kwanzou EG | متجر إكسسوارات</title>
   <link rel="icon" href="assets/logo.png" type="image/png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/shop.css">
-  <link rel="stylesheet" href="css/home.css">
+  <link rel="stylesheet" href="css/catalog.css">
 </head>
-<body data-page-title="meta_title">
+<body class="catalog-store" data-page-title="meta_title">
   <div id="site-header"></div>
 
-  <main>
-    <section class="hero hero--premium">
-      <div class="hero-bg">
-        <img id="heroImage" src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1920&q=85" alt="Kwanzou EG" class="hero-image">
-        <div class="hero-overlay"></div>
-      </div>
-      <div class="hero__inner">
-        <div class="hero__content">
-          <span class="hero-eyebrow" data-i18n="hero_eyebrow">القاهرة · الإسكندرية · الجيزة</span>
-          <h1 class="hero-title" id="heroTitle">
-            <span class="hero-title__brand">Kwanzou EG</span>
-            <em class="hero-title__tagline" data-i18n="hero_tagline">إكسسوارات ودهب على ذوقك</em>
-          </h1>
-          <p class="hero-subtitle" id="heroSubtitle" data-i18n="hero_subtitle">شوف أحلى دهب، شنط، وإكسسوارات من Kwanzou EG.</p>
-          <div class="hero-actions">
-            <a href="shop.html" class="btn btn-primary" data-i18n="hero_cta_shop">تسوق دلوقتي</a>
-            <a href="shop.html?cat=new-arrivals" class="btn btn-outline" data-i18n="na_view_all">شوف الجديد ←</a>
-          </div>
-        </div>
-        <div class="hero__visual">
-          <div class="hero__card hero__card--accent">
-            <img id="heroAccent2" src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=650&q=80" alt="حلق ترند">
-          </div>
-          <div class="hero__card hero__card--main">
-            <img id="heroAccent1" src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=650&q=80" alt="أساور">
-          </div>
-          <div class="hero__badge" data-i18n="hero_badge">✦ شحن مجاني للطلبات +1,500 ج.م</div>
-        </div>
-      </div>
-      <div class="hero-scroll"><span data-i18n="hero_scroll">انزل</span><div class="scroll-line"></div></div>
+  <main class="catalog-main">
+    <section class="catalog-banner">
+      <h2 data-i18n="home_collection_title">NEW EXCLUSIVE COLLECTION</h2>
+      <p data-i18n="home_collection_desc">New Exclusive Collection with new designs</p>
     </section>
 
-    <section class="featured section home-section section--cream" id="featured">
+    <section class="catalog-section">
       <div class="container">
-        <div class="section-header section-header--row">
-          <div>
-            <span class="section-eyebrow reveal" data-i18n="featured_eyebrow">مختارين ليك</span>
-            <h2 class="section-title reveal" data-i18n="featured_title">حاجات مميزة</h2>
-          </div>
-          <a href="shop.html" class="link-arrow reveal" data-i18n="featured_view_all">شوف الكل ←</a>
-        </div>
-        <div class="products-grid products-grid--luxury" id="featuredGrid"></div>
+        <ul class="products" id="catalogProducts"></ul>
       </div>
     </section>
 
-    <section class="bestsellers section home-section section--ivory" id="bestsellers">
+    <section class="catalog-section">
       <div class="container">
-        <div class="section-header section-header--row">
-          <div>
-            <span class="section-eyebrow reveal" data-i18n="bs_eyebrow">الناس بتحبها</span>
-            <h2 class="section-title reveal" data-i18n="bs_title">الأكتر مبيعاً</h2>
-          </div>
-          <a href="shop.html?sort=bestseller" class="link-arrow reveal" data-i18n="featured_view_all">شوف الكل ←</a>
-        </div>
-        <div class="products-grid products-grid--luxury products-grid--4" id="bestsellersGrid"></div>
+        <div class="category-cloud" id="categoryCloud"></div>
       </div>
     </section>
 
-    <section class="new-arrivals section home-section section--cream" id="newArrivals">
+    <section class="catalog-section">
       <div class="container">
-        <div class="section-header section-header--row">
-          <div>
-            <span class="section-eyebrow reveal" data-i18n="na_eyebrow">وصل حديثاً</span>
-            <h2 class="section-title reveal" data-i18n="na_title">جديد عندنا</h2>
-          </div>
-          <a href="shop.html?cat=new-arrivals" class="link-arrow reveal" data-i18n="na_view_all">شوف الجديد ←</a>
-        </div>
-        <div class="products-grid products-grid--luxury products-grid--4" id="newArrivalsGrid"></div>
-      </div>
-    </section>
-
-    <section class="promo-banner section home-section" id="promo">
-      <div class="container">
-        <div class="promo-banner__inner reveal">
-          <div class="promo-banner__content">
-            <span class="section-eyebrow" data-i18n="promo_eyebrow">عرض حصري</span>
-            <h2 class="promo-banner__title" data-i18n="promo_title">مجموعة الربيع</h2>
-            <p class="promo-banner__desc" data-i18n="promo_desc">إكسسوارات وبرفانات مختارة بخصم لفترة محدودة.</p>
-            <a href="shop.html?cat=perfumes" class="btn btn-primary" data-i18n="promo_cta">اكتشفي العرض</a>
-          </div>
-          <div class="promo-banner__visual">
-            <img src="https://images.unsplash.com/photo-1541643600914-78b084683601?w=900&q=85" alt="" loading="lazy">
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="testimonials section home-section section--ivory" id="testimonials">
-      <div class="container">
-        <div class="section-header section-header--center">
-          <span class="section-eyebrow reveal" data-i18n="reviews_eyebrow">آراء الناس</span>
-          <h2 class="section-title reveal" data-i18n="reviews_title">عملاءنا قالوا إيه</h2>
-        </div>
-        <div class="testimonials-grid" id="testimonialsGrid"></div>
-      </div>
-    </section>
-
-    <section class="instagram section home-section section--cream" id="instagram">
-      <div class="container">
-        <div class="section-header section-header--center">
-          <span class="section-eyebrow reveal" data-i18n="insta_eyebrow">@kwanzou.eg</span>
-          <h2 class="section-title reveal" data-i18n="insta_title">ستايل وإلهام</h2>
-          <a href="https://instagram.com/kwanzou.eg" class="link-arrow reveal" target="_blank" rel="noopener" data-i18n="insta_follow">تابعينا على إنستجرام</a>
-        </div>
-        <div class="instagram-grid" id="instagramGrid"></div>
-      </div>
-    </section>
-
-    <section class="newsletter section home-section" id="newsletter">
-      <div class="newsletter-bg"></div>
-      <div class="container">
-        <div class="newsletter-content reveal">
-          <span class="section-eyebrow" data-i18n="news_eyebrow">عروض خاصة</span>
-          <h2 class="section-title" data-i18n="news_title">سجّلي مع Kwanzou</h2>
-          <p data-i18n="news_desc">هتوصلك عروض جديدة ومنتجات لسه نازلة.</p>
-          <form class="newsletter-form" id="newsletterForm">
-            <input type="email" data-i18n-placeholder="news_placeholder" placeholder="اكتب إيميلك" required>
-            <button type="submit" class="btn btn-primary" data-i18n="news_subscribe">سجّل</button>
-          </form>
-        </div>
+        <ul class="products" id="catalogProductsMore"></ul>
       </div>
     </section>
   </main>

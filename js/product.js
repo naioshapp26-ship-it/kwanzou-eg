@@ -42,7 +42,7 @@ function renderProduct() {
       ${product.badge ? `<span class="badge badge--new">${LumiereI18n.translateBadge(product.badge)}</span>` : ''}
       <h1 class="pd-title">${name}</h1>
       <div class="pd-rating"><span class="stars">${stars}</span> <span>(${product.reviews} ${LumiereI18n.t('reviews_count')})</span></div>
-      <div class="pd-price">${ProductUI.formatPrice(product.price)}</div>
+      <div class="pd-price">${ProductUI.priceHTML(product)}</div>
       <div class="pd-stock ${inStock ? 'in-stock' : 'out-stock'}">${inStock ? '✓ ' + LumiereI18n.t('in_stock') : LumiereI18n.t('out_of_stock')}</div>
       <div class="pd-delivery">
         <div class="pd-delivery__item">🚚 ${LumiereI18n.t('delivery_fast')}</div>
@@ -62,7 +62,7 @@ function renderProduct() {
         <button class="btn btn-outline btn-full" id="btnAddCart" ${!inStock ? 'disabled' : ''}>${LumiereI18n.t('add_cart')}</button>
       </div>
       <div class="pd-meta">
-        <span>${LumiereI18n.t('sku')}: ${product.id.toUpperCase()}</span>
+        <span>${LumiereI18n.t('sku')}: ${ProductUI.sku(product)}</span>
         <span>${LumiereI18n.t('category_label')}: ${category}</span>
       </div>
     </div>`;
@@ -91,7 +91,7 @@ function renderProduct() {
 
   const related = LumiereStore.get().products.filter(p => p.id !== product.id && p.categorySlug === product.categorySlug).slice(0, 4);
   document.getElementById('relatedGrid').innerHTML = related.length
-    ? related.map(p => ProductUI.cardHTML(p, true)).join('')
+    ? related.map(p => ProductUI.cardHTML(p)).join('')
     : `<p>${LumiereI18n.t('no_related')}</p>`;
   ProductUI.bindCartButtons(document.getElementById('relatedGrid'));
 

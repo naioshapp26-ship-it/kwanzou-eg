@@ -458,6 +458,10 @@ const LumiereLayout = (() => {
     </footer>`;
   }
 
+  function getHomeCategoryTabs() {
+    return getDesktopHeaderNavItems().filter(item => item.key !== 'home');
+  }
+
   function stripTopAnnouncementBar() {
     document.querySelectorAll('.announcement-bar').forEach(el => {
       if (!el.closest('.mobile-menu')) el.remove();
@@ -592,5 +596,5 @@ const LumiereLayout = (() => {
     }, { passive: true });
   }
 
-  return { init, renderHeader, renderFooter };
+  return { init, renderHeader, renderFooter, getHomeCategoryTabs };
 })();

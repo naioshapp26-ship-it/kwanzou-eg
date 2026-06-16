@@ -61,12 +61,19 @@ function renderHero(settings, categories) {
   if (heroExploreLink) heroExploreLink.href = categories[0]?.slug ? `shop.html?cat=${categories[0].slug}` : 'shop.html';
 }
 
-function renderCategoryTabs(categories) {
+function renderCategoryTabs() {
   const tabs = document.getElementById('categoryTabs');
   if (!tabs) return;
-  tabs.innerHTML = categories.map(cat => {
-    const label = LumiereI18n.translateCategory(cat);
-    return `<a class="home-tab-pill" href="shop.html?cat=${cat.slug}">${label}</a>`;
+  const items = typeof LumiereLayout.getHomeCategoryTabs === 'function'
+    ? LumiereLayout.getHomeCategoryTabs()
+    : [];
+
+  tabs.innerHTML = items.map(item => {
+    const label = item.i18n
+      ? LumiereI18n.t(item.i18n)
+      : (LumiereI18n.getLang() === 'ar' ? item.ar : item.en);
+    const href = (item.href || 'shop.html').replace(/^\.\//, '');
+    return `<a class="home-tab-pill" href="${href}">${label}</a>`;
   }).join('');
 }
 
@@ -131,7 +138,7 @@ function renderHomepage() {
     const allProducts = products || [];
 
     renderHero(settings, sortedCats);
-    renderCategoryTabs(sortedCats);
+    renderCategoryTabs();
     renderProductSections(allProducts);
     renderTestimonials(testimonials);
     renderInstagram();

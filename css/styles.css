@@ -1279,6 +1279,180 @@ button {
   color: var(--champagne-light);
 }
 
+/* Flouka-style info footer */
+.footer--info {
+  background: var(--white);
+  color: var(--text-primary);
+  padding: 40px 0 24px;
+  border-top: 1px solid rgba(212, 196, 176, 0.35);
+}
+
+.footer-info__top {
+  text-align: center;
+  padding-bottom: 24px;
+}
+
+.footer-info__logo {
+  display: inline-flex;
+  margin-bottom: 12px;
+}
+
+.footer--info .footer-logo {
+  height: 56px;
+  width: auto;
+  max-width: 140px;
+  object-fit: contain;
+  margin: 0 auto;
+}
+
+.footer-info__location,
+.footer-info__phone,
+.footer-info__email,
+.footer-info__web {
+  display: block;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin: 4px 0;
+}
+
+.footer-info__phone:hover,
+.footer-info__email:hover,
+.footer-info__web:hover {
+  color: var(--champagne-dark);
+}
+
+.footer-info__social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 16px;
+}
+
+.footer-info__social a {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.footer-info__social a:hover {
+  color: var(--champagne-dark);
+  transform: translateY(-1px);
+}
+
+.footer-info__social svg {
+  width: 20px;
+  height: 20px;
+}
+
+.footer-info__accordions {
+  border-top: 1px solid rgba(212, 196, 176, 0.35);
+}
+
+.footer-info__accordion {
+  border-bottom: 1px solid rgba(212, 196, 176, 0.35);
+}
+
+.footer-info__accordion summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.footer-info__accordion summary::-webkit-details-marker {
+  display: none;
+}
+
+.footer-info__accordion summary::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--text-muted);
+  border-bottom: 2px solid var(--text-muted);
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.footer-info__accordion[open] summary::after {
+  transform: rotate(-135deg);
+}
+
+.footer-info__accordion ul {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 0 16px;
+  margin: 0;
+  list-style: none;
+}
+
+.footer-info__accordion a {
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+.footer-info__accordion a:hover {
+  color: var(--champagne-dark);
+}
+
+.footer-info__bottom {
+  padding-top: 20px;
+  text-align: center;
+}
+
+.footer-info__bottom p {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.policy-page {
+  padding: 40px 0 72px;
+  background: var(--ivory);
+  min-height: 50vh;
+}
+
+.policy-page h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  margin-bottom: 20px;
+}
+
+.policy-page p,
+.policy-page li {
+  color: var(--text-secondary);
+  line-height: 1.8;
+  font-size: 0.92rem;
+}
+
+.policy-page p {
+  margin-bottom: 14px;
+}
+
+.policy-page ul {
+  margin: 0 0 16px;
+  padding-inline-start: 20px;
+}
+
+.policy-page .link-arrow {
+  display: inline-block;
+  margin-top: 24px;
+}
+
 /* ============================================
    Modal
    ============================================ */

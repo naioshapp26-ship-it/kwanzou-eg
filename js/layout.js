@@ -5,6 +5,14 @@ const LumiereLayout = (() => {
   const isAdmin = window.location.pathname.includes('/admin/');
   const base = isAdmin ? '../' : '';
 
+  const SOCIAL_LINKS = {
+    instagram: 'https://www.instagram.com/kwanzou.eg?igsh=MTJ3MW5pMmhoYnl6MQ%3D%3D&utm_source=qr',
+    tiktok: 'https://www.tiktok.com/@kwanzou11?_r=1&_t=ZS-97GmAtM3DrM',
+    facebook: 'https://www.facebook.com/share/14kxCwPToLH/?mibextid=wwXIfr'
+  };
+  const FOOTER_PHONE = '01284371361';
+  const FOOTER_PHONE_HREF = 'tel:+201284371361';
+
   function logoPath(settings) {
     const logo = settings?.logo || 'assets/logo.png';
     if (logo.startsWith('data:') || logo.startsWith('http://') || logo.startsWith('https://')) return logo;
@@ -300,37 +308,63 @@ const LumiereLayout = (() => {
 
   function renderFooter() {
     const s = LumiereStore.get().settings;
-    const categories = sortedCategories(LumiereStore.get().categories);
     const logo = logoPath(s);
     const year = new Date().getFullYear();
-    const shopLinks = categories.map(c =>
-      `<li><a href="${base}shop.html?cat=${c.slug}">${LumiereI18n.translateCategory(c)}</a></li>`
-    ).join('');
+    const brand = s.brandName || 'Kwanzou EG';
+
     return `
-    <footer class="footer">
+    <footer class="footer footer--info">
       <div class="container">
-        <div class="footer-grid">
-          <div class="footer-brand">
-            <a href="${base}index.html"><img src="${logo}" alt="${s.brandName}" class="footer-logo" width="140" height="64"></a>
-            <p>${LumiereI18n.t('footer_desc')}</p>
+        <div class="footer-info__top">
+          <a href="${base}index.html" class="footer-info__logo">
+            <img src="${logo}" alt="${brand}" class="footer-logo" width="120" height="54">
+          </a>
+          <p class="footer-info__location">${LumiereI18n.t('footer_location')}</p>
+          <a class="footer-info__phone" href="${FOOTER_PHONE_HREF}">${FOOTER_PHONE}</a>
+          <a class="footer-info__email" href="mailto:hello@kwanzou-eg.com">hello@kwanzou-eg.com</a>
+          <a class="footer-info__web" href="${base}index.html">www.kwanzou-eg.com</a>
+          <div class="footer-info__social">
+            <a href="${SOCIAL_LINKS.tiktok}" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.77 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/></svg>
+            </a>
+            <a href="${SOCIAL_LINKS.instagram}" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+            </a>
+            <a href="${SOCIAL_LINKS.facebook}" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14 9h3V6h-3c-2.2 0-4 1.8-4 4v2H7v3h3v7h3v-7h2.6l.4-3H13v-2c0-.6.4-1 1-1z"/></svg>
+            </a>
           </div>
-          <div class="footer-links"><h4>${LumiereI18n.t('footer_shop')}</h4><ul>
-            <li><a href="${base}shop.html">${LumiereI18n.t('shop_all')}</a></li>
-            ${shopLinks}
-          </ul></div>
-          <div class="footer-links"><h4>${LumiereI18n.t('footer_account')}</h4><ul>
-            <li><a href="${base}login.html">${LumiereI18n.t('footer_signin')}</a></li>
-            <li><a href="${base}register.html">${LumiereI18n.t('footer_register')}</a></li>
-            <li><a href="${base}account.html">${LumiereI18n.t('footer_orders')}</a></li>
-          </ul></div>
-          <div class="footer-contact"><h4>${LumiereI18n.t('footer_contact')}</h4><ul>
-            <li>hello@kwanzou-eg.com</li>
-            <li>+20 100 000 0000</li>
-            <li>Cairo · Alexandria · Giza</li>
-          </ul></div>
         </div>
-        <div class="footer-bottom">
-          <p>&copy; ${year} ${s.brandName}. ${LumiereI18n.t('footer_rights')}</p>
+
+        <div class="footer-info__accordions">
+          <details class="footer-info__accordion">
+            <summary>${LumiereI18n.t('footer_links_title')}</summary>
+            <ul>
+              <li><a href="${base}privacy.html">${LumiereI18n.t('footer_privacy_policy')}</a></li>
+              <li><a href="${base}terms.html">${LumiereI18n.t('footer_terms_policy')}</a></li>
+              <li><a href="${base}returns.html">${LumiereI18n.t('footer_returns_policy')}</a></li>
+            </ul>
+          </details>
+          <details class="footer-info__accordion">
+            <summary>${LumiereI18n.t('footer_about_title')}</summary>
+            <ul>
+              <li><a href="${base}account.html">${LumiereI18n.t('footer_customer_service')}</a></li>
+              <li><a href="${base}shop.html?sort=bestseller">${LumiereI18n.t('bs_title')}</a></li>
+              <li><a href="${FOOTER_PHONE_HREF}">${LumiereI18n.t('footer_contact_us')}</a></li>
+            </ul>
+          </details>
+          <details class="footer-info__accordion">
+            <summary>${LumiereI18n.t('footer_news_title')}</summary>
+            <ul>
+              <li><a href="${base}shop.html?cat=new-arrivals">${LumiereI18n.t('na_title')}</a></li>
+              <li><a href="${base}index.html#featured">${LumiereI18n.t('featured_title')}</a></li>
+              <li><a href="${SOCIAL_LINKS.instagram}" target="_blank" rel="noopener noreferrer">${LumiereI18n.t('insta_follow')}</a></li>
+            </ul>
+          </details>
+        </div>
+
+        <div class="footer-info__bottom">
+          <p>&copy; ${year} ${brand}. ${LumiereI18n.t('footer_rights')}</p>
         </div>
       </div>
     </footer>`;

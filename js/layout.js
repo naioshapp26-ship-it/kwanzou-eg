@@ -194,6 +194,33 @@ const LumiereLayout = (() => {
     return `<a class="mobile-menu__sub-link" href="${href}">${label}</a>`;
   }
 
+  function getDesktopHeaderNavItems() {
+    return [
+      { href: `${base}index.html`, i18n: 'nav_home', key: 'home' },
+      { href: shopHref('', 'sale'), ar: 'UP TO 50%', en: 'UP TO 50%', key: 'sale' },
+      { href: shopHref('necklaces'), ar: 'سلاسل', en: 'Necklaces', key: 'necklaces' },
+      { href: shopHref('bracelets'), ar: 'أساور', en: 'Bracelets', key: 'bracelets' },
+      { href: shopHref('accessories', 'earring'), ar: 'حلقان', en: 'Earrings', key: 'earrings' },
+      { href: shopHref('rings'), ar: 'خواتم', en: 'Rings', key: 'rings' },
+      { href: shopHref('perfumes'), ar: 'برفانات', en: 'Perfumes', key: 'perfumes' },
+      { href: shopHref('handbags'), ar: 'شنط', en: 'Bags', key: 'handbags' }
+    ];
+  }
+
+  function isDesktopNavActive(item, active, categories) {
+    if (item.key === 'home') return active === 'home';
+    if (item.key === 'sale') return false;
+    if (item.key === 'earrings') return active === 'accessories' || active === 'earrings';
+    return active === item.key || categories.some(c => c.slug === item.key && active === c.slug);
+  }
+
+  function renderDesktopHeaderNav(active = '', categories = []) {
+    return getDesktopHeaderNavItems().map(item => {
+      const activeClass = isDesktopNavActive(item, active, categories) ? ' active' : '';
+      return `<a href="${item.href}" class="header-cat${activeClass}">${menuText(item)}</a>`;
+    }).join('');
+  }
+
   function renderMobileSideMenu(products, categories) {
     const catalog = [
       { type: 'link', href: `${base}index.html`, i18n: 'nav_home' },
@@ -282,17 +309,7 @@ const LumiereLayout = (() => {
     const logo = logoPath(settings);
 
     const mobileSideMenu = renderMobileSideMenu(products, categories);
-
-    const categoriesActive = active === 'shop' || categories.some(c => c.slug === active) ? ' active' : '';
-    const categoryNavItems = categories.map(cat => {
-      const label = LumiereI18n.translateCategory(cat);
-      const activeClass = active === cat.slug ? ' active' : '';
-      return `
-        <div class="nav-item nav-item--mega">
-          <a href="${base}shop.html?cat=${cat.slug}" class="header-cat${activeClass}">${label}</a>
-          ${renderMegaSubmenu(cat, products, base)}
-        </div>`;
-    }).join('');
+    const desktopHeaderNav = renderDesktopHeaderNav(active, categories);
 
     return `
     <header class="site-header" id="header">
@@ -319,19 +336,7 @@ const LumiereLayout = (() => {
         </div>
       </div>
       <nav class="header-nav container" id="headerNav" aria-label="Main">
-        <a href="${base}index.html" class="header-cat${active === 'home' ? ' active' : ''}">${LumiereI18n.t('nav_home')}</a>
-        ${categoryNavItems}
-        <div class="nav-dropdown" id="categoriesDropdown">
-          <button type="button" class="header-cat nav-dropdown__trigger${categoriesActive}" aria-expanded="false" aria-haspopup="true" aria-controls="categoriesPanel">
-            ${LumiereI18n.t('nav_categories')}
-            <svg class="nav-dropdown__chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
-          </button>
-          <div class="nav-dropdown__panel" id="categoriesPanel">
-            <div class="categories-dropdown">
-              ${renderCategoryDropdown(categories, base)}
-            </div>
-          </div>
-        </div>
+        ${desktopHeaderNav}
       </nav>
       <div class="mobile-menu" id="mobileMenu">
         <div class="mobile-menu__announcement">${announcement}</div>

@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const { initDb, getStore, saveStore, isDbReady } = require('./lib/db');
+const { initDb, getStore, saveStore, isDbReady, getDbStatus } = require('./lib/db');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -9,9 +9,12 @@ const ROOT = __dirname;
 app.use(express.json({ limit: '5mb' }));
 
 app.get('/api/health', async (_req, res) => {
+  const status = getDbStatus();
   res.json({
     ok: true,
-    database: isDbReady() ? 'connected' : 'offline',
+    database: status.ready ? 'connected' : 'offline',
+    dbConfigured: status.configured,
+    dbError: status.error || null,
     time: new Date().toISOString()
   });
 });

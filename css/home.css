@@ -254,76 +254,108 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 }
 
 .home-section + .home-section {
-  border-top: 1px solid rgba(212, 196, 176, 0.25);
+  border-top: 1px solid rgba(212, 196, 176, 0.2);
 }
 
 .section--ivory { background: var(--ivory); }
 .section--cream { background: var(--cream); }
-.section--soft { background: linear-gradient(180deg, var(--soft-beige) 0%, var(--ivory) 100%); }
 
-.section { padding: 88px 0; }
-.section-header { margin-bottom: 48px; }
+.section { padding: 96px 0; }
+.section-header { margin-bottom: 52px; }
 
-/* Quick nav — static, no overlap */
-.quick-nav {
-  position: relative;
-  top: auto;
-  z-index: 2;
+.section-header--center .link-arrow {
+  display: inline-block;
+  margin-top: 16px;
+}
+
+.products-grid--luxury {
+  gap: 28px;
+}
+
+.products-grid--luxury .product-card {
   background: var(--white);
-  padding: 28px 0;
-  border-bottom: 1px solid rgba(212, 196, 176, 0.35);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(212, 196, 176, 0.2);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 
-.quick-nav__grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 12px;
-}
-
-.quick-nav__item {
-  justify-content: center;
-  text-align: center;
-  flex-direction: column;
-  gap: 6px;
-  padding: 16px 12px;
-  border-radius: var(--radius-md);
-  background: var(--ivory);
-}
-
-.quick-nav__item:hover {
-  transform: translateY(-3px);
+.products-grid--luxury .product-card:hover {
+  transform: translateY(-6px);
   box-shadow: var(--shadow-md);
 }
 
-/* Categories grid spacing */
-.categories-grid {
-  gap: 24px;
+.products-grid--luxury .product-card__image {
+  border-radius: var(--radius-md);
 }
 
-.category-card {
-  min-height: 200px;
+/* Promotional banner */
+.promo-banner__inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 48px;
+  background: var(--text-primary);
+  color: var(--cream);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
 }
 
-/* Product grids consistent gap */
-.products-grid {
-  gap: 24px;
+.promo-banner__content {
+  padding: 56px 48px;
+}
+
+.promo-banner__content .section-eyebrow {
+  color: var(--champagne-light);
+}
+
+.promo-banner__title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  margin: 12px 0 16px;
+  line-height: 1.15;
+}
+
+.promo-banner__desc {
+  color: var(--warm-nude);
+  margin-bottom: 28px;
+  max-width: 36ch;
+  line-height: 1.7;
+}
+
+.promo-banner__visual {
+  height: 100%;
+  min-height: 360px;
+}
+
+.promo-banner__visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .featured.section,
-.bestsellers.section {
-  padding-top: 88px;
-  padding-bottom: 88px;
+.bestsellers.section,
+.new-arrivals.section {
+  padding-top: 96px;
+  padding-bottom: 96px;
 }
 
-/* Trust section contained */
-.trust.section {
-  padding: 72px 0;
-  margin: 0;
-}
-
-/* Instagram + newsletter spacing */
-.instagram.section { padding-bottom: 72px; }
+.instagram.section { padding-bottom: 88px; }
 .newsletter.section { margin-top: 0; }
+
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
 
 @media (max-width: 992px) {
   .hero__inner {
@@ -336,12 +368,13 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   .hero__visual { height: 300px; margin-top: 16px; }
   .hero__card--main { width: 220px; height: 270px; }
   .hero__card--accent { width: 160px; height: 190px; }
-  .quick-nav__grid { grid-template-columns: repeat(3, 1fr); }
+  .promo-banner__inner { grid-template-columns: 1fr; }
+  .promo-banner__visual { min-height: 240px; order: -1; }
+  .promo-banner__content { padding: 40px 28px; }
 }
 
 @media (max-width: 576px) {
   .hero--premium { min-height: auto; }
   .hero__visual { height: 260px; }
-  .quick-nav__grid { grid-template-columns: repeat(2, 1fr); }
-  .section { padding: 64px 0; }
+  .section { padding: 72px 0; }
 }

@@ -15,6 +15,18 @@ const LumiereLayout = (() => {
     return [...categories].sort((a, b) => (a.sort ?? 99) - (b.sort ?? 99));
   }
 
+  const IMG_FALLBACK = 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400&q=80';
+
+  function renderMegaMenu(categories, base) {
+    return categories.map(cat => {
+      const label = LumiereI18n.translateCategory(cat);
+      return `<a href="${base}shop.html?cat=${cat.slug}" class="mega-menu__item">
+        <span class="mega-menu__thumb"><img src="${cat.image}" alt="${label}" loading="lazy" onerror="this.src='${IMG_FALLBACK}'"></span>
+        <span class="mega-menu__label">${label}</span>
+      </a>`;
+    }).join('');
+  }
+
   function renderHeader(active = '') {
     const session = LumiereAuth.getSession();
     const data = LumiereStore.get();
@@ -29,9 +41,10 @@ const LumiereLayout = (() => {
 
     const catLinks = categories.map(cat => {
       const label = LumiereI18n.translateCategory(cat);
-      const isActive = active === cat.slug ? ' active' : '';
-      return `<a href="${base}shop.html?cat=${cat.slug}" class="header-cat${isActive}">${label}</a>`;
+      return `<li><a href="${base}shop.html?cat=${cat.slug}">${label}</a></li>`;
     }).join('');
+
+    const shopActive = active === 'shop' || categories.some(c => c.slug === active) ? ' active' : '';
 
     return `
     <div class="announcement-bar"><p>${announcement}</p></div>
@@ -58,10 +71,20 @@ const LumiereLayout = (() => {
           </a>
         </div>
       </div>
-      <nav class="header-categories container" id="headerCategories">
+      <nav class="header-nav container" id="headerNav">
         <a href="${base}index.html" class="header-cat${active === 'home' ? ' active' : ''}">${LumiereI18n.t('nav_home')}</a>
-        <a href="${base}shop.html" class="header-cat${active === 'shop' ? ' active' : ''}">${LumiereI18n.t('shop_all')}</a>
-        ${catLinks}
+        <div class="nav-dropdown" id="shopDropdown">
+          <button type="button" class="header-cat nav-dropdown__trigger${shopActive}" aria-expanded="false" aria-haspopup="true">
+            ${LumiereI18n.t('nav_shop')}
+            <svg class="nav-dropdown__chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="nav-dropdown__panel" role="menu">
+            <div class="mega-menu">
+              <a href="${base}shop.html" class="mega-menu__all">${LumiereI18n.t('nav_shop_all')} →</a>
+              <div class="mega-menu__grid">${renderMegaMenu(categories, base)}</div>
+            </div>
+          </div>
+        </div>
       </nav>
       <div class="mobile-menu" id="mobileMenu">
         <form class="header-search mobile-search" action="${base}shop.html" method="get">
@@ -70,8 +93,13 @@ const LumiereLayout = (() => {
         </form>
         <ul>
           <li><a href="${base}index.html">${LumiereI18n.t('nav_home')}</a></li>
-          <li><a href="${base}shop.html">${LumiereI18n.t('shop_all')}</a></li>
-          ${categories.map(c => `<li><a href="${base}shop.html?cat=${c.slug}">${LumiereI18n.translateCategory(c)}</a></li>`).join('')}
+          <li class="mobile-shop">
+            <button type="button" class="mobile-shop__toggle" id="mobileShopToggle">${LumiereI18n.t('nav_shop')}</button>
+            <ul class="mobile-shop__list" id="mobileShopList">
+              <li><a href="${base}shop.html">${LumiereI18n.t('nav_shop_all')}</a></li>
+              ${catLinks}
+            </ul>
+          </li>
           <li><a href="${accountLink}">${session ? LumiereI18n.t('nav_account') : LumiereI18n.t('nav_signin')}</a></li>
           <li><a href="${base}cart.html">${LumiereI18n.t('nav_bag')}</a></li>
           <li><button type="button" class="lang-switch mobile-lang">${LumiereI18n.t('lang_switch')}</button></li>
@@ -138,7 +166,45 @@ const LumiereLayout = (() => {
     LumiereI18n.bindLangSwitch(headerEl || document);
     LumiereI18n.bindLangSwitch(document.getElementById('mobileMenu') || document);
     initMobileMenu();
+    initShopDropdown();
     initHeaderScroll();
+  }
+
+  function initShopDropdown() {
+    const dropdown = document.getElementById('shopDropdown');
+    const trigger = dropdown?.querySelector('.nav-dropdown__trigger');
+    const panel = dropdown?.querySelector('.nav-dropdown__panel');
+    if (!dropdown || !trigger || !panel) return;
+
+    let closeTimer;
+    const open = () => {
+      clearTimeout(closeTimer);
+      dropdown.classList.add('open');
+      trigger.setAttribute('aria-expanded', 'true');
+    };
+    const close = () => {
+      closeTimer = setTimeout(() => {
+        dropdown.classList.remove('open');
+        trigger.setAttribute('aria-expanded', 'false');
+      }, 120);
+    };
+
+    dropdown.addEventListener('mouseenter', open);
+    dropdown.addEventListener('mouseleave', close);
+    trigger.addEventListener('focus', open);
+    dropdown.addEventListener('focusin', open);
+    dropdown.addEventListener('focusout', e => {
+      if (!dropdown.contains(e.relatedTarget)) close();
+    });
+    trigger.addEventListener('click', e => {
+      e.preventDefault();
+      dropdown.classList.toggle('open');
+      trigger.setAttribute('aria-expanded', dropdown.classList.contains('open'));
+    });
+
+    document.getElementById('mobileShopToggle')?.addEventListener('click', () => {
+      document.getElementById('mobileShopList')?.classList.toggle('open');
+    });
   }
 
   function initMobileMenu() {

@@ -10,6 +10,8 @@ const LumiereI18n = (() => {
       meta_title: 'Kwanzou EG | استالس، شنط، ميكب وبرفانات',
       meta_desc: 'Kwanzou EG — إكسسوارات استالس، شنط، ميكب وبرفانات في مصر.',
       nav_home: 'الرئيسية',
+      nav_shop: 'تسوق',
+      nav_shop_all: 'كل المنتجات',
       shop_all: 'كل المنتجات',
       shop_title: 'تسوق | Kwanzou EG',
       product_title: 'منتج | Kwanzou EG',
@@ -97,6 +99,14 @@ const LumiereI18n = (() => {
       featured_eyebrow: 'مختارين ليك',
       featured_title: 'حاجات مميزة',
       featured_view_all: 'شوف الكل ←',
+      na_eyebrow: 'وصل حديثاً',
+      na_title: 'جديد عندنا',
+      na_view_all: 'شوف الجديد ←',
+      promo_eyebrow: 'عرض حصري',
+      promo_title: 'مجموعة الربيع',
+      promo_desc: 'إكسسوارات وبرفانات مختارة بخصم لفترة محدودة.',
+      promo_cta: 'اكتشفي العرض',
+      insta_follow: 'تابعينا على إنستجرام',
       editorial_eyebrow: 'Kwanzou EG',
       editorial_title: 'شغل كويس<br><em>وستايل يجنن</em>',
       editorial_desc: 'إكسسوارات استالس ما بتصديش، شنط عملية، ميكب أصلي، وبرفانات ثابتة.',
@@ -299,6 +309,8 @@ const LumiereI18n = (() => {
       meta_title: 'Kwanzou EG | Luxury Accessories',
       meta_desc: 'Kwanzou EG — Luxury accessories and jewelry in Egypt.',
       nav_home: 'Home',
+      nav_shop: 'Shop',
+      nav_shop_all: 'All Products',
       shop_all: 'All Products',
       shop_title: 'Shop | Kwanzou EG',
       product_title: 'Product | Kwanzou EG',
@@ -387,6 +399,14 @@ const LumiereI18n = (() => {
       featured_eyebrow: 'Handpicked',
       featured_title: 'Featured Pieces',
       featured_view_all: 'View All →',
+      na_eyebrow: 'Just Landed',
+      na_title: 'New Arrivals',
+      na_view_all: 'Shop New →',
+      promo_eyebrow: 'Limited Offer',
+      promo_title: 'Spring Collection',
+      promo_desc: 'Curated accessories and perfumes — available for a limited time.',
+      promo_cta: 'Discover the Offer',
+      insta_follow: 'Follow on Instagram',
       editorial_eyebrow: 'The LUMIÈRE Edit',
       editorial_title: 'Where Craftsmanship<br>Meets <em>Modern Luxury</em>',
       editorial_desc: 'Each accessory is designed in Paris and crafted with the finest materials — 18K gold, genuine pearls, Italian leather, and hand-finished details.',
@@ -588,10 +608,15 @@ const LumiereI18n = (() => {
   };
 
   const categoryKeys = {
-    accessories: { ar: 'إكسسوارات استالس', en: 'Stainless Accessories' },
-    handbags: { ar: 'شنط', en: 'Handbags' },
-    makeup: { ar: 'ميكب', en: 'Makeup' },
-    perfumes: { ar: 'برفانات', en: 'Perfumes' }
+    accessories: { ar: 'إكسسوارات', en: 'Accessories' },
+    handbags: { ar: 'شنط', en: 'Bags' },
+    perfumes: { ar: 'برفانات', en: 'Perfumes' },
+    necklaces: { ar: 'سلاسل', en: 'Necklaces' },
+    bracelets: { ar: 'أساور', en: 'Bracelets' },
+    rings: { ar: 'خواتم', en: 'Rings' },
+    watches: { ar: 'ساعات', en: 'Watches' },
+    'new-arrivals': { ar: 'جديد', en: 'New Arrivals' },
+    makeup: { ar: 'ميكب', en: 'Makeup' }
   };
 
   function getLang() {

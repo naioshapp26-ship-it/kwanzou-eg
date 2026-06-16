@@ -1,5 +1,5 @@
 /**
- * Homepage dynamic rendering — with safe fallbacks
+ * Homepage dynamic rendering — luxury layout
  */
 const HERO_FALLBACK = {
   bg: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1920&q=85',
@@ -7,17 +7,21 @@ const HERO_FALLBACK = {
   a2: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=650&q=80'
 };
 
-function sortedCategories(categories) {
-  return [...categories].sort((a, b) => (a.sort ?? 99) - (b.sort ?? 99));
-}
+const INSTA_IMAGES = [
+  'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&q=80',
+  'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=600&q=80',
+  'https://images.unsplash.com/photo-1541643600914-78b084683601?w=600&q=80',
+  'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=600&q=80',
+  'https://images.unsplash.com/photo-1599643478518-a784e5dc4c42?w=600&q=80',
+  'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&q=80'
+];
 
 function renderHomepage() {
   try {
     const data = LumiereStore.get();
     if (!data) throw new Error('No store data');
 
-    const { settings, categories, products, testimonials } = data;
-    const sortedCats = sortedCategories(categories);
+    const { settings, products, testimonials } = data;
     const lang = LumiereI18n.getLang();
     const heroTagline = lang === 'ar'
       ? (settings.taglineAr || LumiereI18n.t('hero_tagline'))
@@ -40,19 +44,6 @@ function renderHomepage() {
     }
     if (heroSubtitle) heroSubtitle.textContent = heroSub;
 
-    const catGrid = document.getElementById('categoriesGrid');
-    if (catGrid && sortedCats.length) {
-      catGrid.className = 'categories-grid categories-grid--4';
-      catGrid.innerHTML = sortedCats.map(cat => `
-        <a href="shop.html?cat=${cat.slug}" class="category-card">
-          <img src="${cat.image}" alt="${LumiereI18n.translateCategory(cat)}" loading="lazy">
-          <div class="category-card__content">
-            <h3>${LumiereI18n.translateCategory(cat)}</h3>
-            <span>${LumiereI18n.t('cat_explore')}</span>
-          </div>
-        </a>`).join('');
-    }
-
     const featuredGrid = document.getElementById('featuredGrid');
     if (featuredGrid && products) {
       featuredGrid.innerHTML = products.filter(p => p.featured).slice(0, 4).map(p => ProductUI.cardHTML(p)).join('');
@@ -63,15 +54,30 @@ function renderHomepage() {
       bestsellersGrid.innerHTML = products.filter(p => p.bestseller).slice(0, 4).map(p => ProductUI.cardHTML(p, true)).join('');
     }
 
+    const newArrivalsGrid = document.getElementById('newArrivalsGrid');
+    if (newArrivalsGrid && products) {
+      const newItems = ProductUI.filterByCategory(products, 'new-arrivals').slice(0, 4);
+      newArrivalsGrid.innerHTML = newItems.map(p => ProductUI.cardHTML(p, true)).join('');
+    }
+
     const testimonialsGrid = document.getElementById('testimonialsGrid');
     if (testimonialsGrid && testimonials) {
       testimonialsGrid.innerHTML = testimonials.map(t => {
         const text = LumiereI18n.getLang() === 'ar' ? (t.textAr || t.text) : (t.textEn || t.text);
         return `<blockquote class="testimonial-card ${t.featured ? 'testimonial-card--featured' : ''}">
           <div class="testimonial-stars">★★★★★</div><p>"${text}"</p>
-          <footer><img src="${t.avatar}" alt="${t.name}"><div><cite>${t.name}</cite><span>${t.location}</span></div></footer>
+          <footer><img src="${t.avatar}" alt="${t.name}" loading="lazy"><div><cite>${t.name}</cite><span>${t.location}</span></div></footer>
         </blockquote>`;
       }).join('');
+    }
+
+    const instagramGrid = document.getElementById('instagramGrid');
+    if (instagramGrid) {
+      instagramGrid.innerHTML = INSTA_IMAGES.map((src, i) =>
+        `<a href="https://instagram.com/kwanzou.eg" class="instagram-item" target="_blank" rel="noopener" aria-label="Instagram ${i + 1}">
+          <img src="${src}" alt="" loading="lazy">
+        </a>`
+      ).join('');
     }
 
     if (typeof ProductUI !== 'undefined') ProductUI.bindCartButtons(document);
@@ -83,9 +89,7 @@ function renderHomepage() {
 }
 
 function initScrollReveal() {
-  document.querySelectorAll('.reveal').forEach(el => {
-    el.classList.add('visible');
-  });
+  document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
   if (!('IntersectionObserver' in window)) return;
   document.querySelectorAll('.reveal').forEach(el => {
     new IntersectionObserver(entries => entries.forEach(e => {
@@ -103,11 +107,7 @@ function showToast(msg) {
 }
 
 function refreshPage() {
-  try {
-    LumiereLayout.init('home');
-  } catch (err) {
-    console.error('Layout error:', err);
-  }
+  try { LumiereLayout.init('home'); } catch (err) { console.error('Layout error:', err); }
   try {
     LumiereI18n.applyTranslations();
     renderHomepage();

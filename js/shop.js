@@ -12,12 +12,14 @@ function renderShop() {
   const params = new URLSearchParams(location.search);
   const catSlug = params.get('cat') || '';
   const query = (params.get('q') || '').toLowerCase();
+  const sortParam = params.get('sort') || '';
   const data = LumiereStore.get();
 
-  LumiereLayout.init(catSlug || 'shop');
+  LumiereLayout.init(catSlug || (sortParam ? 'shop' : 'shop'));
 
   let products = [...data.products];
   if (catSlug) products = ProductUI.filterByCategory(products, catSlug);
+  else if (sortParam === 'bestseller') products = products.filter(p => p.bestseller);
   if (query) products = products.filter(p => {
     const name = (LumiereI18n.localized(p, 'name') || p.name).toLowerCase();
     return name.includes(query) || p.category?.toLowerCase().includes(query);

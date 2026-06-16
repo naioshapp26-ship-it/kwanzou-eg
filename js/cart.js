@@ -64,7 +64,7 @@ const ProductUI = {
     <article class="product-card ${compact ? 'product-card--compact' : ''} reveal">
       <a href="${url}" class="product-card__link">
         <div class="product-card__image">
-          <img src="${p.image}" alt="${name}" loading="lazy">
+          <img src="${p.image}" alt="${name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&q=80'">
           ${badge ? `<div class="product-card__badges">${badge}</div>` : ''}
         </div>
         <div class="product-card__info">
@@ -81,8 +81,8 @@ const ProductUI = {
 
   filterByCategory(products, slug) {
     if (!slug || slug === 'all') return products;
-    if (slug === 'new-arrivals') return products.filter(p => p.badge === 'New' || p.featured);
-    return products.filter(p => p.categorySlug === slug || p.category?.toLowerCase().replace(/\s.*/,'') === slug);
+    if (slug === 'new-arrivals') return products.filter(p => p.badge === 'New' || p.badge === 'جديد');
+    return products.filter(p => p.categorySlug === slug);
   },
 
   bindCartButtons(root = document) {

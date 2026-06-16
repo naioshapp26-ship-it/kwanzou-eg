@@ -237,6 +237,7 @@ const LumiereLayout = (() => {
         </div>
       </nav>
       <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu__announcement">${announcement}</div>
         <form class="header-search mobile-search" action="${base}shop.html" method="get">
           <input type="search" name="q" placeholder="${LumiereI18n.t('search_placeholder')}">
           <button type="submit">🔍</button>

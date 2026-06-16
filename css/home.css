@@ -468,15 +468,7 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 
   .hero__card--accent { display: none; }
 
-  .hero__badge {
-    position: absolute;
-    bottom: 0;
-    inset-inline-start: 0;
-    inset-inline-end: auto;
-    font-size: 0.58rem;
-    padding: 6px 8px;
-    white-space: nowrap;
-  }
+  .hero__badge { display: none; }
 
   .home-tabs-wrap {
     position: static;

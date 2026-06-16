@@ -186,9 +186,6 @@ const LumiereLayout = (() => {
     }).join('');
 
     const categoriesActive = active === 'shop' || categories.some(c => c.slug === active) ? ' active' : '';
-    const bottomActive = inferBottomActive(active, categories);
-    const bottomAccountHref = session ? `${base}account.html` : `${base}login.html`;
-    const bottomWishlistHref = session ? `${base}account.html#wishlist` : `${base}login.html`;
     const categoryNavItems = categories.map(cat => {
       const label = LumiereI18n.translateCategory(cat);
       const activeClass = active === cat.slug ? ' active' : '';
@@ -261,7 +258,17 @@ const LumiereLayout = (() => {
           <li><button type="button" class="lang-switch mobile-lang">${LumiereI18n.t('lang_switch')}</button></li>
         </ul>
       </div>
-    </header>
+    </header>`;
+  }
+
+  function renderMobileBottomNav(active = '') {
+    const session = LumiereAuth.getSession();
+    const categories = sortedCategories(LumiereStore.get().categories);
+    const bottomActive = inferBottomActive(active, categories);
+    const bottomAccountHref = session ? `${base}account.html` : `${base}login.html`;
+    const bottomWishlistHref = session ? `${base}account.html#wishlist` : `${base}login.html`;
+
+    return `
     <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Mobile bottom navigation">
       <a href="${base}index.html" class="mobile-bottom-nav__item${bottomActive === 'home' ? ' active' : ''}">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V21h13V9.5"/></svg>
@@ -284,6 +291,12 @@ const LumiereLayout = (() => {
         <span>${LumiereI18n.t('mobile_nav_shop')}</span>
       </a>
     </nav>`;
+  }
+
+  function mountMobileBottomNav(active = '') {
+    document.getElementById('mobileBottomNav')?.remove();
+    if (isAdmin) return;
+    document.body.insertAdjacentHTML('beforeend', renderMobileBottomNav(active));
   }
 
   function renderFooter() {
@@ -334,6 +347,11 @@ const LumiereLayout = (() => {
       if (headerEl) headerEl.innerHTML = renderHeader(active);
     } catch (err) {
       console.error('Header render error:', err);
+    }
+    try {
+      mountMobileBottomNav(active);
+    } catch (err) {
+      console.error('Mobile nav render error:', err);
     }
     try {
       if (footerEl) footerEl.innerHTML = renderFooter();

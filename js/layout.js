@@ -150,6 +150,23 @@ const LumiereLayout = (() => {
       </ul>`;
   }
 
+  function inferBottomActive(active, categories) {
+    const path = window.location.pathname.toLowerCase();
+    const file = path.split('/').pop() || 'index.html';
+    const inShopCategory = categories.some(c => c.slug === active);
+
+    if (file === 'account.html') {
+      return window.location.hash === '#wishlist' ? 'wishlist' : 'account';
+    }
+    if (file === 'shop.html' || file === 'product.html' || file === 'cart.html' || active === 'shop' || active === 'product' || inShopCategory) {
+      return 'shop';
+    }
+    if ((file === 'index.html' || file === '') && window.location.hash === '#homeTabs') {
+      return 'categories';
+    }
+    return 'home';
+  }
+
   function renderHeader(active = '') {
     const session = LumiereAuth.getSession();
     const data = LumiereStore.get();
@@ -169,6 +186,9 @@ const LumiereLayout = (() => {
     }).join('');
 
     const categoriesActive = active === 'shop' || categories.some(c => c.slug === active) ? ' active' : '';
+    const bottomActive = inferBottomActive(active, categories);
+    const bottomAccountHref = session ? `${base}account.html` : `${base}login.html`;
+    const bottomWishlistHref = session ? `${base}account.html#wishlist` : `${base}login.html`;
     const categoryNavItems = categories.map(cat => {
       const label = LumiereI18n.translateCategory(cat);
       const activeClass = active === cat.slug ? ' active' : '';
@@ -241,7 +261,29 @@ const LumiereLayout = (() => {
           <li><button type="button" class="lang-switch mobile-lang">${LumiereI18n.t('lang_switch')}</button></li>
         </ul>
       </div>
-    </header>`;
+    </header>
+    <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="Mobile bottom navigation">
+      <a href="${base}index.html" class="mobile-bottom-nav__item${bottomActive === 'home' ? ' active' : ''}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V21h13V9.5"/></svg>
+        <span>${LumiereI18n.t('mobile_nav_home')}</span>
+      </a>
+      <a href="${base}index.html#homeTabs" class="mobile-bottom-nav__item${bottomActive === 'categories' ? ' active' : ''}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="4" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        <span>${LumiereI18n.t('mobile_nav_categories')}</span>
+      </a>
+      <a href="${bottomAccountHref}" class="mobile-bottom-nav__item${bottomActive === 'account' ? ' active' : ''}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-3.5 4.3-5 8-5s6.5 1.5 8 5"/></svg>
+        <span>${LumiereI18n.t('mobile_nav_account')}</span>
+      </a>
+      <a href="${bottomWishlistHref}" class="mobile-bottom-nav__item${bottomActive === 'wishlist' ? ' active' : ''}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.8 5.6a5.3 5.3 0 0 0-7.5 0L12 6.8l-1.3-1.2a5.3 5.3 0 1 0-7.5 7.5L12 21l8.8-7.9a5.3 5.3 0 0 0 0-7.5z"/></svg>
+        <span>${LumiereI18n.t('mobile_nav_wishlist')}</span>
+      </a>
+      <a href="${base}shop.html" class="mobile-bottom-nav__item${bottomActive === 'shop' ? ' active' : ''}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 8h15l-1.4 7.4a2 2 0 0 1-2 1.6H9.2a2 2 0 0 1-2-1.6L5.5 4H3"/><circle cx="10" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/></svg>
+        <span>${LumiereI18n.t('mobile_nav_shop')}</span>
+      </a>
+    </nav>`;
   }
 
   function renderFooter() {
@@ -298,6 +340,7 @@ const LumiereLayout = (() => {
     } catch (err) {
       console.error('Footer render error:', err);
     }
+    document.body.classList.toggle('mobile-nav-enabled', !isAdmin);
     KwanzouCart.updateUI();
     LumiereI18n.bindLangSwitch(headerEl || document);
     LumiereI18n.bindLangSwitch(document.getElementById('mobileMenu') || document);

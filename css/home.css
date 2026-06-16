@@ -249,10 +249,9 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 
 /* ===== Home category tabs (Floukaa-inspired) ===== */
 .home-tabs-wrap {
-  position: sticky;
-  top: 116px;
-  z-index: 120;
-  margin-top: -26px;
+  position: relative;
+  z-index: 20;
+  margin-top: 20px;
   padding-bottom: 10px;
 }
 
@@ -406,7 +405,12 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 }
 
 @media (max-width: 992px) {
-  .home-tabs-wrap { top: 72px; margin-top: -16px; }
+  .home-tabs-wrap {
+    position: relative;
+    top: auto;
+    margin-top: 18px;
+    padding-bottom: 8px;
+  }
   .hero__inner {
     grid-template-columns: 1fr;
     text-align: start;
@@ -512,6 +516,10 @@ html[dir="ltr"] .hero__badge { right: 5%; }
     inset-inline-end: 8px;
     bottom: 8px;
   }
-  .home-tabs-wrap { top: 62px; }
+  .home-tabs-wrap {
+    position: relative;
+    top: auto;
+    margin-top: 16px;
+  }
   .home-tabs-scroller { border-radius: 16px; }
 }

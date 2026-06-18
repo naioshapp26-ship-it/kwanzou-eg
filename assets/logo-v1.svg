@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 100" width="420" height="100" role="img" aria-label="Kwanzou Concept 1">
+  <defs>
+    <linearGradient id="v1gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F5E6B8"/>
+      <stop offset="25%" stop-color="#E8D08A"/>
+      <stop offset="55%" stop-color="#C9A962"/>
+      <stop offset="85%" stop-color="#A8893E"/>
+      <stop offset="100%" stop-color="#7A6428"/>
+    </linearGradient>
+    <linearGradient id="v1goldH" x1="0%" y1="50%" x2="100%" y2="50%">
+      <stop offset="0%" stop-color="#A8893E"/>
+      <stop offset="50%" stop-color="#F0DCA0"/>
+      <stop offset="100%" stop-color="#A8893E"/>
+    </linearGradient>
+    <radialGradient id="v1gem" cx="40%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="30%" stop-color="#F5E6B8"/>
+      <stop offset="70%" stop-color="#C9A962"/>
+      <stop offset="100%" stop-color="#6B5520"/>
+    </radialGradient>
+    <filter id="v1shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#2C2420" flood-opacity="0.25"/>
+    </filter>
+    <filter id="v1glow">
+      <feGaussianBlur stdDeviation="2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Icon: diamond frame + bold K -->
+  <g transform="translate(50, 50)" filter="url(#v1shadow)">
+    <!-- diamond frame -->
+    <path d="M 0 -38 L 38 0 L 0 38 L -38 0 Z" fill="none" stroke="url(#v1gold)" stroke-width="3.2" stroke-linejoin="round"/>
+    <path d="M 0 -30 L 30 0 L 0 30 L -30 0 Z" fill="none" stroke="url(#v1gold)" stroke-width="1" opacity="0.45"/>
+    <!-- corner gems -->
+    <circle cy="-38" r="3.5" fill="url(#v1gem)" filter="url(#v1glow)"/>
+    <circle cx="38" r="3" fill="url(#v1gem)" filter="url(#v1glow)"/>
+    <circle cy="38" r="3" fill="url(#v1gem)" filter="url(#v1glow)"/>
+    <circle cx="-38" r="3" fill="url(#v1gem)" filter="url(#v1glow)"/>
+    <!-- bold K -->
+    <path fill="url(#v1gold)" d="M -10 -22 L -10 22 L -2 22 L -2 2 L 14 22 L 24 22 L 4 -2 L 22 -22 L 12 -22 L -2 -4 L -2 -22 Z"/>
+    <!-- top crown prong -->
+    <path d="M -6 -38 L 0 -48 L 6 -38" fill="none" stroke="url(#v1goldH)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cy="-48" r="4" fill="url(#v1gem)" filter="url(#v1glow)"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text x="108" y="46" font-family="Georgia, 'Times New Roman', serif" font-size="34" font-weight="700" fill="#2C2420" letter-spacing="6">KWANZOU</text>
+  <rect x="110" y="54" width="120" height="3" rx="1.5" fill="url(#v1goldH)"/>
+  <text x="110" y="72" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" fill="url(#v1gold)" letter-spacing="9">ACCESSORIES</text>
+  <text x="110" y="88" font-family="Arial, Helvetica, sans-serif" font-size="9" font-weight="600" fill="#6B5E54" letter-spacing="5">LUXURY GOLD · EGYPT</text>
+
+  <!-- accent stars -->
+  <path d="M 395 22 L 396.5 25.5 L 400 26 L 397 28.5 L 397.8 32 L 395 30 L 392.2 32 L 393 28.5 L 390 26 L 393.5 25.5 Z" fill="url(#v1gold)"/>
+  <path d="M 408 38 L 408.8 40 L 411 40.2 L 409.2 41.5 L 409.6 43.5 L 408 42.5 L 406.4 43.5 L 406.8 41.5 L 405 40.2 L 407.2 40 Z" fill="#C9A962" opacity="0.8"/>
+</svg>

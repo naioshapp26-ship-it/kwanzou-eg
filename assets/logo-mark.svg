@@ -1,26 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88" width="88" height="88" role="img" aria-label="Kwanzou">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96" role="img" aria-label="Kwanzou">
   <defs>
-    <linearGradient id="kg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#E8D5A0"/>
-      <stop offset="50%" stop-color="#C9A962"/>
-      <stop offset="100%" stop-color="#A8893E"/>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F7E8B8"/><stop offset="50%" stop-color="#C9A962"/><stop offset="100%" stop-color="#8F7428"/>
     </linearGradient>
-    <radialGradient id="gem" cx="50%" cy="35%" r="65%">
-      <stop offset="0%" stop-color="#FFF8E7"/>
-      <stop offset="50%" stop-color="#D4BC7A"/>
-      <stop offset="100%" stop-color="#8B6F2E"/>
+    <radialGradient id="gem" cx="38%" cy="32%" r="68%">
+      <stop offset="0%" stop-color="#FFF"/><stop offset="100%" stop-color="#9A7B30"/>
     </radialGradient>
   </defs>
-  <rect width="88" height="88" rx="20" fill="#FAF8F5"/>
-  <circle cx="44" cy="44" r="34" fill="none" stroke="url(#kg)" stroke-width="1.8"/>
-  <path d="M 18 46 Q 44 62 70 46" fill="none" stroke="url(#kg)" stroke-width="1" opacity="0.5"/>
-  <path d="M 44 12 L 44 20" stroke="url(#kg)" stroke-width="1.5" stroke-linecap="round"/>
-  <circle cx="44" cy="11" r="2" fill="none" stroke="url(#kg)" stroke-width="1.2"/>
-  <path d="M 44 16 L 48 22 L 44 28 L 40 22 Z" fill="url(#gem)"/>
-  <g fill="none" stroke="#2C2420" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M 34 30 L 34 58"/>
-    <path d="M 34 44 C 34 44 42 30 52 30"/>
-    <path d="M 34 44 C 34 44 42 58 54 58"/>
+  <rect width="96" height="96" rx="20" fill="#2C2420"/>
+  <g transform="translate(48, 46)">
+    <circle r="38" fill="none" stroke="url(#g)" stroke-width="2"/>
+    <g fill="#FAF8F5" transform="scale(0.55)">
+      <ellipse cx="14" cy="-30" rx="13" ry="11"/>
+      <path d="M 26 -38 C 10 -38, -2 -28, -6 -14 C -9 -4, -6 6, 2 10 C 8 13, 14 12, 18 8 C 20 4, 18 -2, 14 -8 C 10 -16, 16 -26, 26 -30 Z"/>
+      <path d="M 6 10 C 4 18, 6 26, 12 32 C 20 38, 34 40, 44 36 C 52 33, 56 28, 54 22 C 48 24, 38 26, 28 22 Z"/>
+      <path d="M 18 8 C 14 2, 8 -2, 2 -6 C -2 -8, -6 -6, -8 -2 C -10 4, -8 10, -2 14 C 2 16, 8 14, 12 10 Z"/>
+    </g>
+    <circle cx="-3" cy="-4" r="7" fill="none" stroke="url(#g)" stroke-width="2"/>
+    <ellipse cx="8" cy="14" rx="5" ry="6" fill="url(#gem)" stroke="url(#g)" stroke-width="1.5"/>
+    <ellipse cx="-3" cy="16" rx="7" ry="2.5" fill="none" stroke="url(#g)" stroke-width="2"/>
   </g>
-  <path d="M 62 20 L 63.2 22 L 65.5 22.2 L 63.8 23.6 L 64.2 26 L 62 24.6 L 59.8 26 L 60.2 23.6 L 58.5 22.2 L 60.8 22 Z" fill="#D4BC7A"/>
 </svg>

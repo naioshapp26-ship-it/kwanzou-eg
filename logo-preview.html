@@ -3,208 +3,59 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>اختاري شعار Kwanzou</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
+  <title>Kwanzou — الشعار الجديد</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Cormorant+Garamond:wght@600&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --gold: #C9A962;
-      --gold-light: #D4BC7A;
-      --dark: #2C2420;
-      --cream: #F5F0EB;
-      --bg: #FAF8F5;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Cairo, sans-serif;
-      background: linear-gradient(160deg, var(--cream), var(--bg) 40%, #EDE6DC);
-      color: var(--dark);
-      padding: 32px 20px 64px;
-    }
-    .hero {
-      text-align: center;
-      max-width: 640px;
-      margin: 0 auto 40px;
-    }
-    .hero h1 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(2rem, 5vw, 2.75rem);
-      margin: 0 0 10px;
-      letter-spacing: 0.02em;
-    }
-    .hero p { color: #6B5E54; margin: 0; line-height: 1.7; }
-    .choices {
-      max-width: 1100px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 28px;
-    }
-    .choice {
-      background: var(--bg);
-      border-radius: 20px;
-      overflow: hidden;
-      border: 2px solid transparent;
-      box-shadow: 0 12px 40px rgba(44,36,32,0.1);
-      transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
-    }
-    .choice:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 20px 50px rgba(44,36,32,0.14);
-    }
-    .choice--v1:hover { border-color: var(--gold); }
-    .choice--v2:hover { border-color: #A8893E; }
-    .choice__badge {
-      padding: 14px 20px;
-      font-weight: 700;
-      font-size: 0.85rem;
-      letter-spacing: 0.08em;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .choice--v1 .choice__badge { background: linear-gradient(90deg, #2C2420, #4A3F38); color: var(--gold-light); }
-    .choice--v2 .choice__badge { background: linear-gradient(90deg, #C9A962, #E8D08A); color: var(--dark); }
-    .choice__tag {
-      font-size: 0.7rem;
-      padding: 4px 10px;
-      border-radius: 100px;
-      background: rgba(255,255,255,0.15);
-    }
-    .choice--v2 .choice__tag { background: rgba(44,36,32,0.12); }
-    .choice__canvas {
-      padding: 36px 24px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 24px;
-      min-height: 200px;
-      justify-content: center;
-    }
-    .choice--v1 .choice__canvas { background: linear-gradient(180deg, #fff, var(--bg)); }
-    .choice--v2 .choice__canvas { background: radial-gradient(circle at 50% 0%, rgba(201,169,98,0.12), transparent 60%), var(--bg); }
-    .choice__canvas img { max-width: 100%; height: auto; }
-    .mock-header {
-      width: 100%;
-      background: var(--bg);
-      border: 1px solid rgba(201,169,98,0.3);
-      border-radius: 12px;
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-    }
-    .mock-header img { height: 44px; width: auto; }
-    .mock-dots { display: flex; gap: 6px; }
-    .mock-dots span { width: 8px; height: 8px; border-radius: 50%; background: #ddd; }
-    .choice__desc {
-      padding: 0 24px 24px;
-      font-size: 0.92rem;
-      line-height: 1.75;
-      color: #6B5E54;
-    }
-    .choice__desc strong { color: var(--dark); display: block; margin-bottom: 6px; }
-    .marks {
-      display: flex;
-      gap: 16px;
-      align-items: center;
-    }
-    .marks img { border-radius: 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
-    .old {
-      max-width: 900px;
-      margin: 48px auto 0;
-      padding: 24px;
-      background: rgba(255,255,255,0.5);
-      border-radius: 16px;
-      text-align: center;
-      opacity: 0.65;
-    }
-    .old img { height: 56px; margin-top: 12px; }
-    .old-label { font-size: 0.75rem; color: #999; letter-spacing: 0.1em; text-transform: uppercase; }
-    .back {
-      display: block;
-      text-align: center;
-      margin-top: 40px;
-      color: #A8893E;
-      font-weight: 700;
-      text-decoration: none;
-    }
-    .pick-hint {
-      text-align: center;
-      margin-top: 32px;
-      padding: 16px 24px;
-      background: rgba(201,169,98,0.15);
-      border-radius: 12px;
-      max-width: 560px;
-      margin-left: auto;
-      margin-right: auto;
-      font-weight: 600;
-      color: var(--dark);
-    }
+    body { margin: 0; font-family: Cairo, sans-serif; background: #F5F0EB; color: #2C2420; padding: 32px 20px 64px; }
+    h1 { font-family: 'Cormorant Garamond', serif; text-align: center; font-size: 2.2rem; margin: 0 0 8px; }
+    .sub { text-align: center; color: #6B5E54; margin-bottom: 36px; }
+    .compare { max-width: 960px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .card { background: #FAF8F5; border-radius: 20px; padding: 28px; text-align: center; border: 1px solid rgba(201,169,98,0.3); box-shadow: 0 10px 36px rgba(44,36,32,0.08); }
+    .card--new { border: 2px solid #C9A962; }
+    .label { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: #A8893E; font-weight: 700; margin-bottom: 16px; }
+    .card img { max-width: 100%; height: auto; }
+    .card--old { opacity: 0.75; }
+    .features { max-width: 720px; margin: 36px auto 0; padding: 24px; background: rgba(201,169,98,0.12); border-radius: 16px; }
+    .features h2 { font-size: 1.1rem; margin: 0 0 12px; }
+    .features ul { margin: 0; padding-right: 20px; line-height: 1.9; color: #6B5E54; }
+    .row { max-width: 960px; margin: 32px auto 0; display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+    .mock { background: #FAF8F5; border: 1px solid #ddd; border-radius: 12px; padding: 14px; }
+    .mock img { height: 52px; }
+    a.back { display: block; text-align: center; margin-top: 32px; color: #A8893E; font-weight: 700; text-decoration: none; }
+    @media (max-width: 700px) { .compare { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-  <div class="hero">
-    <h1>اختاري شعار Kwanzou</h1>
-    <p>شكلين قويين ومميزين — مش هادين. كل واحد له طابع مختلف عشان الماركة تبهر وتتميز.</p>
+  <h1>شعار Kwanzou المطوّر</h1>
+  <p class="sub">نفس فكرة السيلويت — بس أقوى، بإكسسوارات أوضح ودهب لامع</p>
+
+  <div class="compare">
+    <div class="card card--old">
+      <div class="label">القديم</div>
+      <img src="assets/logo-reference-original.png" alt="Original" width="180">
+    </div>
+    <div class="card card--new">
+      <div class="label">الجديد ✦ مفعّل على الموقع</div>
+      <img src="assets/logo-stacked.svg" alt="New stacked" width="200">
+    </div>
   </div>
 
-  <div class="choices">
-    <!-- Concept 1 -->
-    <article class="choice choice--v1">
-      <div class="choice__badge">
-        <span>الشكل ١ — Royal Diamond</span>
-        <span class="choice__tag">قوي · ملكي</span>
-      </div>
-      <div class="choice__canvas">
-        <img src="assets/logo-v1.svg" alt="Concept 1" width="340">
-        <div class="mock-header">
-          <img src="assets/logo-v1.svg" alt="Header mock">
-          <div class="mock-dots"><span></span><span></span><span></span></div>
-        </div>
-        <div class="marks">
-          <img src="assets/logo-mark-v1.svg" width="64" height="64" alt="Icon">
-          <img src="assets/logo-mark-v1.svg" width="36" height="36" alt="Icon small">
-        </div>
-      </div>
-      <div class="choice__desc">
-        <strong>لمسة ملكية — ماسة و K عريض</strong>
-        إطار ماسي ذهبي بأحجار في الزوايا، حرف K ممتلئ بالدهب، وتاج فوق الشعار. شكل جريء يقول "فخامة ودهب" من أول نظرة. مناسب لو عايزة الماركة تبان premium وقوية.
-      </div>
-    </article>
-
-    <!-- Concept 2 -->
-    <article class="choice choice--v2">
-      <div class="choice__badge">
-        <span>الشكل ٢ — Sunburst Medallion</span>
-        <span class="choice__tag">مبهر · فريد</span>
-      </div>
-      <div class="choice__canvas">
-        <img src="assets/logo-v2.svg" alt="Concept 2" width="340">
-        <div class="mock-header">
-          <img src="assets/logo-v2.svg" alt="Header mock">
-          <div class="mock-dots"><span></span><span></span><span></span></div>
-        </div>
-        <div class="marks">
-          <img src="assets/logo-mark-v2.svg" width="64" height="64" alt="Icon">
-          <img src="assets/logo-mark-v2.svg" width="36" height="36" alt="Icon small">
-        </div>
-      </div>
-      <div class="choice__desc">
-        <strong>ميدالية شمسية — حلقان نازلين</strong>
-        دائرة مزخرفة بأشعة ذهبية زي السوليتير الكبير، حجر سداسي في النص، وقطرتين تحت زي الحلقان. تصميم فريد ومش هتلاقيه عند حد تاني — مبهر وملفت للعين.
-      </div>
-    </article>
+  <div class="features">
+    <h2>إيه اللي اتطوّر؟</h2>
+    <ul>
+      <li>حلق ذهب كبير + حجر نازل — واضح من بعيد</li>
+      <li>3 سلاسل + دلاية كبيرة لامعة في النص</li>
+      <li>4 أساور متراصة + خاتمين بأحجار</li>
+      <li>دبوس شعر دهبي + هالة ذهبية حوالين السيلويت</li>
+      <li>كلمة Kwanzou بخط اليد + ACCESSORIES بالدهب</li>
+    </ul>
   </div>
 
-  <p class="pick-hint">قوليلي: «الشكل ١» أو «الشكل ٢» — وهنفّذه على الموقع كله فوراً ✨</p>
-
-  <div class="old">
-    <div class="old-label">الشعار القديم (الهادي)</div>
-    <img src="assets/logo.svg" alt="Old logo">
+  <div class="row">
+    <div class="mock"><div class="label">الهيدر</div><img src="assets/logo.svg" alt="Header logo"></div>
+    <div class="mock" style="background:#2C2420"><div class="label" style="color:#D4BC7A">الأيقونة</div><img src="assets/logo-mark.svg" alt="Icon" height="64"></div>
   </div>
 
-  <a class="back" href="index.html">← ارجع للموقع</a>
+  <a class="back" href="index.html">← افتحي الموقع وشوفيه live</a>
 </body>
 </html>

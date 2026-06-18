@@ -34,11 +34,17 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 48px;
+  padding: 28px 32px;
   color: var(--cream);
 }
 
-.auth-visual .auth-logo { height: auto; width: auto; max-width: min(300px, 88%); object-fit: contain; margin-bottom: 16px; }
+.auth-visual .auth-logo {
+  height: auto;
+  width: auto;
+  max-width: min(165px, 58%);
+  object-fit: contain;
+  margin-bottom: 10px;
+}
 
 .auth-form-panel {
   display: flex;

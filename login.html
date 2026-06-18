@@ -7,7 +7,7 @@
   <link rel="icon" href="assets/logo.png?v=3" type="image/png">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
-  <link rel="stylesheet" href="css/auth.css">
+  <link rel="stylesheet" href="css/auth.css?v=2">
 </head>
 <body class="auth-page" data-page-title="login_title">
   <div class="auth-lang"><button type="button" class="lang-switch" id="langSwitch">English</button></div>
@@ -54,9 +54,7 @@
       LumiereI18n.init();
       LumiereI18n.bindLangSwitch();
       await LumiereStore.init();
-      const authImg = document.getElementById('authVisualImage');
-      const authSrc = LumiereStore.get().settings.authVisualImage;
-      if (authImg && authSrc) authImg.src = authSrc;
+      LumiereAuth.initAuthBranding();
       window.addEventListener('lumiere:langchange', () => LumiereI18n.applyTranslations());
 
       if (LumiereAuth.isLoggedIn()) {

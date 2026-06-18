@@ -98,9 +98,27 @@ const LumiereAuth = (() => {
     return s && s.role === 'superadmin';
   }
 
+  function mediaSrc(url) {
+    if (!url) return '';
+    if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/api/media/')) {
+      return url;
+    }
+    if (url === 'assets/logo.png') return `${url}?v=3`;
+    return url;
+  }
+
+  function initAuthBranding() {
+    const s = LumiereStore.get()?.settings || {};
+    const authImg = document.getElementById('authVisualImage');
+    if (authImg && s.authVisualImage) authImg.src = mediaSrc(s.authVisualImage);
+    const logo = document.querySelector('.auth-logo');
+    if (logo && s.logo) logo.src = mediaSrc(s.logo);
+  }
+
   return {
     getSession, login, register, logout,
     requireAuth, requireRole, requireSuperAdmin,
-    getCurrentUser, isLoggedIn, isSuperAdmin
+    getCurrentUser, isLoggedIn, isSuperAdmin,
+    initAuthBranding, mediaSrc
   };
 })();

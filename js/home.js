@@ -7,14 +7,20 @@ const HERO_FALLBACK = {
   a2: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=650&q=80'
 };
 
-const INSTA_IMAGES = [
+const INSTA_FALLBACK = [
   'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&q=80',
-  'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=600&q=80',
+  'https://images.unsplash.com/photo-1519741497674-611481863552?w=600&q=80',
   'https://images.unsplash.com/photo-1541643600914-78b084683601?w=600&q=80',
   'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=600&q=80',
   'https://images.unsplash.com/photo-1599643478518-a784e5dc4c42?w=600&q=80',
   'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&q=80'
 ];
+
+function mediaSrc(url) {
+  if (!url) return '';
+  if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/api/media/')) return url;
+  return url;
+}
 
 function sortedCategories(categories) {
   return [...categories].sort((a, b) => (a.sort ?? 99) - (b.sort ?? 99));
@@ -129,14 +135,29 @@ function renderTestimonials(testimonials) {
   }).join('');
 }
 
-function renderInstagram() {
+function renderInstagram(settings, gallery) {
   const instagramGrid = document.getElementById('instagramGrid');
   if (!instagramGrid) return;
-  instagramGrid.innerHTML = INSTA_IMAGES.map((src, i) =>
-    `<a href="https://instagram.com/kwanzou.eg" class="instagram-item" target="_blank" rel="noopener" aria-label="Instagram ${i + 1}">
-      <img src="${src}" alt="" loading="lazy">
-    </a>`
-  ).join('');
+
+  const instaUrl = settings?.instaUrl || 'https://instagram.com/kwanzou.eg';
+  const instaHandle = settings?.instaHandle || '@kwanzou.eg';
+  const followLink = document.querySelector('#instagram .link-arrow');
+  const eyebrow = document.querySelector('#instagram .section-eyebrow');
+  if (followLink) followLink.href = instaUrl;
+  if (eyebrow) eyebrow.textContent = instaHandle;
+
+  const items = (gallery?.length ? gallery : INSTA_FALLBACK.map((image, i) => ({ id: `ig-${i + 1}`, image })))
+    .map(item => (typeof item === 'string' ? { image: item } : item))
+    .filter(item => item.image);
+
+  instagramGrid.innerHTML = items.map((item, i) => {
+    const src = mediaSrc(item.image);
+    const href = item.link || instaUrl;
+    const fallback = INSTA_FALLBACK[i % INSTA_FALLBACK.length];
+    return `<a href="${href}" class="instagram-item" target="_blank" rel="noopener" aria-label="Instagram ${i + 1}">
+      <img src="${src}" alt="" loading="lazy" onerror="this.src='${fallback}'">
+    </a>`;
+  }).join('');
 }
 
 function initScrollReveal() {
@@ -154,7 +175,7 @@ function renderHomepage() {
     const data = LumiereStore.get();
     if (!data) throw new Error('No store data');
 
-    const { settings, products, testimonials, categories } = data;
+    const { settings, products, testimonials, categories, instagramGallery } = data;
     const sortedCats = sortedCategories(categories || []);
     const allProducts = products || [];
 
@@ -163,7 +184,7 @@ function renderHomepage() {
     renderHomeCategories(sortedCats);
     renderProductSections(allProducts);
     renderTestimonials(testimonials);
-    renderInstagram();
+    renderInstagram(settings, instagramGallery);
 
     ProductUI.bindCartButtons(document);
     initScrollReveal();

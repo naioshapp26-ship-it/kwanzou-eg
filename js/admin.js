@@ -43,6 +43,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 });
 
+const INSTAGRAM_GALLERY_OPTS = { galleryId: 'instagramGallery', addBtnId: 'addInstagramImage' };
+
+function renderInstagramGalleryAdmin() {
+  const wrap = document.getElementById('instagramGalleryWrap');
+  if (!wrap) return;
+  const data = LumiereStore.get();
+  const images = (data.instagramGallery || []).map(item => item.image).filter(Boolean);
+  wrap.innerHTML = AdminMedia.galleryHTML(images, INSTAGRAM_GALLERY_OPTS);
+  AdminMedia.bindGallery(wrap, toast, INSTAGRAM_GALLERY_OPTS);
+  wrap.querySelectorAll('.gallery-preview').forEach((preview, i) => {
+    const src = images[i];
+    if (src) AdminMedia.setPreview(preview, imgSrc(src));
+  });
+}
+
 function imgSrc(url) {
   if (!url) return '';
   if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://')) return url;
@@ -340,6 +355,8 @@ function renderSettings() {
   document.getElementById('setTaglineEn').value = s.taglineEn || s.tagline || '';
   document.getElementById('setSubtitleAr').value = s.subtitleAr || '';
   document.getElementById('setSubtitleEn').value = s.subtitleEn || s.subtitle || '';
+  document.getElementById('setInstaHandle').value = s.instaHandle || '@kwanzou.eg';
+  document.getElementById('setInstaUrl').value = s.instaUrl || 'https://instagram.com/kwanzou.eg';
 
   const heroFields = [
     ['setHeroImage', 'heroBgPreview', s.heroImage],
@@ -354,33 +371,48 @@ function renderSettings() {
     if (input) input.value = src || '';
     AdminMedia.setPreview(preview, src ? imgSrc(src) : '');
   });
+  renderInstagramGalleryAdmin();
 }
 
 function initSettingsForm() {
   document.getElementById('settingsForm').onsubmit = async e => {
     e.preventDefault();
     const s = LumiereStore.get().settings;
-    LumiereStore.updateSettings({
-      brandName: document.getElementById('setBrand').value,
-      currencySymbol: document.getElementById('setCurrency').value,
-      currency: document.getElementById('setCurrency').value,
-      announcementEn: document.getElementById('setAnnouncement').value,
-      announcement: document.getElementById('setAnnouncement').value,
-      announcementAr: document.getElementById('setAnnouncementAr').value,
-      taglineAr: document.getElementById('setTaglineAr').value,
-      taglineEn: document.getElementById('setTaglineEn').value,
-      tagline: document.getElementById('setTaglineEn').value,
-      subtitleAr: document.getElementById('setSubtitleAr').value,
-      subtitleEn: document.getElementById('setSubtitleEn').value,
-      subtitle: document.getElementById('setSubtitleEn').value,
-      heroImage: fieldValue('setHeroImage', s.heroImage || ''),
-      heroAccent1: fieldValue('setHeroAccent1', s.heroAccent1 || ''),
-      heroAccent2: fieldValue('setHeroAccent2', s.heroAccent2 || ''),
-      promoImage: fieldValue('setPromoImage', s.promoImage || s.heroAccent2 || ''),
-      authVisualImage: fieldValue('setAuthVisualImage', s.authVisualImage || s.heroImage || '')
+    const instaUrl = fieldValue('setInstaUrl', s.instaUrl || 'https://instagram.com/kwanzou.eg');
+    const galleryWrap = document.getElementById('instagramGalleryWrap');
+    const galleryImages = galleryWrap ? AdminMedia.collectGallery(galleryWrap, 'instagramGallery') : [];
+
+    LumiereStore.update(data => {
+      Object.assign(data.settings, {
+        brandName: document.getElementById('setBrand').value,
+        currencySymbol: document.getElementById('setCurrency').value,
+        currency: document.getElementById('setCurrency').value,
+        announcementEn: document.getElementById('setAnnouncement').value,
+        announcement: document.getElementById('setAnnouncement').value,
+        announcementAr: document.getElementById('setAnnouncementAr').value,
+        taglineAr: document.getElementById('setTaglineAr').value,
+        taglineEn: document.getElementById('setTaglineEn').value,
+        tagline: document.getElementById('setTaglineEn').value,
+        subtitleAr: document.getElementById('setSubtitleAr').value,
+        subtitleEn: document.getElementById('setSubtitleEn').value,
+        subtitle: document.getElementById('setSubtitleEn').value,
+        heroImage: fieldValue('setHeroImage', s.heroImage || ''),
+        heroAccent1: fieldValue('setHeroAccent1', s.heroAccent1 || ''),
+        heroAccent2: fieldValue('setHeroAccent2', s.heroAccent2 || ''),
+        promoImage: fieldValue('setPromoImage', s.promoImage || s.heroAccent2 || ''),
+        authVisualImage: fieldValue('setAuthVisualImage', s.authVisualImage || s.heroImage || ''),
+        instaHandle: fieldValue('setInstaHandle', s.instaHandle || '@kwanzou.eg'),
+        instaUrl
+      });
+      data.instagramGallery = galleryImages.map((image, i) => ({
+        id: `ig-${i + 1}`,
+        image,
+        link: instaUrl
+      }));
     });
     applyAdminBranding();
     await persistAfterSave();
+    renderInstagramGalleryAdmin();
   };
 }
 

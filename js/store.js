@@ -33,6 +33,8 @@ const LumiereStore = (() => {
       heroAccent2: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=650&q=80',
       promoImage: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=900&q=85',
       authVisualImage: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1200&q=80',
+      instaHandle: '@kwanzou.eg',
+      instaUrl: 'https://instagram.com/kwanzou.eg',
       currency: 'EGP',
       currencySymbol: 'ج.م'
     },
@@ -73,6 +75,14 @@ const LumiereStore = (() => {
       { id: 't2', name: 'Mariam Ali', location: 'Alexandria, Egypt', text: 'Best bags and perfumes in one shop.', textAr: 'أحلى شنط وبرفانات في مكان واحد.', textEn: 'Best bags and perfumes in one shop.', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80', featured: true },
       { id: 't3', name: 'Yasmin Farid', location: 'Giza, Egypt', text: 'Fast delivery and great makeup selection.', textAr: 'التوصيل سريع والميكب عندهم حلو أوي.', textEn: 'Fast delivery and great makeup selection.', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&q=80', featured: false }
     ],
+    instagramGallery: [
+      { id: 'ig-1', image: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&q=80' },
+      { id: 'ig-2', image: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=600&q=80' },
+      { id: 'ig-3', image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=600&q=80' },
+      { id: 'ig-4', image: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=600&q=80' },
+      { id: 'ig-5', image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c42?w=600&q=80' },
+      { id: 'ig-6', image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&q=80' }
+    ],
     users: [
       { id: 'u-admin', name: 'Super Admin', email: 'admin@lumiere.com', password: 'admin123', role: 'superadmin', phone: '+20 100 000 0000', createdAt: '2024-01-01' },
       { id: 'u-demo', name: 'Sarah Mitchell', email: 'customer@lumiere.com', password: 'demo123', role: 'customer', phone: '+20 100 000 0001', createdAt: '2025-03-15', wishlist: ['p-e2', 'p-b2'], orders: [] }
@@ -95,6 +105,7 @@ const LumiereStore = (() => {
     merged.products = data.products?.length ? clone(data.products) : clone(defaults.products);
     merged.collections = data.collections?.length ? data.collections : clone(defaults.collections);
     merged.testimonials = data.testimonials?.length ? data.testimonials : clone(defaults.testimonials);
+    merged.instagramGallery = data.instagramGallery?.length ? clone(data.instagramGallery) : clone(defaults.instagramGallery);
     merged.users = data.users?.length ? data.users : clone(defaults.users);
     merged.newsletter = data.newsletter || [];
     merged.orders = Array.isArray(data.orders) ? data.orders : [];

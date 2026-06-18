@@ -145,7 +145,9 @@ const AdminMedia = (() => {
     });
   }
 
-  function galleryHTML(images = []) {
+  function galleryHTML(images = [], options = {}) {
+    const galleryId = options.galleryId || 'productGallery';
+    const addBtnId = options.addBtnId || 'addGalleryImage';
     const list = (images.length ? images : ['']).map((src, i) => `
       <div class="gallery-item" data-index="${i}">
         <img class="image-preview gallery-preview" src="${src ? escapeAttr(src) : ''}" alt="" ${src ? '' : 'hidden'}>
@@ -159,16 +161,18 @@ const AdminMedia = (() => {
         </div>
       </div>
     `).join('');
-    return `<div class="product-gallery" id="productGallery">${list}</div>
-      <button type="button" class="btn btn-sm btn-outline" id="addGalleryImage">${LumiereI18n.t('admin_add_image')}</button>`;
+    return `<div class="product-gallery" id="${galleryId}">${list}</div>
+      <button type="button" class="btn btn-sm btn-outline" id="${addBtnId}">${LumiereI18n.t('admin_add_image')}</button>`;
   }
 
   function escapeAttr(s) {
     return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
   }
 
-  function bindGallery(root, toastFn) {
-    const wrap = root.querySelector('#productGallery');
+  function bindGallery(root, toastFn, options = {}) {
+    const galleryId = options.galleryId || 'productGallery';
+    const addBtnId = options.addBtnId || 'addGalleryImage';
+    const wrap = root.querySelector(`#${galleryId}`);
     if (!wrap) return;
 
     const bindItem = item => {
@@ -196,7 +200,7 @@ const AdminMedia = (() => {
 
     wrap.querySelectorAll('.gallery-item').forEach(bindItem);
 
-    root.querySelector('#addGalleryImage')?.addEventListener('click', () => {
+    root.querySelector(`#${addBtnId}`)?.addEventListener('click', () => {
       const idx = wrap.querySelectorAll('.gallery-item').length;
       const div = document.createElement('div');
       div.className = 'gallery-item';
@@ -219,8 +223,9 @@ const AdminMedia = (() => {
     });
   }
 
-  function collectGallery(root) {
-    return [...root.querySelectorAll('.gallery-url')]
+  function collectGallery(root, galleryId = 'productGallery') {
+    const scope = root.querySelector?.(`#${galleryId}`) || root;
+    return [...scope.querySelectorAll('.gallery-url')]
       .map(i => i.value.trim())
       .filter(Boolean);
   }

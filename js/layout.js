@@ -16,7 +16,11 @@ const LumiereLayout = (() => {
   function logoPath(settings) {
     const logo = settings?.logo || 'assets/logo.png';
     if (logo.startsWith('data:') || logo.startsWith('http://') || logo.startsWith('https://')) return logo;
-    return `${base}${logo}`;
+    const path = `${base}${logo.replace(/^\//, '')}`;
+    if (logo === 'assets/logo.png' || logo.endsWith('/assets/logo.png')) {
+      return `${path}?v=3`;
+    }
+    return path;
   }
 
   function sortedCategories(categories) {

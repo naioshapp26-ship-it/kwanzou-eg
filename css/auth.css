@@ -38,7 +38,7 @@
   color: var(--cream);
 }
 
-.auth-visual .auth-logo { height: 100px; width: auto; max-width: 220px; object-fit: contain; margin-bottom: 16px; }
+.auth-visual .auth-logo { height: auto; width: auto; max-width: min(300px, 88%); object-fit: contain; margin-bottom: 16px; }
 
 .auth-form-panel {
   display: flex;

@@ -62,7 +62,9 @@ function imgSrc(url) {
   if (!url) return '';
   if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://')) return url;
   if (url.startsWith('/api/media/')) return url;
-  return ADMIN_BASE + url.replace(/^\//, '');
+  const clean = url.replace(/^\//, '');
+  if (clean === 'assets/logo.png') return `${ADMIN_BASE}assets/logo.png?v=3`;
+  return ADMIN_BASE + clean;
 }
 
 async function persistAfterSave() {

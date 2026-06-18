@@ -1,6 +1,12 @@
 /**
  * Shop / Category listing page
  */
+const LEGACY_CAT_REDIRECT = {
+  jewelry: 'necklaces',
+  earrings: 'accessories'
+};
+const REMOVED_CAT_SLUGS = ['watches', 'scarves', 'sunglasses', 'new-arrivals'];
+
 document.addEventListener('DOMContentLoaded', async () => {
   LumiereI18n.init();
   await LumiereStore.init();
@@ -8,11 +14,49 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.addEventListener('lumiere:langchange', renderShop);
 });
 
+function filterTabLabel(item) {
+  if (item.i18n) return LumiereI18n.t(item.i18n);
+  return LumiereI18n.getLang() === 'ar' ? item.ar : item.en;
+}
+
+function isFilterActive(item, catSlug, query) {
+  if (item.key === 'sale') return query === 'sale';
+  if (item.key === 'earrings') return catSlug === 'accessories';
+  if (item.key === 'necklaces') return catSlug === 'necklaces' && !query;
+  if (item.key === 'bracelets') return catSlug === 'bracelets' && !query;
+  if (item.key === 'rings') return catSlug === 'rings' && !query;
+  if (item.key === 'perfumes') return catSlug === 'perfumes' && !query;
+  if (item.key === 'handbags') return catSlug === 'handbags' && !query;
+  return false;
+}
+
+function getShopTitle(catSlug, query, params) {
+  if (query === 'sale') return LumiereI18n.getLang() === 'ar' ? 'UP TO 50%' : 'UP TO 50%';
+  const tabs = typeof LumiereLayout.getHomeCategoryTabs === 'function'
+    ? LumiereLayout.getHomeCategoryTabs()
+    : [];
+  const tab = tabs.find(t => isFilterActive(t, catSlug, query));
+  if (tab) return filterTabLabel(tab);
+  if (query) return `"${params.get('q')}"`;
+  return LumiereI18n.t('shop_all');
+}
+
 function renderShop() {
   const params = new URLSearchParams(location.search);
-  const catSlug = params.get('cat') || '';
+  let catSlug = params.get('cat') || '';
   const query = (params.get('q') || '').toLowerCase();
   const sortParam = params.get('sort') || '';
+
+  if (LEGACY_CAT_REDIRECT[catSlug]) {
+    params.set('cat', LEGACY_CAT_REDIRECT[catSlug]);
+    location.replace(`shop.html?${params.toString()}`);
+    return;
+  }
+  if (REMOVED_CAT_SLUGS.includes(catSlug)) {
+    location.replace('shop.html');
+    return;
+  }
+
   const data = LumiereStore.get();
 
   LumiereLayout.init(catSlug || (sortParam ? 'shop' : 'shop'));
@@ -25,8 +69,7 @@ function renderShop() {
     return name.includes(query) || p.category?.toLowerCase().includes(query);
   });
 
-  const cat = data.categories.find(c => c.slug === catSlug);
-  const title = cat ? LumiereI18n.translateCategory(cat) : (query ? `"${params.get('q')}"` : LumiereI18n.t('shop_all'));
+  const title = getShopTitle(catSlug, query, params);
   document.getElementById('shopTitle').textContent = title;
   document.getElementById('shopCount').textContent = `${products.length} ${LumiereI18n.t('products_count')}`;
 
@@ -34,12 +77,26 @@ function renderShop() {
     <a href="index.html">${LumiereI18n.t('nav_home')}</a>
     <span>/</span>
     <a href="shop.html">${LumiereI18n.t('shop_all')}</a>
-    ${catSlug ? `<span>/</span><span>${title}</span>` : ''}`;
+    ${catSlug || query ? `<span>/</span><span>${title}</span>` : ''}`;
 
-  document.getElementById('shopFilters').innerHTML = [
-    { slug: '', label: LumiereI18n.t('shop_all') },
-    ...[...data.categories].sort((a, b) => (a.sort ?? 99) - (b.sort ?? 99)).map(c => ({ slug: c.slug, label: LumiereI18n.translateCategory(c) }))
-  ].map(f => `<a href="shop.html${f.slug ? '?cat=' + f.slug : ''}" class="filter-chip${f.slug === catSlug ? ' active' : ''}">${f.label}</a>`).join('');
+  const navTabs = typeof LumiereLayout.getHomeCategoryTabs === 'function'
+    ? LumiereLayout.getHomeCategoryTabs()
+    : [];
+  const filters = [
+    { href: 'shop.html', key: 'all', label: LumiereI18n.t('shop_all') },
+    ...navTabs.map(tab => ({
+      href: (tab.href || 'shop.html').replace(/^\.\//, ''),
+      key: tab.key,
+      label: filterTabLabel(tab)
+    }))
+  ];
+
+  document.getElementById('shopFilters').innerHTML = filters.map(f => {
+    const active = f.key === 'all'
+      ? !catSlug && !query
+      : isFilterActive({ key: f.key }, catSlug, query);
+    return `<a href="${f.href}" class="filter-chip${active ? ' active' : ''}">${f.label}</a>`;
+  }).join('');
 
   const sortEl = document.getElementById('shopSort');
   sortEl.onchange = () => renderGrid(sortProducts(products, sortEl.value));

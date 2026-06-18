@@ -2,9 +2,13 @@
  * LUMIÈRE — Central data store (localStorage)
  */
 const LumiereStore = (() => {
-  const KEY = 'kwanzou_store_v10';
+  const KEY = 'kwanzou_store_v11';
+  const CATALOG_VERSION = 2;
+  const REMOVED_CATEGORY_SLUGS = ['jewelry', 'earrings', 'watches', 'scarves', 'sunglasses', 'new-arrivals'];
+  const LEGACY_CATEGORY_SLUG_MAP = { jewelry: 'necklaces', earrings: 'accessories' };
 
   const defaults = {
+    catalogVersion: CATALOG_VERSION,
     settings: {
       brandName: 'Kwanzou EG',
       logo: 'assets/logo.png',
@@ -33,28 +37,30 @@ const LumiereStore = (() => {
       currencySymbol: 'ج.م'
     },
     categories: [
-      { id: 'cat-1', name: 'Accessories', nameAr: 'إكسسوارات', slug: 'accessories', sort: 1, image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800&q=80', featured: true },
-      { id: 'cat-2', name: 'Bags', nameAr: 'شنط', slug: 'handbags', sort: 2, image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&q=80', featured: true },
-      { id: 'cat-3', name: 'Perfumes', nameAr: 'برفانات', slug: 'perfumes', sort: 3, image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&q=80', featured: true },
-      { id: 'cat-4', name: 'Necklaces', nameAr: 'سلاسل', slug: 'necklaces', sort: 4, image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c42?w=800&q=80', featured: true },
-      { id: 'cat-5', name: 'Bracelets', nameAr: 'أساور', slug: 'bracelets', sort: 5, image: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=800&q=80', featured: true },
-      { id: 'cat-6', name: 'Rings', nameAr: 'خواتم', slug: 'rings', sort: 6, image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=80', featured: true },
-      { id: 'cat-7', name: 'Watches', nameAr: 'ساعات', slug: 'watches', sort: 7, image: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=800&q=80', featured: true },
-      { id: 'cat-8', name: 'New Arrivals', nameAr: 'جديد', slug: 'new-arrivals', sort: 8, image: 'https://images.unsplash.com/photo-1492707896669-8dd329a169e8?w=800&q=80', featured: true }
+      { id: 'cat-necklaces', name: 'Necklaces', nameAr: 'سلاسل', slug: 'necklaces', sort: 1, image: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80', featured: true },
+      { id: 'cat-bracelets', name: 'Bracelets', nameAr: 'أساور', slug: 'bracelets', sort: 2, image: 'https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=800&q=80', featured: true },
+      { id: 'cat-accessories', name: 'Earrings', nameAr: 'حلقان', slug: 'accessories', sort: 3, image: 'https://images.unsplash.com/photo-1617038220319-496d8d1736f4?w=800&q=80', featured: true },
+      { id: 'cat-rings', name: 'Rings', nameAr: 'خواتم', slug: 'rings', sort: 4, image: 'https://images.unsplash.com/photo-1603561596112-0a132b757442?w=800&q=80', featured: true },
+      { id: 'cat-perfumes', name: 'Perfumes', nameAr: 'برفانات', slug: 'perfumes', sort: 5, image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&q=80', featured: true },
+      { id: 'cat-handbags', name: 'Bags', nameAr: 'شنط', slug: 'handbags', sort: 6, image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&q=80', featured: true }
     ],
     products: [
-      { id: 'p1', name: 'Layered Chain Necklace', nameAr: 'سلسلة طبقات', category: 'Necklaces', categorySlug: 'necklaces', price: 520, rating: 5, reviews: 84, image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c42?w=600&q=80', images: ['https://images.unsplash.com/photo-1599643478518-a784e5dc4c42?w=800&q=80'], badge: 'New', featured: true, bestseller: true, stock: 30, descAr: 'سلسلة استالس 316L ما بتصديش. شكلها شيك وبتكمل أي لوك.', descEn: '316L stainless steel necklace. Tarnish-free and elegant.' },
-      { id: 'p2', name: 'Gold Hoop Earrings', nameAr: 'حلق ذهبي', category: 'Accessories', categorySlug: 'accessories', price: 280, rating: 5, reviews: 156, image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&q=80', images: ['https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800&q=80'], badge: 'Best Seller', featured: true, bestseller: true, stock: 45, descAr: 'حلق خفيف ومريح. مناسب للاستخدام اليومي.', descEn: 'Lightweight hoop earrings for daily wear.' },
-      { id: 'p3', name: 'Leather Tote Bag', nameAr: 'شنطة جلد', category: 'Bags', categorySlug: 'handbags', price: 1250, rating: 5, reviews: 92, image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=600&q=80', images: ['https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&q=80'], badge: 'Best Seller', featured: true, bestseller: true, stock: 15, descAr: 'شنطة جلد كويسة، مساحة كبيرة وشكلها عملي وشيك.', descEn: 'Spacious leather tote with a clean everyday look.' },
-      { id: 'p4', name: 'Mini Crossbody Bag', nameAr: 'شنطة كروس', category: 'Bags', categorySlug: 'handbags', price: 890, rating: 4, reviews: 67, image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&q=80', images: ['https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&q=80'], badge: 'New', featured: true, bestseller: false, stock: 20, descAr: 'شنطة كروس صغيرة للخروجات. خفيفة وعملية.', descEn: 'Compact crossbody bag for outings.' },
-      { id: 'p5', name: 'Pearl Bracelet', nameAr: 'اسورة لؤلؤ', category: 'Bracelets', categorySlug: 'bracelets', price: 380, rating: 5, reviews: 73, image: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&q=80', images: ['https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=800&q=80'], badge: 'New', featured: true, bestseller: true, stock: 28, descAr: 'اسورة لؤلؤ كلاسيك. بتكمل أي لوك سهرة.', descEn: 'Classic pearl bracelet for elegant evenings.' },
-      { id: 'p6', name: 'Crystal Stacking Ring', nameAr: 'خاتم كريستال', category: 'Rings', categorySlug: 'rings', price: 320, rating: 5, reviews: 54, image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&q=80', images: ['https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=80'], badge: '', featured: true, bestseller: false, stock: 35, descAr: 'خاتم كريستال ناعم. ينفع لوحده أو مع خواتم تانية.', descEn: 'Delicate crystal ring, perfect for stacking.' },
-      { id: 'p7', name: 'Floral Perfume 50ml', nameAr: 'برفان زهري 50ml', category: 'Perfumes', categorySlug: 'perfumes', price: 680, rating: 5, reviews: 89, image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=600&q=80', images: ['https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&q=80'], badge: 'Best Seller', featured: true, bestseller: true, stock: 18, descAr: 'برفان زهري خفيف وثابت. مناسب للنهار.', descEn: 'Light floral perfume with lasting scent.' },
-      { id: 'p8', name: 'Oud Perfume 30ml', nameAr: 'برفان عود 30ml', category: 'Perfumes', categorySlug: 'perfumes', price: 950, rating: 5, reviews: 64, image: 'https://images.unsplash.com/photo-1592945403244-b3fb4447f053?w=600&q=80', images: ['https://images.unsplash.com/photo-1592945403244-b3fb4447f053?w=800&q=80'], badge: 'New', featured: true, bestseller: true, stock: 12, descAr: 'برفان عود فاخر. ريحة قوية وثابتة للسهرات.', descEn: 'Rich oud perfume for evening wear.' },
-      { id: 'p9', name: 'Classic Gold Watch', nameAr: 'ساعة ذهبية', category: 'Watches', categorySlug: 'watches', price: 1450, rating: 5, reviews: 41, image: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=600&q=80', images: ['https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=800&q=80'], badge: 'New', featured: true, bestseller: true, stock: 10, descAr: 'ساعة كلاسيك بإطار ذهبي. شيك للخروجات.', descEn: 'Classic watch with a gold-tone finish.' },
-      { id: 'p10', name: 'Charm Pendant Necklace', nameAr: 'سلسلة دلاية', category: 'Necklaces', categorySlug: 'necklaces', price: 410, rating: 4, reviews: 38, image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&q=80', images: ['https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&q=80'], badge: 'New', featured: true, bestseller: false, stock: 22, descAr: 'دلاية شيك بتكمل أي لوك يومي.', descEn: 'Elegant charm pendant for everyday style.' },
-      { id: 'p11', name: 'Cuff Bracelet', nameAr: 'اسورة كف', category: 'Bracelets', categorySlug: 'bracelets', price: 460, rating: 5, reviews: 29, image: 'https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=600&q=80', images: ['https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=800&q=80'], badge: '', featured: false, bestseller: true, stock: 18, descAr: 'اسورة كف bold وشيك.', descEn: 'Bold cuff bracelet with a refined finish.' },
-      { id: 'p12', name: 'Statement Ring', nameAr: 'خاتم statement', category: 'Rings', categorySlug: 'rings', price: 540, rating: 5, reviews: 22, image: 'https://images.unsplash.com/photo-1603561596112-0a132b757442?w=600&q=80', images: ['https://images.unsplash.com/photo-1603561596112-0a132b757442?w=800&q=80'], badge: 'New', featured: true, bestseller: false, stock: 14, descAr: 'خاتم بارز للسهرات والمناسبات.', descEn: 'Statement ring for special occasions.' }
+      { id: 'p-n1', name: 'Layered Gold Chain', nameAr: 'سلسلة طبقات دهب', category: 'Necklaces', categorySlug: 'necklaces', price: 520, rating: 5, reviews: 84, image: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=600&q=80', images: ['https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80'], badge: 'New', featured: true, bestseller: true, stock: 30, descAr: 'سلسلة طبقات ترند، شكلها شيك على الرقبة.', descEn: 'Trendy layered chain necklace.' },
+      { id: 'p-n2', name: 'Charm Pendant Necklace', nameAr: 'سلسلة دلاية دهب', category: 'Necklaces', categorySlug: 'necklaces', price: 410, rating: 5, reviews: 52, image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c42?w=600&q=80', images: ['https://images.unsplash.com/photo-1599643478518-a784e5dc4c42?w=800&q=80'], badge: 'Best Seller', featured: true, bestseller: true, stock: 22, descAr: 'دلاية ناعمة بتكمل أي لوك يومي.', descEn: 'Delicate charm pendant for daily wear.' },
+      { id: 'p-n3', name: 'Zircon Pendant Chain', nameAr: 'سلسلة zircon', category: 'Necklaces', categorySlug: 'necklaces', price: 480, rating: 5, reviews: 38, image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&q=80', images: ['https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=800&q=80'], badge: 'New', featured: true, bestseller: false, stock: 18, descAr: 'سلسلة لامعة بحجر zircon — ترند السهرات.', descEn: 'Sparkling zircon pendant chain.' },
+      { id: 'p-b1', name: 'Pearl Bracelet', nameAr: 'اسورة لؤلؤ', category: 'Bracelets', categorySlug: 'bracelets', price: 380, rating: 5, reviews: 73, image: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&q=80', images: ['https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=800&q=80'], badge: 'New', featured: true, bestseller: true, stock: 28, descAr: 'اسورة لؤلؤ كلاسيك على المعصم.', descEn: 'Classic pearl bracelet.' },
+      { id: 'p-b2', name: 'Gold Cuff Bracelet', nameAr: 'اسورة كف دهب', category: 'Bracelets', categorySlug: 'bracelets', price: 460, rating: 5, reviews: 41, image: 'https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=600&q=80', images: ['https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=800&q=80'], badge: 'Best Seller', featured: true, bestseller: true, stock: 18, descAr: 'اسورة كف bold — ترند أوي.', descEn: 'Bold gold-tone cuff bracelet.' },
+      { id: 'p-b3', name: 'Stacked Bangle Set', nameAr: 'طقم اساور', category: 'Bracelets', categorySlug: 'bracelets', price: 350, rating: 5, reviews: 29, image: 'https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=600&q=80', images: ['https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=800&q=80'], badge: 'New', featured: true, bestseller: false, stock: 24, descAr: 'طقم اساور رفيعة — شكلها حلو مع الساعة.', descEn: 'Stacked slim bangles set.' },
+      { id: 'p-e1', name: 'Gold Hoop Earrings', nameAr: 'حلق هوب دهب', category: 'Accessories', categorySlug: 'accessories', price: 280, rating: 5, reviews: 156, image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&q=80', images: ['https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800&q=80'], badge: 'Best Seller', featured: true, bestseller: true, stock: 45, descAr: 'حلق هوب خفيف — ترند كل يوم.', descEn: 'Lightweight gold-tone hoop earrings.' },
+      { id: 'p-e2', name: 'Zircon Drop Earrings', nameAr: 'حلق zircon', category: 'Accessories', categorySlug: 'accessories', price: 320, rating: 5, reviews: 88, image: 'https://images.unsplash.com/photo-1617038220319-496d8d1736f4?w=600&q=80', images: ['https://images.unsplash.com/photo-1617038220319-496d8d1736f4?w=800&q=80'], badge: 'New', featured: true, bestseller: true, stock: 32, descAr: 'حلق نازل بحجر لامع — شكل بنت لابساه.', descEn: 'Zircon drop earrings with a dressy look.' },
+      { id: 'p-e3', name: 'Pearl Stud Earrings', nameAr: 'حلق لؤلؤ', category: 'Accessories', categorySlug: 'accessories', price: 260, rating: 5, reviews: 64, image: 'https://images.unsplash.com/photo-1488799812881-957129749661?w=600&q=80', images: ['https://images.unsplash.com/photo-1488799812881-957129749661?w=800&q=80'], badge: '', featured: true, bestseller: false, stock: 40, descAr: 'حلق لؤلؤ كلاسيك — يركب مع كل حاجة.', descEn: 'Classic pearl stud earrings.' },
+      { id: 'p-r1', name: 'Crystal Stacking Ring', nameAr: 'خاتم كريستال', category: 'Rings', categorySlug: 'rings', price: 320, rating: 5, reviews: 54, image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&q=80', images: ['https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=80'], badge: 'New', featured: true, bestseller: false, stock: 35, descAr: 'خاتم ناعم ينفع stacking.', descEn: 'Delicate crystal stacking ring.' },
+      { id: 'p-r2', name: 'Statement Gold Ring', nameAr: 'خاتم statement', category: 'Rings', categorySlug: 'rings', price: 540, rating: 5, reviews: 22, image: 'https://images.unsplash.com/photo-1603561596112-0a132b757442?w=600&q=80', images: ['https://images.unsplash.com/photo-1603561596112-0a132b757442?w=800&q=80'], badge: 'Best Seller', featured: true, bestseller: true, stock: 14, descAr: 'خاتم بارز للسهرات.', descEn: 'Statement ring for evenings.' },
+      { id: 'p-r3', name: 'Minimal Band Ring', nameAr: 'خاتم بسيط', category: 'Rings', categorySlug: 'rings', price: 290, rating: 5, reviews: 31, image: 'https://images.unsplash.com/photo-1602751584552-8ba173e5c6d0?w=600&q=80', images: ['https://images.unsplash.com/photo-1602751584552-8ba173e5c6d0?w=800&q=80'], badge: 'New', featured: true, bestseller: false, stock: 20, descAr: 'خاتم بسيط دهبي — ترند daily.', descEn: 'Minimal gold-tone band ring.' },
+      { id: 'p-f1', name: 'Floral Perfume 50ml', nameAr: 'برفان زهري 50ml', category: 'Perfumes', categorySlug: 'perfumes', price: 680, rating: 5, reviews: 89, image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=600&q=80', images: ['https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&q=80'], badge: 'Best Seller', featured: true, bestseller: true, stock: 18, descAr: 'برفان زهري خفيف وثابت.', descEn: 'Light floral perfume.' },
+      { id: 'p-f2', name: 'Oud Perfume 30ml', nameAr: 'برفان عود 30ml', category: 'Perfumes', categorySlug: 'perfumes', price: 950, rating: 5, reviews: 64, image: 'https://images.unsplash.com/photo-1592945403244-b3fb4447f053?w=600&q=80', images: ['https://images.unsplash.com/photo-1592945403244-b3fb4447f053?w=800&q=80'], badge: 'New', featured: true, bestseller: true, stock: 12, descAr: 'برفان عود فاخر للسهرات.', descEn: 'Rich oud perfume for evenings.' },
+      { id: 'p-h1', name: 'Leather Tote Bag', nameAr: 'شنطة جلد', category: 'Bags', categorySlug: 'handbags', price: 1250, rating: 5, reviews: 92, image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=600&q=80', images: ['https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&q=80'], badge: 'Best Seller', featured: true, bestseller: true, stock: 15, descAr: 'شنطة جلد عملية وشيك.', descEn: 'Spacious leather tote bag.' },
+      { id: 'p-h2', name: 'Mini Crossbody Bag', nameAr: 'شنطة كروس', category: 'Bags', categorySlug: 'handbags', price: 890, rating: 4, reviews: 67, image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&q=80', images: ['https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&q=80'], badge: 'New', featured: true, bestseller: false, stock: 20, descAr: 'شنطة كروس صغيرة للخروجات.', descEn: 'Compact crossbody bag.' }
     ],
     collections: [
       { id: 'col-1', label: 'Collection 01', labelAr: 'استالس', labelEn: 'Stainless', title: 'Stainless\nAccessories', titleAr: 'إكسسوارات\nاستالس', titleEn: 'Stainless\nAccessories', slug: 'accessories', image: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=1200&q=80' },
@@ -69,7 +75,7 @@ const LumiereStore = (() => {
     ],
     users: [
       { id: 'u-admin', name: 'Super Admin', email: 'admin@lumiere.com', password: 'admin123', role: 'superadmin', phone: '+20 100 000 0000', createdAt: '2024-01-01' },
-      { id: 'u-demo', name: 'Sarah Mitchell', email: 'customer@lumiere.com', password: 'demo123', role: 'customer', phone: '+20 100 000 0001', createdAt: '2025-03-15', wishlist: ['p2', 'p5'], orders: [] }
+      { id: 'u-demo', name: 'Sarah Mitchell', email: 'customer@lumiere.com', password: 'demo123', role: 'customer', phone: '+20 100 000 0001', createdAt: '2025-03-15', wishlist: ['p-e2', 'p-b2'], orders: [] }
     ],
     orders: [],
     newsletter: [],
@@ -80,20 +86,49 @@ const LumiereStore = (() => {
     return JSON.parse(JSON.stringify(obj));
   }
 
+  function needsCatalogMigration(data) {
+    if (!data || typeof data !== 'object') return true;
+    if ((data.catalogVersion || 0) < CATALOG_VERSION) return true;
+    const slugs = (data.categories || []).map(c => c.slug);
+    return REMOVED_CATEGORY_SLUGS.some(s => slugs.includes(s));
+  }
+
+  function applyCatalogMigration(data) {
+    if (!needsCatalogMigration(data)) return { data, changed: false };
+
+    const merged = clone(data || {});
+    merged.catalogVersion = CATALOG_VERSION;
+    merged.categories = clone(defaults.categories);
+
+    const demoIds = new Set(defaults.products.map(p => p.id));
+    const kept = (data?.products || [])
+      .filter(p => !demoIds.has(p.id))
+      .map(p => {
+        const copy = clone(p);
+        if (LEGACY_CATEGORY_SLUG_MAP[copy.categorySlug]) {
+          copy.categorySlug = LEGACY_CATEGORY_SLUG_MAP[copy.categorySlug];
+        }
+        if (REMOVED_CATEGORY_SLUGS.includes(copy.categorySlug)) return null;
+        return copy;
+      })
+      .filter(Boolean);
+
+    merged.products = [...clone(defaults.products), ...kept];
+    return { data: merged, changed: true };
+  }
+
   function mergeDefaults(data) {
     if (!data || typeof data !== 'object') return clone(defaults);
     const merged = clone(data);
     merged.settings = { ...defaults.settings, ...(data.settings || {}) };
     merged.settings.theme = { ...defaults.settings.theme, ...(data.settings?.theme || {}) };
-    merged.categories = data.categories?.length ? clone(data.categories) : clone(defaults.categories);
-    merged.products = data.products?.length ? data.products : clone(defaults.products);
     merged.collections = data.collections?.length ? data.collections : clone(defaults.collections);
     merged.testimonials = data.testimonials?.length ? data.testimonials : clone(defaults.testimonials);
     merged.users = data.users?.length ? data.users : clone(defaults.users);
     merged.newsletter = data.newsletter || [];
     merged.orders = Array.isArray(data.orders) ? data.orders : [];
     merged.cart = data.cart || {};
-    return merged;
+    return applyCatalogMigration(merged).data;
   }
 
   let _cache = null;
@@ -119,9 +154,11 @@ const LumiereStore = (() => {
         try {
           const res = await fetch('/api/store');
           if (res.ok) {
-            _cache = mergeDefaults(await res.json());
+            const raw = await res.json();
             _apiMode = true;
+            _cache = mergeDefaults(raw);
             localStorage.setItem(KEY, JSON.stringify(_cache));
+            if (needsCatalogMigration(raw)) await syncToApi(_cache);
             return _cache;
           }
         } catch (_) {}

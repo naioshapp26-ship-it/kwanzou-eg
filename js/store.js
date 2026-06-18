@@ -9,7 +9,7 @@ const LumiereStore = (() => {
     catalogVersion: CATALOG_VERSION,
     settings: {
       brandName: 'Kwanzou EG',
-      logo: 'assets/logo.png',
+      logo: 'assets/logo.svg',
       theme: {
         primary: '#2C2420',
         accent: '#C9A962',

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kwanzou Logo Preview</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Jost, Cairo, sans-serif;
+      background: #F5F0EB;
+      color: #2C2420;
+      padding: 40px 24px 80px;
+    }
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      text-align: center;
+      font-weight: 600;
+      margin: 0 0 8px;
+      letter-spacing: 0.04em;
+    }
+    p.sub {
+      text-align: center;
+      color: #6B5E54;
+      margin: 0 0 40px;
+    }
+    .grid {
+      max-width: 920px;
+      margin: 0 auto;
+      display: grid;
+      gap: 24px;
+    }
+    .card {
+      background: #FAF8F5;
+      border: 1px solid rgba(201, 169, 98, 0.35);
+      border-radius: 16px;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 8px 32px rgba(44, 36, 32, 0.06);
+    }
+    .card--dark {
+      background: #2C2420;
+      border-color: rgba(201, 169, 98, 0.25);
+    }
+    .card--cream {
+      background: linear-gradient(145deg, #FAF8F5, #F5F0EB);
+    }
+    .label {
+      font-size: 0.75rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #C9A962;
+      font-weight: 600;
+    }
+    .card--dark .label { color: #D4BC7A; }
+    .sizes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 32px;
+      align-items: center;
+      justify-content: center;
+    }
+    .mark-row {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .swatches {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    .swatch {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      border: 2px solid rgba(255,255,255,0.5);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    a.back {
+      display: block;
+      text-align: center;
+      margin-top: 40px;
+      color: #A8893E;
+      font-weight: 600;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>شعار Kwanzou الجديد</h1>
+  <p class="sub">دهب · أناقة · إكسسوارات — نفس ألوان الموقع</p>
+
+  <div class="grid">
+    <div class="card card--cream">
+      <span class="label">اللوجو الرئيسي — الهيدر</span>
+      <img src="assets/logo.svg" alt="Kwanzou logo" width="320" height="78">
+    </div>
+
+    <div class="card card--dark">
+      <span class="label">نسخة داكنة — للخلفيات الغامقة</span>
+      <img src="assets/logo-dark.svg" alt="Kwanzou logo dark" width="320" height="78">
+    </div>
+
+    <div class="card">
+      <span class="label">أيقونة الماركة — فافيكون وتطبيقات</span>
+      <div class="mark-row">
+        <img src="assets/logo-mark.svg" alt="Mark" width="88" height="88">
+        <img src="assets/logo-mark.svg" alt="Mark small" width="48" height="48">
+        <img src="assets/logo-mark.svg" alt="Mark tiny" width="32" height="32">
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="label">ألوان الهوية</span>
+      <div class="swatches">
+        <div class="swatch" style="background:#2C2420" title="Primary"></div>
+        <div class="swatch" style="background:#C9A962" title="Gold"></div>
+        <div class="swatch" style="background:#D4BC7A" title="Gold Light"></div>
+        <div class="swatch" style="background:#A8893E" title="Gold Dark"></div>
+        <div class="swatch" style="background:#FAF8F5;border-color:#ddd" title="Background"></div>
+      </div>
+    </div>
+  </div>
+
+  <a class="back" href="index.html">← ارجع للموقع</a>
+</body>
+</html>

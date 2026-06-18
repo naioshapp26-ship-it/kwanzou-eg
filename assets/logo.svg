@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 88" width="360" height="88" role="img" aria-label="Kwanzou Accessories">
+  <defs>
+    <linearGradient id="kg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E8D5A0"/>
+      <stop offset="35%" stop-color="#D4BC7A"/>
+      <stop offset="70%" stop-color="#C9A962"/>
+      <stop offset="100%" stop-color="#A8893E"/>
+    </linearGradient>
+    <linearGradient id="kgSoft" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#C9A962" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#A8893E" stop-opacity="0.35"/>
+    </linearGradient>
+    <radialGradient id="gem" cx="50%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FFF8E7"/>
+      <stop offset="45%" stop-color="#D4BC7A"/>
+      <stop offset="100%" stop-color="#8B6F2E"/>
+    </radialGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="1.2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Mark: layered hoops + gem + K -->
+  <g transform="translate(6, 6)">
+    <circle cx="38" cy="38" r="36" fill="url(#kgSoft)"/>
+    <!-- outer hoop earring -->
+    <ellipse cx="38" cy="38" rx="30" ry="30" fill="none" stroke="url(#kg)" stroke-width="1.6" opacity="0.95"/>
+    <!-- inner arc necklace -->
+    <path d="M 14 42 Q 38 58 62 42" fill="none" stroke="url(#kg)" stroke-width="1.1" opacity="0.55"/>
+    <path d="M 18 36 Q 38 20 58 36" fill="none" stroke="url(#kg)" stroke-width="0.9" opacity="0.4"/>
+    <!-- pendant chain -->
+    <path d="M 38 10 L 38 18" stroke="url(#kg)" stroke-width="1.4" stroke-linecap="round"/>
+    <circle cx="38" cy="9" r="2.2" fill="none" stroke="url(#kg)" stroke-width="1.2"/>
+    <!-- center gem -->
+    <path d="M 38 14 L 42 20 L 38 26 L 34 20 Z" fill="url(#gem)" filter="url(#glow)"/>
+  </g>
+
+  <!-- Stylized K -->
+  <g fill="none" stroke="#2C2420" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 28 24 L 28 52"/>
+    <path d="M 28 38 C 28 38 36 24 46 24"/>
+    <path d="M 28 38 C 28 38 36 52 48 52"/>
+  </g>
+  <g fill="none" stroke="url(#kg)" stroke-width="1.2" stroke-linecap="round" opacity="0.85">
+    <path d="M 30 26 L 30 50"/>
+    <path d="M 30 38 L 44 26"/>
+    <path d="M 30 38 L 46 50"/>
+  </g>
+
+  <!-- Sparkles -->
+  <g fill="#C9A962">
+    <circle cx="62" cy="18" r="1.3" opacity="0.9"/>
+    <circle cx="68" cy="24" r="0.7" opacity="0.6"/>
+    <circle cx="14" cy="58" r="0.9" opacity="0.5"/>
+  </g>
+  <path d="M 66 14 L 67 16 L 69 16 L 67.5 17.2 L 68 19 L 66 17.8 L 64 19 L 64.5 17.2 L 63 16 L 65 16 Z" fill="#D4BC7A" opacity="0.85"/>
+
+  <!-- Wordmark -->
+  <text x="92" y="40" font-family="'Cormorant Garamond', Georgia, 'Times New Roman', serif" font-size="30" font-weight="600" fill="#2C2420" letter-spacing="5">KWANZOU</text>
+  <text x="94" y="58" font-family="'Jost', 'Segoe UI', Arial, sans-serif" font-size="11" font-weight="500" fill="#C9A962" letter-spacing="7.5">ACCESSORIES</text>
+  <line x1="94" y1="64" x2="168" y2="64" stroke="url(#kg)" stroke-width="0.8" opacity="0.7"/>
+  <text x="94" y="76" font-family="'Jost', 'Segoe UI', Arial, sans-serif" font-size="8.5" font-weight="400" fill="#6B5E54" letter-spacing="4.2">GOLD · STYLE · EGYPT</text>
+</svg>

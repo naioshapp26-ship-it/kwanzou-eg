@@ -46,13 +46,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 function imgSrc(url) {
   if (!url) return '';
   if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://')) return url;
-  return ADMIN_BASE + url;
+  if (url.startsWith('/api/media/')) return url;
+  return ADMIN_BASE + url.replace(/^\//, '');
 }
 
 async function persistAfterSave() {
   const ok = await LumiereStore.flush();
   if (!ok) {
-    toast(LumiereI18n.t('admin_save_failed'));
+    const detail = LumiereStore.getLastSyncError?.();
+    toast(detail ? `${LumiereI18n.t('admin_save_failed')} (${detail})` : LumiereI18n.t('admin_save_failed'));
     return false;
   }
   toast(LumiereI18n.t('admin_saved'));

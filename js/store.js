@@ -2,10 +2,8 @@
  * LUMIÈRE — Central data store (localStorage)
  */
 const LumiereStore = (() => {
-  const KEY = 'kwanzou_store_v11';
-  const CATALOG_VERSION = 2;
-  const REMOVED_CATEGORY_SLUGS = ['jewelry', 'earrings', 'watches', 'scarves', 'sunglasses', 'new-arrivals'];
-  const LEGACY_CATEGORY_SLUG_MAP = { jewelry: 'necklaces', earrings: 'accessories' };
+  const KEY = 'kwanzou_store_v12';
+  const CATALOG_VERSION = 3;
 
   const defaults = {
     catalogVersion: CATALOG_VERSION,
@@ -88,52 +86,6 @@ const LumiereStore = (() => {
     return JSON.parse(JSON.stringify(obj));
   }
 
-  function needsCatalogMigration(data) {
-    if (!data || typeof data !== 'object') return true;
-    if ((data.catalogVersion || 0) < CATALOG_VERSION) return true;
-    const slugs = (data.categories || []).map(c => c.slug);
-    return REMOVED_CATEGORY_SLUGS.some(s => slugs.includes(s));
-  }
-
-  function applyCatalogMigration(data) {
-    if (!needsCatalogMigration(data)) return { data, changed: false };
-
-    const merged = clone(data || {});
-    merged.catalogVersion = CATALOG_VERSION;
-
-    const defaultSlugs = new Set(defaults.categories.map(c => c.slug));
-    const incomingBySlug = new Map((data?.categories || []).map(c => [c.slug, c]));
-    const mergedDefaults = clone(defaults.categories).map(c => {
-      const saved = incomingBySlug.get(c.slug);
-      return saved ? { ...c, ...saved, id: saved.id || c.id } : c;
-    });
-    const customCategories = (data?.categories || [])
-      .filter(c => !defaultSlugs.has(c.slug) && !REMOVED_CATEGORY_SLUGS.includes(c.slug))
-      .map(c => clone(c));
-    merged.categories = [...mergedDefaults, ...customCategories];
-
-    const demoIds = new Set(defaults.products.map(p => p.id));
-    const incomingProducts = new Map((data?.products || []).map(p => [p.id, p]));
-    const mergedDemoProducts = clone(defaults.products).map(p => {
-      const saved = incomingProducts.get(p.id);
-      return saved ? { ...p, ...saved } : p;
-    });
-    const kept = (data?.products || [])
-      .filter(p => !demoIds.has(p.id))
-      .map(p => {
-        const copy = clone(p);
-        if (LEGACY_CATEGORY_SLUG_MAP[copy.categorySlug]) {
-          copy.categorySlug = LEGACY_CATEGORY_SLUG_MAP[copy.categorySlug];
-        }
-        if (REMOVED_CATEGORY_SLUGS.includes(copy.categorySlug)) return null;
-        return copy;
-      })
-      .filter(Boolean);
-
-    merged.products = [...mergedDemoProducts, ...kept];
-    return { data: merged, changed: true };
-  }
-
   function mergeDefaults(data) {
     if (!data || typeof data !== 'object') return clone(defaults);
     const merged = clone(data);
@@ -147,7 +99,8 @@ const LumiereStore = (() => {
     merged.newsletter = data.newsletter || [];
     merged.orders = Array.isArray(data.orders) ? data.orders : [];
     merged.cart = data.cart || {};
-    return applyCatalogMigration(merged).data;
+    merged.catalogVersion = merged.catalogVersion || CATALOG_VERSION;
+    return merged;
   }
 
   let _cache = null;
@@ -163,19 +116,43 @@ const LumiereStore = (() => {
         body: JSON.stringify(data)
       });
       if (!res.ok) {
-        console.warn('Store API sync failed:', res.status);
+        let msg = `HTTP ${res.status}`;
+        try {
+          const err = await res.json();
+          if (err.error) msg = err.error;
+        } catch (_) {}
+        console.warn('Store API sync failed:', msg);
+        _lastSyncError = msg;
         return false;
       }
+      _lastSyncError = null;
       return true;
     } catch (err) {
       console.warn('Store API sync failed:', err);
+      _lastSyncError = err.message || 'Network error';
       return false;
     }
   }
 
+  let _lastSyncError = null;
+
+  function getLastSyncError() {
+    return _lastSyncError;
+  }
+
   async function flush() {
     if (!_cache) return true;
-    return syncToApi(_cache);
+    const ok = await syncToApi(_cache);
+    if (!ok) return false;
+    try {
+      const res = await fetch('/api/store');
+      if (res.ok) {
+        const raw = await res.json();
+        _cache = mergeDefaults(raw);
+        localStorage.setItem(KEY, JSON.stringify(_cache));
+      }
+    } catch (_) {}
+    return true;
   }
 
   function init() {
@@ -188,7 +165,6 @@ const LumiereStore = (() => {
             _apiMode = true;
             _cache = mergeDefaults(raw);
             localStorage.setItem(KEY, JSON.stringify(_cache));
-            if (needsCatalogMigration(raw)) await syncToApi(_cache);
             return _cache;
           }
         } catch (_) {}
@@ -213,6 +189,8 @@ const LumiereStore = (() => {
   }
 
   function save(data) {
+    data.updatedAt = new Date().toISOString();
+    data.catalogVersion = CATALOG_VERSION;
     _cache = data;
     localStorage.setItem(KEY, JSON.stringify(data));
     syncToApi(data);
@@ -425,7 +403,7 @@ const LumiereStore = (() => {
   }
 
   return {
-    get, update, reset, defaults, init, flush,
+    get, update, reset, defaults, init, flush, getLastSyncError,
     findUser, findUserById, addUser, updateUser, deleteUser,
     addProduct, updateProduct, deleteProduct,
     updateSettings, addCategory, updateCategory, deleteCategory,

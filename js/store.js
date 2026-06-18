@@ -36,7 +36,8 @@ const LumiereStore = (() => {
       instaHandle: '@kwanzou.eg',
       instaUrl: 'https://instagram.com/kwanzou.eg',
       currency: 'EGP',
-      currencySymbol: 'ج.م'
+      currencySymbol: 'ج.م',
+      freeShippingThreshold: 1500
     },
     categories: [
       { id: 'cat-necklaces', name: 'Necklaces', nameAr: 'سلاسل', slug: 'necklaces', sort: 1, image: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80', featured: true },
@@ -367,15 +368,34 @@ const LumiereStore = (() => {
     });
   }
 
-  function placeOrder({ customerName, customerEmail, customerPhone, items, total, userId }) {
+  function placeOrder({
+    customerName,
+    customerEmail,
+    customerPhone,
+    customerPhone2,
+    shippingAddress,
+    paymentMethod,
+    paymentMethodLabel,
+    subtotal,
+    shippingFee,
+    items,
+    total,
+    userId
+  }) {
     const order = {
       id: 'ORD-' + Date.now(),
       date: new Date().toISOString().split('T')[0],
+      subtotal: subtotal ?? total,
+      shippingFee: shippingFee ?? 0,
       total,
       status: 'Pending',
       customerName,
-      customerEmail,
+      customerEmail: customerEmail || '',
       customerPhone: customerPhone || '',
+      customerPhone2: customerPhone2 || '',
+      shippingAddress: shippingAddress || {},
+      paymentMethod: paymentMethod || 'cod',
+      paymentMethodLabel: paymentMethodLabel || '',
       userId: userId || null,
       items: items.map(i => ({ productId: i.id, name: i.name, qty: i.qty, price: i.price }))
     };

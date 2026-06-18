@@ -203,14 +203,26 @@ window.viewOrder = function(id) {
   showModal(LumiereI18n.t('admin_order_detail') + ' ' + o.id, `
     <div class="order-detail">
       <p><strong>${LumiereI18n.t('admin_order_customer')}:</strong> ${o.customerName}</p>
-      <p><strong>${LumiereI18n.t('admin_order_phone')}:</strong> ${o.customerPhone || '—'}</p>
+      <p><strong>${LumiereI18n.t('admin_order_phone')}:</strong> ${o.customerPhone || '—'}${o.customerPhone2 ? ` / ${o.customerPhone2}` : ''}</p>
       <p><strong>Email:</strong> ${o.customerEmail || '—'}</p>
+      ${o.shippingAddress ? `
+        <p><strong>${LumiereI18n.t('checkout_country')}:</strong> ${o.shippingAddress.countryName || o.shippingAddress.country || '—'}</p>
+        <p><strong>${LumiereI18n.t('checkout_governorate')}:</strong> ${o.shippingAddress.governorateName || '—'}</p>
+        <p><strong>${LumiereI18n.t('checkout_city')}:</strong> ${o.shippingAddress.city || '—'}</p>
+        <p><strong>${LumiereI18n.t('checkout_address')}:</strong> ${o.shippingAddress.address || '—'}</p>
+        ${o.shippingAddress.notes ? `<p><strong>${LumiereI18n.t('checkout_notes')}:</strong> ${o.shippingAddress.notes}</p>` : ''}
+      ` : ''}
+      <p><strong>${LumiereI18n.t('checkout_payment')}:</strong> ${o.paymentMethodLabel || o.paymentMethod || '—'}</p>
       <p><strong>${LumiereI18n.t('account_date')}:</strong> ${o.date}</p>
       <p><strong>${LumiereI18n.t('account_status')}:</strong> ${LumiereI18n.translateStatus(o.status)}</p>
       <table class="admin-table order-items-table">
         <thead><tr><th>${LumiereI18n.t('admin_product')}</th><th>${LumiereI18n.t('admin_qty')}</th><th>${LumiereI18n.t('admin_price')}</th><th>${LumiereI18n.t('admin_subtotal')}</th></tr></thead>
         <tbody>${rows}</tbody>
-        <tfoot><tr><td colspan="3"><strong>${LumiereI18n.t('account_total')}</strong></td><td><strong>${o.total?.toLocaleString()} ${sym}</strong></td></tr></tfoot>
+        <tfoot>
+          <tr><td colspan="3">${LumiereI18n.t('checkout_subtotal')}</td><td>${(o.subtotal ?? o.total)?.toLocaleString()} ${sym}</td></tr>
+          <tr><td colspan="3">${LumiereI18n.t('checkout_shipping')}</td><td>${o.shippingFee ? `${o.shippingFee.toLocaleString()} ${sym}` : LumiereI18n.t('checkout_shipping_free')}</td></tr>
+          <tr><td colspan="3"><strong>${LumiereI18n.t('account_total')}</strong></td><td><strong>${o.total?.toLocaleString()} ${sym}</strong></td></tr>
+        </tfoot>
       </table>
     </div>
   `);

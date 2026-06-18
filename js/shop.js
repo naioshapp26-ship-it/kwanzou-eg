@@ -21,13 +21,7 @@ function filterTabLabel(item) {
 
 function isFilterActive(item, catSlug, query) {
   if (item.key === 'sale') return query === 'sale';
-  if (item.key === 'earrings') return catSlug === 'accessories';
-  if (item.key === 'necklaces') return catSlug === 'necklaces' && !query;
-  if (item.key === 'bracelets') return catSlug === 'bracelets' && !query;
-  if (item.key === 'rings') return catSlug === 'rings' && !query;
-  if (item.key === 'perfumes') return catSlug === 'perfumes' && !query;
-  if (item.key === 'handbags') return catSlug === 'handbags' && !query;
-  return false;
+  return catSlug === item.key && !query;
 }
 
 function getShopTitle(catSlug, query, params) {
@@ -35,7 +29,7 @@ function getShopTitle(catSlug, query, params) {
   const tabs = typeof LumiereLayout.getHomeCategoryTabs === 'function'
     ? LumiereLayout.getHomeCategoryTabs()
     : [];
-  const tab = tabs.find(t => isFilterActive(t, catSlug, query));
+  const tab = tabs.find(t => t.key === catSlug && !query);
   if (tab) return filterTabLabel(tab);
   if (query) return `"${params.get('q')}"`;
   return LumiereI18n.t('shop_all');

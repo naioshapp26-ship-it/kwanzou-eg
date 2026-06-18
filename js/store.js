@@ -33,6 +33,8 @@ const LumiereStore = (() => {
       heroImage: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1920&q=85',
       heroAccent1: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=650&q=80',
       heroAccent2: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=650&q=80',
+      promoImage: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=900&q=85',
+      authVisualImage: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1200&q=80',
       currency: 'EGP',
       currencySymbol: 'ج.م'
     },
@@ -98,9 +100,24 @@ const LumiereStore = (() => {
 
     const merged = clone(data || {});
     merged.catalogVersion = CATALOG_VERSION;
-    merged.categories = clone(defaults.categories);
+
+    const defaultSlugs = new Set(defaults.categories.map(c => c.slug));
+    const incomingBySlug = new Map((data?.categories || []).map(c => [c.slug, c]));
+    const mergedDefaults = clone(defaults.categories).map(c => {
+      const saved = incomingBySlug.get(c.slug);
+      return saved ? { ...c, ...saved, id: saved.id || c.id } : c;
+    });
+    const customCategories = (data?.categories || [])
+      .filter(c => !defaultSlugs.has(c.slug) && !REMOVED_CATEGORY_SLUGS.includes(c.slug))
+      .map(c => clone(c));
+    merged.categories = [...mergedDefaults, ...customCategories];
 
     const demoIds = new Set(defaults.products.map(p => p.id));
+    const incomingProducts = new Map((data?.products || []).map(p => [p.id, p]));
+    const mergedDemoProducts = clone(defaults.products).map(p => {
+      const saved = incomingProducts.get(p.id);
+      return saved ? { ...p, ...saved } : p;
+    });
     const kept = (data?.products || [])
       .filter(p => !demoIds.has(p.id))
       .map(p => {
@@ -113,7 +130,7 @@ const LumiereStore = (() => {
       })
       .filter(Boolean);
 
-    merged.products = [...clone(defaults.products), ...kept];
+    merged.products = [...mergedDemoProducts, ...kept];
     return { data: merged, changed: true };
   }
 
@@ -122,6 +139,8 @@ const LumiereStore = (() => {
     const merged = clone(data);
     merged.settings = { ...defaults.settings, ...(data.settings || {}) };
     merged.settings.theme = { ...defaults.settings.theme, ...(data.settings?.theme || {}) };
+    merged.categories = data.categories?.length ? clone(data.categories) : clone(defaults.categories);
+    merged.products = data.products?.length ? clone(data.products) : clone(defaults.products);
     merged.collections = data.collections?.length ? data.collections : clone(defaults.collections);
     merged.testimonials = data.testimonials?.length ? data.testimonials : clone(defaults.testimonials);
     merged.users = data.users?.length ? data.users : clone(defaults.users);

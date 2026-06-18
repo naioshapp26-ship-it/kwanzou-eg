@@ -193,6 +193,29 @@
             </div>
           </div>
           <div class="admin-card" style="margin-top:20px">
+            <h3 data-i18n="admin_extra_images">صور إضافية</h3>
+            <div class="hero-images-grid">
+              <div class="image-upload-group" data-image-slot>
+                <label data-i18n="admin_promo_image">صورة بانر العرض</label>
+                <img id="promoPreview" class="image-preview" data-image-preview alt="" hidden>
+                <input type="text" id="setPromoImage" data-image-url placeholder="https://...">
+                <div class="image-upload-actions">
+                  <label class="btn btn-sm btn-outline image-upload-btn"><span data-i18n="admin_upload_image">Upload</span><input type="file" accept="image/*" data-image-file hidden></label>
+                  <button type="button" class="btn btn-sm btn-outline image-clear-btn" data-image-clear data-i18n="admin_remove_image">Remove</button>
+                </div>
+              </div>
+              <div class="image-upload-group" data-image-slot>
+                <label data-i18n="admin_auth_image">صورة صفحة الدخول</label>
+                <img id="authPreview" class="image-preview" data-image-preview alt="" hidden>
+                <input type="text" id="setAuthVisualImage" data-image-url placeholder="https://...">
+                <div class="image-upload-actions">
+                  <label class="btn btn-sm btn-outline image-upload-btn"><span data-i18n="admin_upload_image">Upload</span><input type="file" accept="image/*" data-image-file hidden></label>
+                  <button type="button" class="btn btn-sm btn-outline image-clear-btn" data-image-clear data-i18n="admin_remove_image">Remove</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="admin-card" style="margin-top:20px">
             <h3 data-i18n="admin_hero_images">Hero Images</h3>
             <p class="admin-hint" data-i18n="admin_image_hint">Paste a URL or upload from your device (max ~900KB after compression)</p>
             <div class="hero-images-grid">
@@ -276,6 +299,6 @@
   <script src="../js/theme.js"></script>
   <script src="../js/auth.js"></script>
   <script src="../js/admin-media.js?v=1"></script>
-  <script src="../js/admin.js?v=2"></script>
+  <script src="../js/admin.js?v=3"></script>
 </body>
 </html>

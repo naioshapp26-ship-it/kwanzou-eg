@@ -90,7 +90,10 @@ function switchSection(section) {
   if (section === 'orders') renderOrders();
   if (section === 'dashboard') renderDashboard();
   if (section === 'appearance') renderAppearance();
-  if (section === 'settings') renderSettings();
+  if (section === 'settings') {
+    renderSettings();
+    AdminMedia.init(document.getElementById('sec-settings'), toast);
+  }
 }
 
 function initNavigation() {
@@ -339,7 +342,9 @@ function renderSettings() {
   const heroFields = [
     ['setHeroImage', 'heroBgPreview', s.heroImage],
     ['setHeroAccent1', 'heroA1Preview', s.heroAccent1],
-    ['setHeroAccent2', 'heroA2Preview', s.heroAccent2]
+    ['setHeroAccent2', 'heroA2Preview', s.heroAccent2],
+    ['setPromoImage', 'promoPreview', s.promoImage],
+    ['setAuthVisualImage', 'authPreview', s.authVisualImage]
   ];
   heroFields.forEach(([inputId, previewId, src]) => {
     const input = document.getElementById(inputId);
@@ -368,7 +373,9 @@ function initSettingsForm() {
       subtitle: document.getElementById('setSubtitleEn').value,
       heroImage: fieldValue('setHeroImage', s.heroImage || ''),
       heroAccent1: fieldValue('setHeroAccent1', s.heroAccent1 || ''),
-      heroAccent2: fieldValue('setHeroAccent2', s.heroAccent2 || '')
+      heroAccent2: fieldValue('setHeroAccent2', s.heroAccent2 || ''),
+      promoImage: fieldValue('setPromoImage', s.promoImage || s.heroAccent2 || ''),
+      authVisualImage: fieldValue('setAuthVisualImage', s.authVisualImage || s.heroImage || '')
     });
     applyAdminBranding();
     await persistAfterSave();
@@ -542,7 +549,7 @@ function openCategoryModal(cat = null) {
     </form>
   `);
   bindModalImageUploads();
-  document.getElementById('catForm').onsubmit = e => {
+  document.getElementById('catForm').onsubmit = async e => {
     e.preventDefault();
     const fd = new FormData(e.target);
     const data = {
@@ -558,7 +565,7 @@ function openCategoryModal(cat = null) {
     closeModal();
     renderCategories();
     renderDashboard();
-    toast(LumiereI18n.t('admin_saved'));
+    await persistAfterSave();
   };
 }
 
@@ -593,7 +600,7 @@ function openCollectionModal(col = null) {
     </form>
   `);
   bindModalImageUploads();
-  document.getElementById('colForm').onsubmit = e => {
+  document.getElementById('colForm').onsubmit = async e => {
     e.preventDefault();
     const fd = new FormData(e.target);
     const data = {
@@ -610,7 +617,7 @@ function openCollectionModal(col = null) {
     else LumiereStore.addCollection(data);
     closeModal();
     renderCollections();
-    toast(LumiereI18n.t('admin_saved'));
+    await persistAfterSave();
   };
 }
 
@@ -644,7 +651,7 @@ function openTestimonialModal(t = null) {
     </form>
   `);
   bindModalImageUploads();
-  document.getElementById('testForm').onsubmit = e => {
+  document.getElementById('testForm').onsubmit = async e => {
     e.preventDefault();
     const fd = new FormData(e.target);
     const data = {
@@ -660,7 +667,7 @@ function openTestimonialModal(t = null) {
     else LumiereStore.addTestimonial(data);
     closeModal();
     renderTestimonials();
-    toast(LumiereI18n.t('admin_saved'));
+    await persistAfterSave();
   };
 }
 

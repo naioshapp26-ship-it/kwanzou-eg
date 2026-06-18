@@ -51,7 +51,7 @@ function renderHero(settings, categories) {
     heroAccent2.onerror = () => { heroAccent2.src = HERO_FALLBACK.a2; };
   }
   if (promoImage) {
-    promoImage.src = s.heroAccent2 || HERO_FALLBACK.a2;
+    promoImage.src = s.promoImage || s.heroAccent2 || HERO_FALLBACK.a2;
     promoImage.onerror = () => { promoImage.src = HERO_FALLBACK.a2; };
   }
   if (heroTitle) {
@@ -61,19 +61,39 @@ function renderHero(settings, categories) {
   if (heroExploreLink) heroExploreLink.href = categories[0]?.slug ? `shop.html?cat=${categories[0].slug}` : 'shop.html';
 }
 
-function renderCategoryTabs() {
+function renderCategoryTabs(categories) {
   const tabs = document.getElementById('categoryTabs');
   if (!tabs) return;
-  const items = typeof LumiereLayout.getHomeCategoryTabs === 'function'
-    ? LumiereLayout.getHomeCategoryTabs()
-    : [];
+  const saleTab = { href: 'shop.html?q=sale', ar: 'UP TO 50%', en: 'UP TO 50%' };
+  const catItems = sortedCategories(categories || LumiereStore.get().categories || []).map(c => ({
+    href: `shop.html?cat=${c.slug}`,
+    ar: c.nameAr || c.name,
+    en: c.name || c.nameAr
+  }));
+  const items = [saleTab, ...catItems];
 
   tabs.innerHTML = items.map(item => {
-    const label = item.i18n
-      ? LumiereI18n.t(item.i18n)
-      : (LumiereI18n.getLang() === 'ar' ? item.ar : item.en);
+    const label = LumiereI18n.getLang() === 'ar' ? item.ar : item.en;
     const href = (item.href || 'shop.html').replace(/^\.\//, '');
     return `<a class="home-tab-pill" href="${href}">${label}</a>`;
+  }).join('');
+}
+
+function renderHomeCategories(categories) {
+  const grid = document.getElementById('homeCategoriesGrid');
+  if (!grid) return;
+  const list = sortedCategories(categories || []).slice(0, 8);
+  if (!list.length) {
+    grid.innerHTML = '';
+    return;
+  }
+  grid.innerHTML = list.map(c => {
+    const name = LumiereI18n.translateCategory(c);
+    const img = c.image || HERO_FALLBACK.a1;
+    return `<a class="home-cat-card" href="shop.html?cat=${c.slug}">
+      <img src="${img}" alt="${name}" loading="lazy" onerror="this.src='${HERO_FALLBACK.a1}'">
+      <span>${name}</span>
+    </a>`;
   }).join('');
 }
 
@@ -91,7 +111,8 @@ function renderProductSections(products) {
   if (newArrivalsGrid) {
     const newItems = ProductUI.filterByCategory(products, 'new-arrivals');
     const fallbackNew = products.filter(p => p.badge === 'New' || p.badge === 'جديد');
-    const list = (newItems.length ? newItems : fallbackNew).slice(0, 8);
+    const latest = [...products].slice(-12).reverse();
+    const list = (newItems.length ? newItems : (fallbackNew.length ? fallbackNew : latest)).slice(0, 8);
     newArrivalsGrid.innerHTML = list.map(p => ProductUI.cardHTML(p)).join('');
   }
 }
@@ -138,7 +159,8 @@ function renderHomepage() {
     const allProducts = products || [];
 
     renderHero(settings, sortedCats);
-    renderCategoryTabs();
+    renderCategoryTabs(sortedCats);
+    renderHomeCategories(sortedCats);
     renderProductSections(allProducts);
     renderTestimonials(testimonials);
     renderInstagram();

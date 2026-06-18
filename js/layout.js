@@ -194,23 +194,29 @@ const LumiereLayout = (() => {
     return `<a class="mobile-menu__sub-link" href="${href}">${label}</a>`;
   }
 
+  function getStoreNavTabs() {
+    const cats = sortedCategories(LumiereStore.get().categories || []);
+    return [
+      { href: shopHref('', 'sale'), ar: 'UP TO 50%', en: 'UP TO 50%', key: 'sale' },
+      ...cats.map(c => ({
+        href: shopHref(c.slug),
+        ar: c.nameAr || c.name,
+        en: c.name || c.nameAr,
+        key: c.slug
+      }))
+    ];
+  }
+
   function getDesktopHeaderNavItems() {
     return [
       { href: `${base}index.html`, i18n: 'nav_home', key: 'home' },
-      { href: shopHref('', 'sale'), ar: 'UP TO 50%', en: 'UP TO 50%', key: 'sale' },
-      { href: shopHref('necklaces'), ar: 'سلاسل', en: 'Necklaces', key: 'necklaces' },
-      { href: shopHref('bracelets'), ar: 'أساور', en: 'Bracelets', key: 'bracelets' },
-      { href: shopHref('accessories', 'earring'), ar: 'حلقان', en: 'Earrings', key: 'earrings' },
-      { href: shopHref('rings'), ar: 'خواتم', en: 'Rings', key: 'rings' },
-      { href: shopHref('perfumes'), ar: 'برفانات', en: 'Perfumes', key: 'perfumes' },
-      { href: shopHref('handbags'), ar: 'شنط', en: 'Bags', key: 'handbags' }
+      ...getStoreNavTabs()
     ];
   }
 
   function isDesktopNavActive(item, active, categories) {
     if (item.key === 'home') return active === 'home';
     if (item.key === 'sale') return false;
-    if (item.key === 'earrings') return active === 'accessories' || active === 'earrings';
     return active === item.key || categories.some(c => c.slug === item.key && active === c.slug);
   }
 
@@ -459,7 +465,7 @@ const LumiereLayout = (() => {
   }
 
   function getHomeCategoryTabs() {
-    return getDesktopHeaderNavItems().filter(item => item.key !== 'home');
+    return getStoreNavTabs();
   }
 
   function stripTopAnnouncementBar() {

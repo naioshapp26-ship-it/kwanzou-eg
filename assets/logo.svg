@@ -1,98 +1,56 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 118" width="420" height="118" role="img" aria-label="Kwanzou Accessories">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 110" width="400" height="110" role="img" aria-label="Kwanzou Accessories">
   <defs>
     <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#F7E8B8"/>
-      <stop offset="30%" stop-color="#E5C978"/>
-      <stop offset="60%" stop-color="#C9A962"/>
-      <stop offset="100%" stop-color="#8F7428"/>
+      <stop offset="0%" stop-color="#E8D08A"/>
+      <stop offset="50%" stop-color="#C9A962"/>
+      <stop offset="100%" stop-color="#A8893E"/>
     </linearGradient>
     <linearGradient id="goldH" x1="0%" y1="50%" x2="100%" y2="50%">
       <stop offset="0%" stop-color="#A8893E"/>
-      <stop offset="50%" stop-color="#FFF0C8"/>
+      <stop offset="50%" stop-color="#F0DCA0"/>
       <stop offset="100%" stop-color="#A8893E"/>
     </linearGradient>
-    <radialGradient id="gem" cx="38%" cy="32%" r="68%">
-      <stop offset="0%" stop-color="#FFFFFF"/>
-      <stop offset="35%" stop-color="#F5EDD4"/>
-      <stop offset="75%" stop-color="#D4BC7A"/>
-      <stop offset="100%" stop-color="#7A6420"/>
-    </radialGradient>
     <radialGradient id="pearl" cx="40%" cy="35%" r="65%">
       <stop offset="0%" stop-color="#FFFFFF"/>
-      <stop offset="100%" stop-color="#E8DFD0"/>
+      <stop offset="100%" stop-color="#E5DDD0"/>
     </radialGradient>
-    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="1.8" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
     <filter id="softShadow" x="-20%" y="-10%" width="140%" height="130%">
-      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#2C2420" flood-opacity="0.18"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#2C2420" flood-opacity="0.12"/>
     </filter>
   </defs>
 
-  <!-- Icon medallion -->
-  <g transform="translate(62, 62)" filter="url(#softShadow)">
-    <!-- gold halo -->
-    <circle r="54" fill="none" stroke="url(#gold)" stroke-width="2.2" opacity="0.85"/>
-    <circle r="48" fill="none" stroke="url(#gold)" stroke-width="0.8" opacity="0.35"/>
-    <path d="M -38 -30 A 50 50 0 0 1 38 -30" fill="none" stroke="url(#goldH)" stroke-width="1.5" opacity="0.5"/>
+  <g transform="translate(58, 58)" filter="url(#softShadow)">
+    <!-- single subtle ring -->
+    <circle r="50" fill="none" stroke="url(#gold)" stroke-width="1.6" opacity="0.7"/>
 
     <!-- silhouette -->
     <g fill="#2C2420">
-      <!-- bun -->
-      <ellipse cx="14" cy="-30" rx="13" ry="11"/>
-      <!-- head profile -->
-      <path d="M 26 -38 C 10 -38, -2 -28, -6 -14 C -9 -4, -6 6, 2 10 C 8 13, 14 12, 18 8 C 20 4, 18 -2, 14 -8 C 10 -16, 16 -26, 26 -30 Z"/>
-      <!-- neck & shoulder -->
-      <path d="M 6 10 C 4 18, 6 26, 12 32 C 20 38, 34 40, 44 36 C 52 33, 56 28, 54 22 C 48 24, 38 26, 28 22 C 18 18, 12 14, 6 10 Z"/>
-      <!-- arm & hand -->
-      <path d="M 18 8 C 14 2, 8 -2, 2 -6 C -2 -8, -6 -6, -8 -2 C -10 4, -8 10, -2 14 C 2 16, 8 14, 12 10 C 14 8, 16 8, 18 8 Z"/>
-      <path d="M -2 14 C -6 18, -8 22, -6 26 C -4 28, 0 28, 2 26 C 4 22, 2 18, -2 14 Z"/>
+      <ellipse cx="14" cy="-28" rx="13" ry="11"/>
+      <path d="M 26 -36 C 10 -36, -2 -26, -6 -12 C -9 -2, -6 8, 2 12 C 8 15, 14 14, 18 10 C 20 6, 18 0, 14 -6 C 10 -14, 16 -24, 26 -28 Z"/>
+      <path d="M 6 12 C 4 20, 6 28, 12 34 C 20 40, 34 42, 44 38 C 52 35, 56 30, 54 24 C 48 26, 38 28, 28 24 C 18 20, 12 16, 6 12 Z"/>
+      <path d="M 18 10 C 14 4, 8 0, 2 -4 C -2 -6, -6 -4, -8 0 C -10 6, -8 12, -2 16 C 2 18, 8 16, 12 12 C 14 10, 16 10, 18 10 Z"/>
+      <path d="M -2 16 C -6 20, -8 24, -6 28 C -4 30, 0 30, 2 28 C 4 24, 2 20, -2 16 Z"/>
     </g>
 
-    <!-- JEWELRY — bold & visible -->
-    <!-- hair gold pin -->
-    <path d="M 8 -34 L 12 -40 L 16 -34" fill="none" stroke="url(#gold)" stroke-width="2" stroke-linecap="round"/>
-    <circle cx="12" cy="-41" r="2.5" fill="url(#gem)" filter="url(#glow)"/>
+    <!-- simple jewelry: earring · necklace · bracelet · ring -->
+    <!-- hoop earring -->
+    <circle cx="-5" cy="-5" r="6.5" fill="none" stroke="url(#gold)" stroke-width="2"/>
+    <circle cx="-5" cy="5" r="2.2" fill="url(#pearl)" stroke="url(#gold)" stroke-width="1"/>
 
-    <!-- statement hoop + drop earring -->
-    <circle cx="-5" cy="-6" r="9" fill="none" stroke="url(#gold)" stroke-width="2.5"/>
-    <circle cx="-5" cy="-6" r="6" fill="none" stroke="url(#gold)" stroke-width="0.9" opacity="0.6"/>
-    <path d="M -5 3 L -5 10 L -2 16 L -8 16 Z" fill="url(#gem)" filter="url(#glow)"/>
+    <!-- one necklace + pendant -->
+    <path d="M 0 14 Q 12 30 26 18" fill="none" stroke="url(#gold)" stroke-width="1.8"/>
+    <ellipse cx="14" cy="28" rx="6" ry="7.5" fill="url(#pearl)" stroke="url(#gold)" stroke-width="1.6"/>
 
-    <!-- layered necklaces -->
-    <path d="M -2 14 Q 12 28 30 16" fill="none" stroke="url(#gold)" stroke-width="1.6"/>
-    <path d="M 2 16 Q 12 32 28 18" fill="none" stroke="url(#gold)" stroke-width="2"/>
-    <path d="M 6 18 Q 12 36 24 20" fill="none" stroke="url(#gold)" stroke-width="1.2" opacity="0.7"/>
-    <!-- big pendant -->
-    <ellipse cx="14" cy="30" rx="9" ry="11" fill="url(#gem)" stroke="url(#gold)" stroke-width="2" filter="url(#glow)"/>
-    <ellipse cx="14" cy="28" rx="4" ry="5" fill="url(#pearl)" opacity="0.9"/>
+    <!-- one bracelet -->
+    <ellipse cx="-5" cy="32" rx="9" ry="3" fill="none" stroke="url(#gold)" stroke-width="2.2"/>
 
-    <!-- rings -->
-    <ellipse cx="-4" cy="22" rx="3.2" ry="2.2" fill="none" stroke="url(#gold)" stroke-width="2"/>
-    <circle cx="-4" cy="22" r="1.8" fill="url(#gem)"/>
-    <ellipse cx="0" cy="24" rx="2.8" ry="2" fill="none" stroke="url(#gold)" stroke-width="1.6"/>
-    <circle cx="0" cy="24" r="1.3" fill="url(#pearl)"/>
-
-    <!-- stacked bracelets -->
-    <ellipse cx="-5" cy="30" rx="11" ry="4" fill="none" stroke="url(#gold)" stroke-width="3"/>
-    <ellipse cx="-5" cy="34" rx="11" ry="3.5" fill="none" stroke="url(#goldH)" stroke-width="2"/>
-    <ellipse cx="-5" cy="37.5" rx="10" ry="3" fill="none" stroke="#9BB89A" stroke-width="2.5" opacity="0.85"/>
-    <ellipse cx="-5" cy="40.5" rx="9.5" ry="2.8" fill="none" stroke="url(#gold)" stroke-width="1.8"/>
-    <circle cx="-14" cy="34" r="2" fill="url(#gem)" filter="url(#glow)"/>
-
-    <!-- sparkles -->
-    <path d="M 42 -38 L 43 35.5 L 45.5 36 L 43.5 37.5 L 44 40 L 42 38.5 L 40 40 L 40.5 37.5 L 38.5 36 L 41 35.5 Z" fill="url(#gold)"/>
-    <circle cx="-42" cy="-20" r="1.5" fill="#D4BC7A"/>
+    <!-- one ring -->
+    <ellipse cx="-3" cy="22" rx="2.5" ry="1.8" fill="none" stroke="url(#gold)" stroke-width="1.5"/>
+    <circle cx="-3" cy="22" r="1.2" fill="url(#pearl)"/>
   </g>
 
-  <!-- Wordmark -->
-  <text x="138" y="52" font-family="'Segoe Script', 'Brush Script MT', 'Cormorant Garamond', cursive" font-size="46" font-weight="600" fill="#2C2420">Kwanzou</text>
-  <rect x="140" y="60" width="130" height="2.5" rx="1.2" fill="url(#goldH)"/>
-  <text x="140" y="82" font-family="Georgia, 'Times New Roman', serif" font-size="15" font-weight="700" fill="url(#gold)" letter-spacing="9">ACCESSORIES</text>
-  <text x="140" y="100" font-family="Arial, sans-serif" font-size="8.5" font-weight="600" fill="#6B5E54" letter-spacing="5">GOLD · STYLE · EGYPT</text>
-
-  <!-- decorative gems near text -->
-  <circle cx="128" cy="48" r="3" fill="url(#gem)" filter="url(#glow)"/>
-  <circle cx="380" cy="70" r="2.5" fill="url(#gem)" opacity="0.9"/>
+  <!-- wordmark -->
+  <text x="128" y="50" font-family="'Segoe Script', 'Brush Script MT', 'Cormorant Garamond', cursive" font-size="44" font-weight="600" fill="#2C2420">Kwanzou</text>
+  <rect x="130" y="58" width="118" height="2" rx="1" fill="url(#goldH)"/>
+  <text x="130" y="78" font-family="Georgia, 'Times New Roman', serif" font-size="14" font-weight="700" fill="url(#gold)" letter-spacing="8">ACCESSORIES</text>
 </svg>

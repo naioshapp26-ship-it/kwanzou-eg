@@ -141,8 +141,11 @@
               <h3 data-i18n="admin_logo_title">Logo</h3>
               <div class="image-upload-group" id="logoUploadGroup">
                 <img id="logoPreview" class="image-preview image-preview--logo" src="../assets/logo.png" alt="Logo">
-                <input type="url" id="setLogoUrl" placeholder="https://...">
-                <input type="file" accept="image/*" id="setLogoFile" class="image-file-input">
+                <input type="text" id="setLogoUrl" placeholder="https://...">
+                <div class="image-upload-actions">
+                  <label class="btn btn-sm btn-outline image-upload-btn"><span data-i18n="admin_upload_image">Upload</span><input type="file" accept="image/*" id="setLogoFile" hidden></label>
+                  <button type="button" class="btn btn-sm btn-outline image-clear-btn" id="clearLogoBtn" data-i18n="admin_remove_image">Remove</button>
+                </div>
                 <small data-i18n="admin_image_hint">Paste a URL or upload from your device (max 800KB)</small>
               </div>
             </div>
@@ -191,10 +194,35 @@
           </div>
           <div class="admin-card" style="margin-top:20px">
             <h3 data-i18n="admin_hero_images">Hero Images</h3>
+            <p class="admin-hint" data-i18n="admin_image_hint">Paste a URL or upload from your device (max ~900KB after compression)</p>
             <div class="hero-images-grid">
-              <div class="image-upload-group"><label data-i18n="admin_hero_bg">Background</label><img id="heroBgPreview" class="image-preview" alt=""><input type="url" id="setHeroImage"><input type="file" accept="image/*" class="image-file-input" data-target="setHeroImage" data-preview="heroBgPreview"></div>
-              <div class="image-upload-group"><label data-i18n="admin_hero_accent1">Accent 1</label><img id="heroA1Preview" class="image-preview" alt=""><input type="url" id="setHeroAccent1"><input type="file" accept="image/*" class="image-file-input" data-target="setHeroAccent1" data-preview="heroA1Preview"></div>
-              <div class="image-upload-group"><label data-i18n="admin_hero_accent2">Accent 2</label><img id="heroA2Preview" class="image-preview" alt=""><input type="url" id="setHeroAccent2"><input type="file" accept="image/*" class="image-file-input" data-target="setHeroAccent2" data-preview="heroA2Preview"></div>
+              <div class="image-upload-group" data-image-slot>
+                <label data-i18n="admin_hero_bg">Background</label>
+                <img id="heroBgPreview" class="image-preview" data-image-preview alt="" hidden>
+                <input type="text" id="setHeroImage" data-image-url placeholder="https://...">
+                <div class="image-upload-actions">
+                  <label class="btn btn-sm btn-outline image-upload-btn"><span data-i18n="admin_upload_image">Upload</span><input type="file" accept="image/*" data-image-file hidden></label>
+                  <button type="button" class="btn btn-sm btn-outline image-clear-btn" data-image-clear data-i18n="admin_remove_image">Remove</button>
+                </div>
+              </div>
+              <div class="image-upload-group" data-image-slot>
+                <label data-i18n="admin_hero_accent1">Accent 1</label>
+                <img id="heroA1Preview" class="image-preview" data-image-preview alt="" hidden>
+                <input type="text" id="setHeroAccent1" data-image-url placeholder="https://...">
+                <div class="image-upload-actions">
+                  <label class="btn btn-sm btn-outline image-upload-btn"><span data-i18n="admin_upload_image">Upload</span><input type="file" accept="image/*" data-image-file hidden></label>
+                  <button type="button" class="btn btn-sm btn-outline image-clear-btn" data-image-clear data-i18n="admin_remove_image">Remove</button>
+                </div>
+              </div>
+              <div class="image-upload-group" data-image-slot>
+                <label data-i18n="admin_hero_accent2">Accent 2</label>
+                <img id="heroA2Preview" class="image-preview" data-image-preview alt="" hidden>
+                <input type="text" id="setHeroAccent2" data-image-url placeholder="https://...">
+                <div class="image-upload-actions">
+                  <label class="btn btn-sm btn-outline image-upload-btn"><span data-i18n="admin_upload_image">Upload</span><input type="file" accept="image/*" data-image-file hidden></label>
+                  <button type="button" class="btn btn-sm btn-outline image-clear-btn" data-image-clear data-i18n="admin_remove_image">Remove</button>
+                </div>
+              </div>
             </div>
           </div>
           <button type="submit" class="btn btn-primary" data-i18n="admin_save">Save Settings</button>
@@ -243,10 +271,11 @@
 
   <div class="toast" id="toast"><span id="toastMessage"></span></div>
 
-  <script src="../js/store.js"></script>
+  <script src="../js/store.js?v=12"></script>
   <script src="../js/i18n.js"></script>
   <script src="../js/theme.js"></script>
   <script src="../js/auth.js"></script>
-  <script src="../js/admin.js"></script>
+  <script src="../js/admin-media.js?v=1"></script>
+  <script src="../js/admin.js?v=2"></script>
 </body>
 </html>

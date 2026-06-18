@@ -50,7 +50,8 @@ const LumiereAuth = (() => {
 
   function logout() {
     clearSession();
-    window.location.href = 'index.html';
+    const base = window.location.pathname.includes('/admin/') ? '../' : '';
+    window.location.href = `${base}index.html`;
   }
 
   function requireAuth(redirect = 'login.html') {

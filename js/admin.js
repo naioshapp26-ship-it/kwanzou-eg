@@ -2,7 +2,6 @@
  * Super Admin Dashboard — full site control
  */
 const ADMIN_BASE = '../';
-const MAX_IMAGE_BYTES = 800000;
 
 document.addEventListener('DOMContentLoaded', async () => {
   LumiereI18n.init();
@@ -29,7 +28,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initModals();
   initLogout();
   initReset();
-  initImageUploads(document);
+  AdminMedia.init(document, toast);
   switchSection('dashboard');
 
   document.querySelectorAll('[data-goto]').forEach(btn => {
@@ -48,6 +47,23 @@ function imgSrc(url) {
   if (!url) return '';
   if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://')) return url;
   return ADMIN_BASE + url;
+}
+
+async function persistAfterSave() {
+  const ok = await LumiereStore.flush();
+  if (!ok) {
+    toast(LumiereI18n.t('admin_save_failed'));
+    return false;
+  }
+  toast(LumiereI18n.t('admin_saved'));
+  return true;
+}
+
+function fieldValue(id, fallback = '') {
+  const el = document.getElementById(id);
+  if (!el) return fallback;
+  const v = el.value.trim();
+  return v || fallback;
 }
 
 function currencySym() {
@@ -86,64 +102,23 @@ function initNavigation() {
   });
 }
 
-function initImageUploads(root) {
-  root.querySelectorAll('.image-file-input').forEach(input => {
-    input.addEventListener('change', e => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      if (file.size > MAX_IMAGE_BYTES) {
-        toast(LumiereI18n.t('admin_image_too_large'));
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = () => {
-        const targetId = input.dataset.target;
-        const previewId = input.dataset.preview;
-        if (targetId) {
-          const el = document.getElementById(targetId);
-          if (el) el.value = reader.result;
-        }
-        if (previewId) {
-          const img = document.getElementById(previewId);
-          if (img) img.src = reader.result;
-        }
-        const groupPreview = input.closest('.image-upload-group')?.querySelector('.image-preview');
-        if (groupPreview && !previewId) groupPreview.src = reader.result;
-      };
-      reader.readAsDataURL(file);
-    });
-  });
-}
-
 function imageUploadHTML(name, current, label) {
-  const safe = (current && !String(current).startsWith('data:')) ? current : '';
+  const safe = current || '';
   const preview = current ? imgSrc(current) : '';
   return `
     <div class="image-upload-group">
       <label>${label}</label>
-      ${preview ? `<img class="image-preview" src="${preview}" alt="">` : '<img class="image-preview" alt="" hidden>'}
-      <input type="url" name="${name}" value="${safe}" placeholder="https://...">
-      <input type="file" accept="image/*" class="image-file-input" data-field="${name}">
+      <img class="image-preview" src="${preview}" alt="" ${preview ? '' : 'hidden'}>
+      <input type="text" name="${name}" value="${safe.replace(/"/g, '&quot;')}" placeholder="https://...">
+      <div class="image-upload-actions">
+        <label class="btn btn-sm btn-outline image-upload-btn">${LumiereI18n.t('admin_upload_image')}<input type="file" accept="image/*" class="image-file-input" hidden></label>
+      </div>
       <small>${LumiereI18n.t('admin_image_hint')}</small>
     </div>`;
 }
 
 function bindModalImageUploads() {
-  const body = document.getElementById('modalBody');
-  body.querySelectorAll('.image-file-input').forEach(input => {
-    input.addEventListener('change', e => {
-      const file = e.target.files?.[0];
-      if (!file || file.size > MAX_IMAGE_BYTES) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        const field = body.querySelector(`[name="${input.dataset.field}"]`);
-        if (field) field.value = reader.result;
-        const preview = input.closest('.image-upload-group')?.querySelector('.image-preview');
-        if (preview) { preview.hidden = false; preview.src = reader.result; }
-      };
-      reader.readAsDataURL(file);
-    });
-  });
+  AdminMedia.bindModalForm(document.getElementById('modalBody'), toast);
 }
 
 function renderDashboard() {
@@ -299,21 +274,28 @@ function initAppearanceForm() {
     document.getElementById(id)?.addEventListener('input', updateThemePreview);
   });
 
-  document.getElementById('setLogoFile')?.addEventListener('change', e => {
+  document.getElementById('setLogoFile')?.addEventListener('change', async e => {
     const file = e.target.files?.[0];
-    if (!file || file.size > MAX_IMAGE_BYTES) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      document.getElementById('logoPreview').src = reader.result;
-      document.getElementById('setLogoUrl').value = reader.result;
-    };
-    reader.readAsDataURL(file);
+    e.target.value = '';
+    if (!file) return;
+    try {
+      const dataUrl = await AdminMedia.readFile(file);
+      document.getElementById('logoPreview').src = dataUrl;
+      document.getElementById('setLogoUrl').value = dataUrl;
+    } catch (_) {
+      toast(LumiereI18n.t('admin_image_upload_failed'));
+    }
   });
 
-  document.getElementById('appearanceForm').onsubmit = e => {
+  document.getElementById('clearLogoBtn')?.addEventListener('click', () => {
+    document.getElementById('setLogoUrl').value = '';
+    document.getElementById('logoPreview').src = imgSrc('assets/logo.png');
+  });
+
+  document.getElementById('appearanceForm').onsubmit = async e => {
     e.preventDefault();
     const s = LumiereStore.get().settings;
-    const logoVal = document.getElementById('setLogoUrl').value.trim();
+    const logoVal = fieldValue('setLogoUrl', s.logo);
     LumiereStore.updateSettings({
       logo: logoVal || s.logo,
       theme: {
@@ -327,7 +309,7 @@ function initAppearanceForm() {
       }
     });
     applyAdminBranding();
-    toast(LumiereI18n.t('admin_saved'));
+    await persistAfterSave();
   };
 }
 
@@ -353,24 +335,24 @@ function renderSettings() {
   document.getElementById('setTaglineEn').value = s.taglineEn || s.tagline || '';
   document.getElementById('setSubtitleAr').value = s.subtitleAr || '';
   document.getElementById('setSubtitleEn').value = s.subtitleEn || s.subtitle || '';
-  document.getElementById('setHeroImage').value = s.heroImage?.startsWith('data:') ? '' : (s.heroImage || '');
-  document.getElementById('setHeroAccent1').value = s.heroAccent1?.startsWith('data:') ? '' : (s.heroAccent1 || '');
-  document.getElementById('setHeroAccent2').value = s.heroAccent2?.startsWith('data:') ? '' : (s.heroAccent2 || '');
-  ['heroBgPreview', 'heroA1Preview', 'heroA2Preview'].forEach((id, i) => {
-    const src = [s.heroImage, s.heroAccent1, s.heroAccent2][i];
-    const el = document.getElementById(id);
-    if (el && src) { el.src = imgSrc(src); el.hidden = false; }
+
+  const heroFields = [
+    ['setHeroImage', 'heroBgPreview', s.heroImage],
+    ['setHeroAccent1', 'heroA1Preview', s.heroAccent1],
+    ['setHeroAccent2', 'heroA2Preview', s.heroAccent2]
+  ];
+  heroFields.forEach(([inputId, previewId, src]) => {
+    const input = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+    if (input) input.value = src || '';
+    AdminMedia.setPreview(preview, src ? imgSrc(src) : '');
   });
 }
 
 function initSettingsForm() {
-  document.getElementById('settingsForm').onsubmit = e => {
+  document.getElementById('settingsForm').onsubmit = async e => {
     e.preventDefault();
     const s = LumiereStore.get().settings;
-    const getImg = (id, fallback) => {
-      const v = document.getElementById(id).value.trim();
-      return v || fallback;
-    };
     LumiereStore.updateSettings({
       brandName: document.getElementById('setBrand').value,
       currencySymbol: document.getElementById('setCurrency').value,
@@ -384,12 +366,12 @@ function initSettingsForm() {
       subtitleAr: document.getElementById('setSubtitleAr').value,
       subtitleEn: document.getElementById('setSubtitleEn').value,
       subtitle: document.getElementById('setSubtitleEn').value,
-      heroImage: getImg('setHeroImage', s.heroImage),
-      heroAccent1: getImg('setHeroAccent1', s.heroAccent1),
-      heroAccent2: getImg('setHeroAccent2', s.heroAccent2)
+      heroImage: fieldValue('setHeroImage', s.heroImage || ''),
+      heroAccent1: fieldValue('setHeroAccent1', s.heroAccent1 || ''),
+      heroAccent2: fieldValue('setHeroAccent2', s.heroAccent2 || '')
     });
     applyAdminBranding();
-    toast(LumiereI18n.t('admin_saved'));
+    await persistAfterSave();
   };
 }
 
@@ -473,7 +455,8 @@ function openProductModal(product = null) {
         <div class="form-group"><label>${LumiereI18n.t('admin_stock')}</label><input name="stock" type="number" value="${product?.stock ?? 10}"></div>
         <div class="form-group"><label>${LumiereI18n.t('admin_rating')}</label><input name="rating" type="number" min="1" max="5" value="${product?.rating || 5}"></div>
       </div>
-      ${imageUploadHTML('image', product?.image, LumiereI18n.t('admin_product_image'))}
+      ${imageUploadHTML('image', product?.image, LumiereI18n.t('admin_product_main_image'))}
+      <div class="form-group"><label>${LumiereI18n.t('admin_product_images')}</label>${AdminMedia.galleryHTML(product?.images?.length > 1 ? product.images.slice(1) : [])}</div>
       <div class="form-group"><label>${LumiereI18n.t('admin_badge')}</label><input name="badge" value="${product?.badge || ''}"></div>
       <div class="form-group"><label>${LumiereI18n.t('admin_desc_ar')}</label><textarea name="descAr" rows="2">${product?.descAr || ''}</textarea></div>
       <div class="form-group"><label>${LumiereI18n.t('admin_desc_en')}</label><textarea name="descEn" rows="2">${product?.descEn || ''}</textarea></div>
@@ -485,12 +468,21 @@ function openProductModal(product = null) {
     </form>
   `);
   bindModalImageUploads();
+  AdminMedia.bindGallery(document.getElementById('modalBody'), toast);
 
-  document.getElementById('productForm').onsubmit = e => {
+  document.getElementById('productForm').onsubmit = async e => {
     e.preventDefault();
     const fd = new FormData(e.target);
     const cat = cats.find(c => c.slug === fd.get('categorySlug'));
-    const image = fd.get('image') || product?.image;
+    const modalBody = document.getElementById('modalBody');
+    const gallery = AdminMedia.collectGallery(modalBody);
+    const image = (fd.get('image') || product?.image || '').toString().trim();
+    if (!image) {
+      toast(LumiereI18n.t('admin_image_required'));
+      return;
+    }
+    const extras = AdminMedia.collectGallery(modalBody);
+    const images = [...new Set([image, ...extras].filter(Boolean))];
     const data = {
       name: fd.get('name'),
       nameAr: fd.get('nameAr'),
@@ -501,7 +493,7 @@ function openProductModal(product = null) {
       rating: +fd.get('rating'),
       reviews: product?.reviews || 0,
       image,
-      images: [image],
+      images,
       badge: fd.get('badge'),
       descAr: fd.get('descAr'),
       descEn: fd.get('descEn'),
@@ -513,7 +505,7 @@ function openProductModal(product = null) {
     closeModal();
     renderProducts();
     renderDashboard();
-    toast(LumiereI18n.t('admin_saved'));
+    await persistAfterSave();
   };
 }
 

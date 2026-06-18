@@ -136,16 +136,27 @@ const LumiereStore = (() => {
   let _ready = null;
 
   async function syncToApi(data) {
-    if (!_apiMode) return;
+    if (!_apiMode) return true;
     try {
-      await fetch('/api/store', {
+      const res = await fetch('/api/store', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
+      if (!res.ok) {
+        console.warn('Store API sync failed:', res.status);
+        return false;
+      }
+      return true;
     } catch (err) {
       console.warn('Store API sync failed:', err);
+      return false;
     }
+  }
+
+  async function flush() {
+    if (!_cache) return true;
+    return syncToApi(_cache);
   }
 
   function init() {
@@ -395,7 +406,7 @@ const LumiereStore = (() => {
   }
 
   return {
-    get, update, reset, defaults, init,
+    get, update, reset, defaults, init, flush,
     findUser, findUserById, addUser, updateUser, deleteUser,
     addProduct, updateProduct, deleteProduct,
     updateSettings, addCategory, updateCategory, deleteCategory,

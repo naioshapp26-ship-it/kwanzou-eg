@@ -9,7 +9,7 @@ const LumiereStore = (() => {
     catalogVersion: CATALOG_VERSION,
     settings: {
       brandName: 'Kwanzou EG',
-      logo: 'assets/logo.svg',
+      logo: 'assets/logo.png',
       theme: {
         primary: '#2C2420',
         accent: '#C9A962',
@@ -97,11 +97,17 @@ const LumiereStore = (() => {
     return JSON.parse(JSON.stringify(obj));
   }
 
+  const TRIAL_LOGO_RE = /^assets\/logo(-.*)?\.svg$/i;
+
   function mergeDefaults(data) {
     if (!data || typeof data !== 'object') return clone(defaults);
     const merged = clone(data);
     merged.settings = { ...defaults.settings, ...(data.settings || {}) };
     merged.settings.theme = { ...defaults.settings.theme, ...(data.settings?.theme || {}) };
+    if (typeof merged.settings.logo === 'string' &&
+        (TRIAL_LOGO_RE.test(merged.settings.logo) || merged.settings.logo.includes('logo-v'))) {
+      merged.settings.logo = 'assets/logo.png';
+    }
     merged.categories = data.categories?.length ? clone(data.categories) : clone(defaults.categories);
     merged.products = data.products?.length ? clone(data.products) : clone(defaults.products);
     merged.collections = data.collections?.length ? data.collections : clone(defaults.collections);

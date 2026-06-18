@@ -24,9 +24,9 @@
 
 .logo-link { display: flex; align-items: center; flex-shrink: 0; }
 .logo-img {
-  height: 76px;
+  height: 72px;
   width: auto;
-  max-width: 220px;
+  max-width: 180px;
   object-fit: contain;
   display: block;
 }

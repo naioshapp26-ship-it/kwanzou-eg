@@ -321,7 +321,7 @@ function initAppearanceForm() {
 
   document.getElementById('clearLogoBtn')?.addEventListener('click', () => {
     document.getElementById('setLogoUrl').value = '';
-    document.getElementById('logoPreview').src = imgSrc('assets/logo.svg');
+    document.getElementById('logoPreview').src = imgSrc('assets/logo.png');
   });
 
   document.getElementById('appearanceForm').onsubmit = async e => {

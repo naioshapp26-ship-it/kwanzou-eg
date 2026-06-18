@@ -14,7 +14,7 @@ const LumiereLayout = (() => {
   const FOOTER_PHONE_HREF = 'tel:+201284371361';
 
   function logoPath(settings) {
-    const logo = settings?.logo || 'assets/logo.svg';
+    const logo = settings?.logo || 'assets/logo.png';
     if (logo.startsWith('data:') || logo.startsWith('http://') || logo.startsWith('https://')) return logo;
     return `${base}${logo}`;
   }

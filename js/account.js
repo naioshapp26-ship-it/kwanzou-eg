@@ -33,19 +33,23 @@ function refreshAccount() {
   renderOrders(user);
   renderWishlist(user);
   renderProfile(user);
-  initTabs();
-  initLogout();
+  bindTabs();
+  bindLogout();
+}
+
+function formatOrderTotal(total) {
+  return KwanzouCart.formatPrice(total || 0);
 }
 
 function renderOrders(user) {
   const orders = user.orders || [];
   const tbody = document.getElementById('ordersTableBody');
   const recent = document.getElementById('recentOrders');
-  const shopLink = `<a href="index.html">${LumiereI18n.t('account_shop')}</a>`;
+  const shopLink = `<a href="shop.html">${LumiereI18n.t('account_shop')}</a>`;
 
   if (!orders.length) {
     tbody.innerHTML = `<tr><td colspan="5" class="empty-msg">${LumiereI18n.t('account_no_orders')} ${shopLink}</td></tr>`;
-    recent.innerHTML = `<p class="empty-msg">${LumiereI18n.t('account_no_orders')}</p>`;
+    recent.innerHTML = `<p class="empty-msg">${LumiereI18n.t('account_no_orders')} ${shopLink}</p>`;
     return;
   }
 
@@ -53,17 +57,20 @@ function renderOrders(user) {
     <tr>
       <td><strong>${o.id}</strong></td>
       <td>${o.date}</td>
-      <td>${o.items.map(i => i.name).join(', ')}</td>
-      <td>$${o.total.toLocaleString()}</td>
-      <td><span class="status-badge status-badge--${o.status.toLowerCase()}">${LumiereI18n.translateStatus(o.status)}</span></td>
+      <td>${(o.items || []).map(i => i.name).join('، ')}</td>
+      <td>${formatOrderTotal(o.total)}</td>
+      <td><span class="status-badge status-badge--${(o.status || 'pending').toLowerCase()}">${LumiereI18n.translateStatus(o.status)}</span></td>
     </tr>
   `).join('');
 
-  recent.innerHTML = orders.slice(0, 2).map(o => `
+  recent.innerHTML = orders.slice(0, 3).map(o => `
     <div class="order-card">
-      <div><strong>${o.id}</strong> · ${o.date}</div>
-      <div>${o.items.map(i => i.name).join(', ')}</div>
-      <span class="status-badge status-badge--${o.status.toLowerCase()}">${LumiereI18n.translateStatus(o.status)}</span>
+      <div class="order-card__meta">
+        <span class="order-card__id">${o.id}</span>
+        <span class="order-card__date">${o.date}</span>
+      </div>
+      <div class="order-card__items">${(o.items || []).map(i => i.name).join('، ')}</div>
+      <span class="status-badge status-badge--${(o.status || 'pending').toLowerCase()}">${LumiereI18n.translateStatus(o.status)}</span>
     </div>
   `).join('');
 }
@@ -98,18 +105,19 @@ function renderProfile(user) {
   };
 }
 
-function initTabs() {
+function switchTab(tab) {
+  document.querySelectorAll('.account-nav__item').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.account-panel').forEach(p => p.classList.toggle('active', p.id === `panel-${tab}`));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function bindTabs() {
   document.querySelectorAll('.account-nav__item').forEach(btn => {
     btn.onclick = () => switchTab(btn.dataset.tab);
   });
 }
 
-function switchTab(tab) {
-  document.querySelectorAll('.account-nav__item').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
-  document.querySelectorAll('.account-panel').forEach(p => p.classList.toggle('active', p.id === `panel-${tab}`));
-}
-
-function initLogout() {
+function bindLogout() {
   document.getElementById('logoutBtn').onclick = () => LumiereAuth.logout();
 }
 

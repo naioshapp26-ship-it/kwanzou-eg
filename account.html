@@ -3,45 +3,55 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>My Account | LUMIÈRE</title>
+  <title>My Account | Kwanzou EG</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css?v=10">
-  <link rel="stylesheet" href="css/account.css">
+  <link rel="stylesheet" href="css/shop.css?v=2">
   <link rel="stylesheet" href="css/catalog.css">
+  <link rel="stylesheet" href="css/account.css?v=2">
 </head>
-<body data-page-title="account_title">
+<body class="catalog-store" data-page-title="account_title">
   <div id="site-header"></div>
 
   <main class="account-page">
     <div class="container">
       <div class="account-header">
-        <div>
+        <div class="account-header__intro">
           <span class="section-eyebrow" data-i18n="account_eyebrow">My Account</span>
-          <h1 class="section-title" id="welcomeName">Welcome</h1>
+          <h1 class="account-header__title" id="welcomeName">Welcome</h1>
         </div>
-        <button class="btn btn-outline" id="logoutBtn" data-i18n="account_logout">Sign Out</button>
+        <button type="button" class="btn btn-outline account-header__logout" id="logoutBtn" data-i18n="account_logout">Sign Out</button>
       </div>
 
       <div class="account-layout">
         <aside class="account-sidebar">
-          <nav class="account-nav">
-            <button class="account-nav__item active" data-tab="overview" data-i18n="account_overview">Overview</button>
-            <button class="account-nav__item" data-tab="orders" data-i18n="account_orders">My Orders</button>
-            <button class="account-nav__item" data-tab="wishlist" data-i18n="account_wishlist">Wishlist</button>
-            <button class="account-nav__item" data-tab="profile" data-i18n="account_profile">Profile</button>
+          <nav class="account-nav" aria-label="Account navigation">
+            <button type="button" class="account-nav__item active" data-tab="overview" data-i18n="account_overview">Overview</button>
+            <button type="button" class="account-nav__item" data-tab="orders" data-i18n="account_orders">My Orders</button>
+            <button type="button" class="account-nav__item" data-tab="wishlist" data-i18n="account_wishlist">Wishlist</button>
+            <button type="button" class="account-nav__item" data-tab="profile" data-i18n="account_profile">Profile</button>
           </nav>
         </aside>
 
         <div class="account-content">
           <section class="account-panel active" id="panel-overview">
             <div class="account-stats">
-              <div class="stat-card"><span class="stat-card__num" id="statOrders">0</span><span class="stat-card__label" data-i18n="account_stat_orders">Orders</span></div>
-              <div class="stat-card"><span class="stat-card__num" id="statWishlist">0</span><span class="stat-card__label" data-i18n="account_stat_wishlist">Wishlist</span></div>
-              <div class="stat-card"><span class="stat-card__num" id="statMember">—</span><span class="stat-card__label" data-i18n="account_stat_member">Member Since</span></div>
+              <div class="stat-card">
+                <span class="stat-card__num" id="statOrders">0</span>
+                <span class="stat-card__label" data-i18n="account_stat_orders">Orders</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__num" id="statWishlist">0</span>
+                <span class="stat-card__label" data-i18n="account_stat_wishlist">Wishlist</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-card__num stat-card__num--text" id="statMember">—</span>
+                <span class="stat-card__label" data-i18n="account_stat_member">Member Since</span>
+              </div>
             </div>
             <div class="account-recent">
               <h3 data-i18n="account_recent">Recent Orders</h3>
-              <div id="recentOrders"></div>
+              <div id="recentOrders" class="account-recent__list"></div>
             </div>
           </section>
 
@@ -70,10 +80,19 @@
             <h2 data-i18n="account_profile_title">Profile Settings</h2>
             <form id="profileForm" class="profile-form">
               <div class="form-row">
-                <div class="form-group"><label data-i18n="register_name">Full Name</label><input type="text" id="profileName" required></div>
-                <div class="form-group"><label data-i18n="login_email">Email</label><input type="email" id="profileEmail" disabled></div>
+                <div class="form-group">
+                  <label data-i18n="register_name">Full Name</label>
+                  <input type="text" id="profileName" required>
+                </div>
+                <div class="form-group">
+                  <label data-i18n="login_email">Email</label>
+                  <input type="email" id="profileEmail" disabled>
+                </div>
               </div>
-              <div class="form-group"><label data-i18n="register_phone">Phone</label><input type="tel" id="profilePhone"></div>
+              <div class="form-group">
+                <label data-i18n="register_phone">Phone</label>
+                <input type="tel" id="profilePhone" inputmode="tel">
+              </div>
               <button type="submit" class="btn btn-primary" data-i18n="account_save">Save Changes</button>
             </form>
           </section>
@@ -85,12 +104,12 @@
   <div id="site-footer"></div>
   <div class="toast" id="toast"><span id="toastMessage"></span></div>
 
-  <script src="js/store.js"></script>
+  <script src="js/store.js?v=14"></script>
   <script src="js/i18n.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/cart.js"></script>
   <script src="js/theme.js"></script>
   <script src="js/layout.js?v=12"></script>
-  <script src="js/account.js"></script>
+  <script src="js/account.js?v=2"></script>
 </body>
 </html>

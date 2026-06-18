@@ -2024,8 +2024,7 @@ html[dir="rtl"] .product-card__actions {
   flex-direction: row-reverse;
 }
 
-html[dir="rtl"] .footer-bottom,
-html[dir="rtl"] .account-header {
+html[dir="rtl"] .footer-bottom {
   flex-direction: row-reverse;
 }
 

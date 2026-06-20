@@ -325,13 +325,13 @@ const LumiereLayout = (() => {
     <header class="site-header" id="header">
       <div class="header-main container">
         <button class="nav-toggle" aria-label="Menu" id="navToggle"><span></span><span></span><span></span></button>
-        <a href="${base}index.html" class="logo-link">
-          <img src="${logo}" alt="${settings.brandName}" class="logo-img" width="160" height="72">
-        </a>
         <form class="header-search" id="headerSearch" action="${base}shop.html" method="get">
           <input type="search" name="q" placeholder="${LumiereI18n.t('search_placeholder')}" aria-label="Search">
           <button type="submit" aria-label="Search">🔍</button>
         </form>
+        <a href="${base}index.html" class="logo-link">
+          <img src="${logo}" alt="${settings.brandName}" class="logo-img" width="160" height="72">
+        </a>
         <div class="header-actions">
           ${LumiereI18n.langSwitcherHTML(base)}
           <a href="${accountLink}" class="header-action" title="${LumiereI18n.t('nav_account')}">

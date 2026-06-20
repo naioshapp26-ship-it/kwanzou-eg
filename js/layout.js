@@ -320,24 +320,34 @@ const LumiereLayout = (() => {
 
     const mobileSideMenu = renderMobileSideMenu(products, categories);
     const desktopHeaderNav = renderDesktopHeaderNav(active, categories);
+    const authToolsDesktop = `
+          ${LumiereI18n.langSwitcherHTML(true)}
+          <a href="${accountLink}" class="header-action header-action--account" title="${LumiereI18n.t('nav_account')}">
+            <span class="header-action__icon">👤</span>
+            <span class="header-action__label">${accountLabel}</span>
+          </a>`;
+    const authToolsMobile = `
+          ${LumiereI18n.langSwitcherHTML(false)}
+          <a href="${accountLink}" class="header-action header-action--account header-action--icon" title="${LumiereI18n.t('nav_account')}" aria-label="${LumiereI18n.t('nav_account')}">
+            <span class="header-action__icon">👤</span>
+          </a>`;
 
     return `
     <header class="site-header" id="header">
       <div class="header-main container">
-        <button class="nav-toggle" aria-label="Menu" id="navToggle"><span></span><span></span><span></span></button>
-        <form class="header-search" id="headerSearch" action="${base}shop.html" method="get">
-          <input type="search" name="q" placeholder="${LumiereI18n.t('search_placeholder')}" aria-label="Search">
-          <button type="submit" aria-label="Search">🔍</button>
-        </form>
+        <div class="header-start">
+          <button class="nav-toggle" aria-label="Menu" id="navToggle"><span></span><span></span><span></span></button>
+          <form class="header-search" id="headerSearch" action="${base}shop.html" method="get">
+            <input type="search" name="q" placeholder="${LumiereI18n.t('search_placeholder')}" aria-label="Search">
+            <button type="submit" aria-label="Search">🔍</button>
+          </form>
+          <div class="header-auth-bar header-auth-bar--mobile">${authToolsMobile}</div>
+        </div>
         <a href="${base}index.html" class="logo-link">
           <img src="${logo}" alt="${settings.brandName}" class="logo-img" width="160" height="72">
         </a>
-        <div class="header-actions">
-          ${LumiereI18n.langSwitcherHTML(base)}
-          <a href="${accountLink}" class="header-action" title="${LumiereI18n.t('nav_account')}">
-            <span class="header-action__icon">👤</span>
-            <span class="header-action__label">${accountLabel}</span>
-          </a>
+        <div class="header-end">
+          <div class="header-auth-bar header-auth-bar--desktop">${authToolsDesktop}</div>
           ${session?.role === 'superadmin' ? `<a href="${base}admin/index.html" class="header-action header-action--admin">${LumiereI18n.t('nav_admin')}</a>` : ''}
           <a href="${base}cart.html" class="header-action cart-link" title="${LumiereI18n.t('nav_bag')}">
             <span class="header-action__icon">🛍</span>

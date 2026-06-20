@@ -845,8 +845,9 @@ const LumiereI18n = (() => {
     if (titleKey) document.title = t(titleKey);
   }
 
-  function langSwitcherHTML(base = '') {
-    return `<button type="button" class="lang-switch" id="langSwitch" aria-label="Switch language">${t('lang_switch')}</button>`;
+  function langSwitcherHTML(withId = true) {
+    const idAttr = withId ? ' id="langSwitch"' : '';
+    return `<button type="button" class="lang-switch"${idAttr} aria-label="Switch language">${t('lang_switch')}</button>`;
   }
 
   function bindLangSwitch(root = document) {

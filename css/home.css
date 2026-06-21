@@ -656,8 +656,8 @@ html[dir="ltr"] .hero__badge { right: 5%; }
     height: auto;
     min-height: 0;
     margin: 0;
-    padding-inline-end: 18px;
-    padding-inline-start: 10px;
+    padding-inline-end: 20px;
+    padding-inline-start: 4px;
     padding-bottom: 10px;
     display: flex;
     align-items: flex-end;
@@ -667,7 +667,11 @@ html[dir="ltr"] .hero__badge { right: 5%; }
     overflow: visible;
     pointer-events: none;
     z-index: 1;
-    transform: translateY(-14px);
+    transform: translate(-6px, -14px);
+  }
+
+  html[dir="rtl"] .hero__visual {
+    justify-content: flex-end;
   }
 
   .hero__card {
@@ -765,9 +769,9 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   }
 
   .hero__visual {
-    padding-inline-end: 16px;
-    padding-inline-start: 10px;
-    transform: translateY(-12px);
+    padding-inline-end: 18px;
+    padding-inline-start: 4px;
+    transform: translate(-5px, -12px);
   }
 
   .hero__card--main {
@@ -849,9 +853,9 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   }
 
   .hero__visual {
-    padding-inline-end: 14px;
-    padding-inline-start: 8px;
-    transform: translateY(-10px);
+    padding-inline-end: 16px;
+    padding-inline-start: 4px;
+    transform: translate(-4px, -10px);
   }
 
   .hero__card--main {

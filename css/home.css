@@ -523,7 +523,7 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 
   .hero__inner {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(104px, 34%);
+    grid-template-columns: minmax(0, 1fr) minmax(118px, 36%);
     align-items: center;
     gap: 12px 18px;
     width: 100%;
@@ -652,11 +652,13 @@ html[dir="ltr"] .hero__badge { right: 5%; }
     height: auto;
     min-height: 188px;
     margin: 0;
-    padding: 0 0 6px;
+    padding-inline-end: 16px;
+    padding-inline-start: 4px;
+    padding-bottom: 6px;
     display: flex;
     align-items: flex-end;
-    justify-content: center;
-    gap: 8px;
+    justify-content: flex-start;
+    gap: 10px;
     pointer-events: none;
     z-index: 1;
   }
@@ -670,8 +672,8 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   }
 
   .hero__card--main {
-    width: 114px;
-    height: 154px;
+    width: 122px;
+    height: 164px;
     margin: 0 !important;
     border-radius: 16px;
     border-width: 3px;
@@ -680,8 +682,8 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 
   .hero__card--accent {
     display: block;
-    width: 98px;
-    height: 130px;
+    width: 106px;
+    height: 140px;
     margin: 0 0 8px !important;
     border-radius: 14px;
     opacity: 1;
@@ -715,7 +717,7 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 
   .hero__inner {
     min-height: clamp(495px, 65vh, 585px);
-    grid-template-columns: minmax(0, 1fr) minmax(96px, 32%);
+    grid-template-columns: minmax(0, 1fr) minmax(112px, 35%);
     gap: 10px 16px;
     padding: 16px 12px 34px;
   }
@@ -757,16 +759,19 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   .hero__visual {
     min-height: 176px;
     padding-bottom: 8px;
+    padding-inline-end: 14px;
+    padding-inline-start: 4px;
+    gap: 10px;
   }
 
   .hero__card--main {
-    width: 106px;
-    height: 144px;
+    width: 112px;
+    height: 152px;
   }
 
   .hero__card--accent {
-    width: 90px;
-    height: 122px;
+    width: 96px;
+    height: 130px;
     margin-bottom: 10px !important;
   }
 
@@ -794,7 +799,7 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 
   .hero__inner {
     min-height: clamp(475px, 63vh, 555px);
-    grid-template-columns: minmax(0, 1fr) minmax(88px, 30%);
+    grid-template-columns: minmax(0, 1fr) minmax(104px, 34%);
     gap: 8px 14px;
     padding: 14px 10px 32px;
   }
@@ -839,16 +844,19 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   .hero__visual {
     min-height: 164px;
     padding-bottom: 10px;
+    padding-inline-end: 12px;
+    padding-inline-start: 4px;
+    gap: 8px;
   }
 
   .hero__card--main {
-    width: 98px;
-    height: 134px;
+    width: 104px;
+    height: 142px;
   }
 
   .hero__card--accent {
-    width: 84px;
-    height: 114px;
+    width: 90px;
+    height: 122px;
     margin-bottom: 12px !important;
   }
 

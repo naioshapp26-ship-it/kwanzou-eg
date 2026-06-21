@@ -657,8 +657,8 @@ html[dir="ltr"] .hero__badge { right: 5%; }
     min-height: 0;
     margin: 0;
     padding-inline-end: 18px;
-    padding-inline-start: 6px;
-    padding-bottom: 6px;
+    padding-inline-start: 10px;
+    padding-bottom: 10px;
     display: flex;
     align-items: flex-end;
     justify-content: flex-start;
@@ -667,6 +667,7 @@ html[dir="ltr"] .hero__badge { right: 5%; }
     overflow: visible;
     pointer-events: none;
     z-index: 1;
+    transform: translateY(-14px);
   }
 
   .hero__card {
@@ -690,7 +691,7 @@ html[dir="ltr"] .hero__badge { right: 5%; }
     display: block;
     width: 86px;
     height: 116px;
-    margin: 0 0 6px !important;
+    margin: 0 0 12px !important;
     border-radius: 14px;
     opacity: 1;
   }
@@ -765,8 +766,8 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 
   .hero__visual {
     padding-inline-end: 16px;
-    padding-inline-start: 6px;
-    gap: 9px;
+    padding-inline-start: 10px;
+    transform: translateY(-12px);
   }
 
   .hero__card--main {
@@ -777,7 +778,7 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   .hero__card--accent {
     width: 82px;
     height: 110px;
-    margin-bottom: 6px !important;
+    margin-bottom: 10px !important;
   }
 
   .hero-actions .btn {
@@ -849,8 +850,8 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 
   .hero__visual {
     padding-inline-end: 14px;
-    padding-inline-start: 6px;
-    gap: 8px;
+    padding-inline-start: 8px;
+    transform: translateY(-10px);
   }
 
   .hero__card--main {
@@ -861,7 +862,7 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   .hero__card--accent {
     width: 78px;
     height: 104px;
-    margin-bottom: 6px !important;
+    margin-bottom: 10px !important;
   }
 
   .hero-actions .btn {

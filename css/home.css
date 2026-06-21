@@ -667,7 +667,7 @@ html[dir="ltr"] .hero__badge { right: 5%; }
     overflow: visible;
     pointer-events: none;
     z-index: 1;
-    transform: translate(-6px, -14px);
+    transform: translate(-10px, -14px);
   }
 
   html[dir="rtl"] .hero__visual {
@@ -771,7 +771,7 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   .hero__visual {
     padding-inline-end: 18px;
     padding-inline-start: 4px;
-    transform: translate(-5px, -12px);
+    transform: translate(-8px, -12px);
   }
 
   .hero__card--main {
@@ -855,7 +855,7 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   .hero__visual {
     padding-inline-end: 16px;
     padding-inline-start: 4px;
-    transform: translate(-4px, -10px);
+    transform: translate(-7px, -10px);
   }
 
   .hero__card--main {

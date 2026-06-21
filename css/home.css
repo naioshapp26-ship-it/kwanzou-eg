@@ -645,17 +645,18 @@ html[dir="ltr"] .hero__badge { right: 5%; }
     position: relative;
     grid-column: 2;
     grid-row: 1;
-    align-self: center;
+    align-self: end;
+    margin-top: auto;
     inset: auto;
     width: 100%;
     height: auto;
-    min-height: 168px;
+    min-height: 188px;
     margin: 0;
-    padding: 0;
+    padding: 0 0 6px;
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    gap: 6px;
+    gap: 8px;
     pointer-events: none;
     z-index: 1;
   }
@@ -669,8 +670,8 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   }
 
   .hero__card--main {
-    width: 100px;
-    height: 136px;
+    width: 114px;
+    height: 154px;
     margin: 0 !important;
     border-radius: 16px;
     border-width: 3px;
@@ -679,9 +680,9 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 
   .hero__card--accent {
     display: block;
-    width: 86px;
-    height: 114px;
-    margin: 0 0 6px !important;
+    width: 98px;
+    height: 130px;
+    margin: 0 0 8px !important;
     border-radius: 14px;
     opacity: 1;
   }
@@ -754,17 +755,19 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   }
 
   .hero__visual {
-    min-height: 156px;
+    min-height: 176px;
+    padding-bottom: 8px;
   }
 
   .hero__card--main {
-    width: 92px;
-    height: 126px;
+    width: 106px;
+    height: 144px;
   }
 
   .hero__card--accent {
-    width: 78px;
-    height: 106px;
+    width: 90px;
+    height: 122px;
+    margin-bottom: 10px !important;
   }
 
   .hero-actions .btn {
@@ -834,18 +837,19 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   }
 
   .hero__visual {
-    min-height: 142px;
+    min-height: 164px;
+    padding-bottom: 10px;
   }
 
   .hero__card--main {
-    width: 84px;
-    height: 116px;
+    width: 98px;
+    height: 134px;
   }
 
   .hero__card--accent {
-    width: 72px;
-    height: 96px;
-    margin-bottom: 4px !important;
+    width: 84px;
+    height: 114px;
+    margin-bottom: 12px !important;
   }
 
   .hero-actions .btn {

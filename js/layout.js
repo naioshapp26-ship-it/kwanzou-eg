@@ -14,11 +14,12 @@ const LumiereLayout = (() => {
   const FOOTER_PHONE_HREF = 'tel:+201284371361';
 
   function logoPath(settings) {
-    const logo = settings?.logo || 'assets/logo.png';
+    const logo = settings?.logo || 'assets/logo-brand.svg';
     if (logo.startsWith('data:') || logo.startsWith('http://') || logo.startsWith('https://')) return logo;
     const path = `${base}${logo.replace(/^\//, '')}`;
-    if (logo === 'assets/logo.png' || logo.endsWith('/assets/logo.png')) {
-      return `${path}?v=3`;
+    if (logo === 'assets/logo-brand.svg' || logo.endsWith('/assets/logo-brand.svg') ||
+        logo === 'assets/logo.png' || logo.endsWith('/assets/logo.png')) {
+      return `${path}?v=4`;
     }
     return path;
   }

@@ -1040,12 +1040,12 @@ html[dir="rtl"] .product-card .wishlist-btn { right: auto; left: 12px; }
     top: 50%;
     transform: translate(-50%, -50%);
     z-index: 1;
-    max-width: 40vw;
+    max-width: 42vw;
     pointer-events: auto;
   }
 
   .logo-img {
-    height: 58px;
+    height: 62px;
     max-width: 100%;
   }
 
@@ -1056,8 +1056,8 @@ html[dir="rtl"] .product-card .wishlist-btn { right: auto; left: 12px; }
 }
 
 @media (max-width: 768px) {
-  .logo-img { height: 54px; }
-  .logo-link { max-width: 36vw; }
+  .logo-img { height: 58px; }
+  .logo-link { max-width: 38vw; }
   .cart-layout { grid-template-columns: 1fr; }
   .cart-sidebar { position: static; }
   .cart-item { grid-template-columns: 60px 1fr; }

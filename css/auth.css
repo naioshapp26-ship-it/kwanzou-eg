@@ -41,7 +41,7 @@
 .auth-visual .auth-logo {
   height: auto;
   width: auto;
-  max-width: min(165px, 58%);
+  max-width: min(185px, 62%);
   object-fit: contain;
   margin-bottom: 10px;
 }

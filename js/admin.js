@@ -63,7 +63,7 @@ function imgSrc(url) {
   if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://')) return url;
   if (url.startsWith('/api/media/')) return url;
   const clean = url.replace(/^\//, '');
-  if (clean === 'assets/logo.png') return `${ADMIN_BASE}assets/logo.png?v=3`;
+  if (clean === 'assets/logo-brand.svg' || clean === 'assets/logo.png') return `${ADMIN_BASE}assets/logo-brand.svg?v=4`;
   return ADMIN_BASE + clean;
 }
 
@@ -323,7 +323,7 @@ function initAppearanceForm() {
 
   document.getElementById('clearLogoBtn')?.addEventListener('click', () => {
     document.getElementById('setLogoUrl').value = '';
-    document.getElementById('logoPreview').src = imgSrc('assets/logo.png');
+    document.getElementById('logoPreview').src = imgSrc('assets/logo-brand.svg');
   });
 
   document.getElementById('appearanceForm').onsubmit = async e => {

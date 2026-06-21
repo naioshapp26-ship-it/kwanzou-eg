@@ -9,7 +9,7 @@ const LumiereStore = (() => {
     catalogVersion: CATALOG_VERSION,
     settings: {
       brandName: 'Kwanzou EG',
-      logo: 'assets/logo.png',
+      logo: 'assets/logo-brand.svg',
       theme: {
         primary: '#2C2420',
         accent: '#C9A962',
@@ -126,7 +126,10 @@ const LumiereStore = (() => {
     });
     if (typeof merged.settings.logo === 'string' &&
         (TRIAL_LOGO_RE.test(merged.settings.logo) || merged.settings.logo.includes('logo-v'))) {
-      merged.settings.logo = 'assets/logo.png';
+      merged.settings.logo = 'assets/logo-brand.svg';
+    }
+    if (merged.settings.logo === 'assets/logo.png' || merged.settings.logo.endsWith('/assets/logo.png')) {
+      merged.settings.logo = 'assets/logo-brand.svg';
     }
     merged.categories = data.categories?.length ? clone(data.categories) : clone(defaults.categories);
     merged.products = data.products?.length ? clone(data.products) : clone(defaults.products);

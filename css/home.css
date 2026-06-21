@@ -510,13 +510,14 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   }
 
   .hero__inner {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-items: center;
+    align-items: start;
     gap: 0;
     width: 100%;
     min-height: 320px;
-    padding: 6px 14px 96px;
+    padding: 52px 14px 96px;
     position: relative;
     text-align: center;
   }
@@ -525,27 +526,36 @@ html[dir="ltr"] .hero__badge { right: 5%; }
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: flex-start;
     width: 100%;
     max-width: 100%;
-    margin: 0;
-    padding: 0 6px;
+    margin: 0 auto;
+    padding: 0 8px;
     order: 1;
     z-index: 2;
+    text-align: center;
   }
 
   html[dir="rtl"] .hero__content {
-    padding: 0 6px;
+    padding: 0 8px;
+    text-align: center;
   }
 
   .hero--premium .hero-eyebrow {
-    align-self: stretch;
+    position: absolute;
+    top: 8px;
+    inset-inline-start: 14px;
+    inset-inline-end: auto;
+    width: auto;
+    max-width: calc(100% - 28px);
+    margin: 0;
+    z-index: 3;
     display: flex;
     justify-content: flex-start;
-    margin: 0 0 12px;
-    width: 100%;
   }
 
   html[dir="ltr"] .hero--premium .hero-eyebrow {
+    inset-inline-start: 14px;
     justify-content: flex-start;
   }
 
@@ -556,39 +566,43 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   }
 
   .hero--premium .hero-title {
-    align-items: center;
-    text-align: center;
+    align-items: center !important;
+    text-align: center !important;
     width: 100%;
     margin-bottom: 8px;
     gap: 6px;
   }
 
   html[dir="rtl"] .hero--premium .hero-title {
-    align-items: center;
+    align-items: center !important;
+    text-align: center !important;
   }
 
   .hero--premium .hero-title__brand {
     font-size: clamp(1.55rem, 5vw, 2rem);
     line-height: 1.05;
     width: 100%;
-    text-align: center;
+    text-align: center !important;
+    display: block;
   }
 
   .hero--premium .hero-title__tagline {
     font-size: clamp(0.78rem, 2.2vw, 0.92rem);
     line-height: 1.5;
-    max-width: 30ch;
+    max-width: min(30ch, 92vw);
     margin-inline: auto;
-    text-align: center;
+    text-align: center !important;
+    display: block;
+    font-style: normal;
   }
 
   .hero--premium .hero-subtitle {
     font-size: clamp(0.66rem, 2vw, 0.82rem);
     line-height: 1.45;
     margin-bottom: 10px;
-    max-width: 26ch;
+    max-width: min(26ch, 88vw);
     margin-inline: auto;
-    text-align: center;
+    text-align: center !important;
   }
 
   .hero-actions {
@@ -664,11 +678,12 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 @media (max-width: 768px) {
   .hero__inner {
     min-height: 300px;
-    padding: 4px 12px 88px;
+    padding: 48px 12px 88px;
   }
 
   .hero--premium .hero-eyebrow {
-    margin-bottom: 10px;
+    top: 6px;
+    inset-inline-start: 12px;
   }
 
   .hero-eyebrow__chip {
@@ -689,12 +704,12 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 
   .hero--premium .hero-title__tagline {
     font-size: clamp(0.74rem, 2.1vw, 0.86rem);
-    max-width: 28ch;
+    max-width: min(28ch, 90vw);
   }
 
   .hero--premium .hero-subtitle {
     font-size: clamp(0.64rem, 1.95vw, 0.76rem);
-    max-width: 24ch;
+    max-width: min(24ch, 86vw);
   }
 
   .hero__visual {
@@ -737,7 +752,12 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 @media (max-width: 576px) {
   .hero__inner {
     min-height: 288px;
-    padding: 2px 10px 82px;
+    padding: 46px 10px 82px;
+  }
+
+  .hero--premium .hero-eyebrow {
+    top: 4px;
+    inset-inline-start: 10px;
   }
 
   .hero-eyebrow__chip {
@@ -761,7 +781,7 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 
   .hero--premium .hero-title__tagline {
     font-size: clamp(0.7rem, 2vw, 0.8rem);
-    max-width: 26ch;
+    max-width: min(26ch, 88vw);
   }
 
   .hero--premium .hero-subtitle {

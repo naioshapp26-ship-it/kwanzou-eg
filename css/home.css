@@ -656,7 +656,7 @@ html[dir="ltr"] .hero__badge { right: 5%; }
     min-height: 168px;
     margin: 0;
     margin-top: auto;
-    padding-inline-end: 22px;
+    padding-inline-end: 10px;
     padding-inline-start: 0;
     padding-bottom: 6px;
     display: flex;
@@ -671,11 +671,11 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 
   html[dir="rtl"] .hero__visual {
     justify-content: flex-end;
-    transform: translate(-10px, 6px);
+    transform: translate(-22px, 6px);
   }
 
   html[dir="ltr"] .hero__visual {
-    transform: translate(10px, 6px);
+    transform: translate(22px, 6px);
   }
 
   .hero__card {
@@ -774,16 +774,16 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 
   .hero__visual {
     min-height: 156px;
-    padding-inline-end: 20px;
+    padding-inline-end: 10px;
     gap: 6px;
   }
 
   html[dir="rtl"] .hero__visual {
-    transform: translate(-8px, 5px);
+    transform: translate(-18px, 5px);
   }
 
   html[dir="ltr"] .hero__visual {
-    transform: translate(8px, 5px);
+    transform: translate(18px, 5px);
   }
 
   .hero__card--main {
@@ -866,16 +866,16 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 
   .hero__visual {
     min-height: 142px;
-    padding-inline-end: 18px;
+    padding-inline-end: 8px;
     gap: 6px;
   }
 
   html[dir="rtl"] .hero__visual {
-    transform: translate(-8px, 5px);
+    transform: translate(-16px, 5px);
   }
 
   html[dir="ltr"] .hero__visual {
-    transform: translate(8px, 5px);
+    transform: translate(16px, 5px);
   }
 
   .hero__card--main {

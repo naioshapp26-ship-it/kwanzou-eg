@@ -500,23 +500,35 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 
 @media (max-width: 992px) {
   .hero--premium {
-    min-height: 0;
+    min-height: clamp(430px, 58vh, 540px);
     height: auto;
     align-items: stretch;
   }
 
   .hero--premium .hero-image {
     animation: none;
+    object-fit: cover;
+    object-position: center 22%;
+  }
+
+  html[dir="rtl"] .hero--premium .hero-overlay {
+    background: linear-gradient(
+      -105deg,
+      rgba(250, 248, 245, 0.93) 0%,
+      rgba(250, 248, 245, 0.78) 34%,
+      rgba(232, 223, 213, 0.42) 62%,
+      rgba(250, 248, 245, 0.12) 100%
+    );
   }
 
   .hero__inner {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(104px, 34%);
-    align-items: start;
+    align-items: center;
     gap: 12px 18px;
     width: 100%;
-    min-height: 0;
-    padding: 12px 14px 14px;
+    min-height: clamp(410px, 56vh, 520px);
+    padding: 18px 14px 20px;
     position: relative;
     text-align: start;
   }
@@ -671,10 +683,19 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 }
 
 @media (max-width: 768px) {
+  .hero--premium {
+    min-height: clamp(400px, 54vh, 480px);
+  }
+
   .hero__inner {
+    min-height: clamp(380px, 52vh, 460px);
     grid-template-columns: minmax(0, 1fr) minmax(96px, 32%);
     gap: 10px 16px;
-    padding: 10px 12px 12px;
+    padding: 16px 12px 18px;
+  }
+
+  .hero--premium .hero-image {
+    object-position: center 20%;
   }
 
   .hero-eyebrow__chip {
@@ -733,10 +754,19 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 }
 
 @media (max-width: 576px) {
+  .hero--premium {
+    min-height: clamp(380px, 52vh, 450px);
+  }
+
   .hero__inner {
+    min-height: clamp(360px, 50vh, 430px);
     grid-template-columns: minmax(0, 1fr) minmax(88px, 30%);
     gap: 8px 14px;
-    padding: 8px 10px 10px;
+    padding: 14px 10px 16px;
+  }
+
+  .hero--premium .hero-image {
+    object-position: center 18%;
   }
 
   .hero-eyebrow__chip {

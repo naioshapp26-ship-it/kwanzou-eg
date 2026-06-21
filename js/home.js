@@ -33,7 +33,7 @@ const HERO_FONT_MAP = {
 };
 
 const DEFAULT_HERO_TYPO = {
-  eyebrow: { font: 'jost', size: 0.72, weight: 500 },
+  eyebrow: { font: 'cairo', size: 0.82, weight: 600 },
   brand: { font: 'cormorant', size: 3.25, weight: 600 },
   tagline: { font: 'cairo', size: 1.05, weight: 500 },
   subtitle: { font: 'cairo', size: 0.95, weight: 400 }
@@ -49,6 +49,31 @@ function applyHeroTypography(settings) {
     hero.style.setProperty(`--hero-${key}-size`, `${t.size}rem`);
     hero.style.setProperty(`--hero-${key}-weight`, String(t.weight));
   });
+}
+
+function escHeroText(str) {
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function renderHeroEyebrow(settings) {
+  const el = document.getElementById('heroEyebrow');
+  if (!el) return;
+  const lang = LumiereI18n.getLang();
+  const city = lang === 'ar'
+    ? (settings.heroEyebrowCityAr || LumiereI18n.t('hero_eyebrow_city'))
+    : (settings.heroEyebrowCityEn || LumiereI18n.t('hero_eyebrow_city'));
+  const note = lang === 'ar'
+    ? (settings.heroEyebrowNoteAr || LumiereI18n.t('hero_eyebrow_note'))
+    : (settings.heroEyebrowNoteEn || LumiereI18n.t('hero_eyebrow_note'));
+  el.innerHTML = `<span class="hero-eyebrow__chip">
+    <span class="hero-eyebrow__city">${escHeroText(city)}</span>
+    <span class="hero-eyebrow__dot" aria-hidden="true"></span>
+    <span class="hero-eyebrow__ship">${escHeroText(note)}</span>
+  </span>`;
 }
 
 function renderHero(settings, categories) {
@@ -88,6 +113,7 @@ function renderHero(settings, categories) {
   if (heroTitle) {
     heroTitle.innerHTML = `<span class="hero-title__brand">${s.brandName || 'Kwanzou EG'}</span><em class="hero-title__tagline">${heroTagline}</em>`;
   }
+  renderHeroEyebrow(s);
   if (heroSubtitle) heroSubtitle.textContent = heroSub;
   if (heroExploreLink) heroExploreLink.href = categories[0]?.slug ? `shop.html?cat=${categories[0].slug}` : 'shop.html';
   applyHeroTypography(s);

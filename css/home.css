@@ -69,10 +69,59 @@ html[dir="rtl"] .hero--premium .hero-overlay {
 
 .hero--premium .hero-eyebrow {
   animation: fadeUp 0.8s ease 0.2s both;
-  font-family: var(--hero-eyebrow-font, 'Jost', sans-serif);
-  font-size: var(--hero-eyebrow-size, 0.72rem);
-  font-weight: var(--hero-eyebrow-weight, 500);
-  letter-spacing: 0.18em;
+  margin: 0 0 20px;
+  letter-spacing: normal;
+}
+
+.hero-eyebrow__chip {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  padding: 11px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(201, 169, 98, 0.38);
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 6px 22px rgba(44, 36, 32, 0.07);
+}
+
+.hero-eyebrow__city {
+  font-family: var(--hero-eyebrow-font, 'Cairo', sans-serif);
+  font-size: calc(var(--hero-eyebrow-size, 0.82rem) + 0.06rem);
+  font-weight: var(--hero-eyebrow-weight, 600);
+  color: var(--text-primary);
+  letter-spacing: 0.01em;
+}
+
+.hero-eyebrow__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--champagne) 0%, var(--champagne-dark) 100%);
+  flex-shrink: 0;
+  box-shadow: 0 0 0 3px rgba(201, 169, 98, 0.18);
+}
+
+.hero-eyebrow__ship {
+  font-family: var(--hero-eyebrow-font, 'Cairo', sans-serif);
+  font-size: var(--hero-eyebrow-size, 0.82rem);
+  font-weight: 500;
+  color: var(--champagne-dark);
+  letter-spacing: 0.02em;
+}
+
+html[dir="ltr"] .hero-eyebrow__city {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: calc(var(--hero-eyebrow-size, 0.82rem) + 0.12rem);
+  letter-spacing: 0.04em;
+}
+
+html[dir="ltr"] .hero-eyebrow__ship {
+  font-family: 'Jost', sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: calc(var(--hero-eyebrow-size, 0.82rem) - 0.04rem);
 }
 
 .hero--premium .hero-title {

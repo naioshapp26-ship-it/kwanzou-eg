@@ -348,7 +348,7 @@ function initAppearanceForm() {
 }
 
 const DEFAULT_HERO_TYPO = {
-  eyebrow: { font: 'jost', size: 0.72, weight: 500 },
+  eyebrow: { font: 'cairo', size: 0.82, weight: 600 },
   brand: { font: 'cormorant', size: 3.25, weight: 600 },
   tagline: { font: 'cairo', size: 1.05, weight: 500 },
   subtitle: { font: 'cairo', size: 0.95, weight: 400 }
@@ -405,6 +405,10 @@ function renderSettings() {
   document.getElementById('setAnnouncementAr').value = s.announcementAr || '';
   document.getElementById('setTaglineAr').value = s.taglineAr || '';
   document.getElementById('setTaglineEn').value = s.taglineEn || s.tagline || '';
+  document.getElementById('setHeroEyebrowCityAr').value = s.heroEyebrowCityAr || '';
+  document.getElementById('setHeroEyebrowNoteAr').value = s.heroEyebrowNoteAr || '';
+  document.getElementById('setHeroEyebrowCityEn').value = s.heroEyebrowCityEn || '';
+  document.getElementById('setHeroEyebrowNoteEn').value = s.heroEyebrowNoteEn || '';
   document.getElementById('setSubtitleAr').value = s.subtitleAr || '';
   document.getElementById('setSubtitleEn').value = s.subtitleEn || s.subtitle || '';
   document.getElementById('setInstaHandle').value = s.instaHandle || '@kwanzou.eg';
@@ -446,6 +450,10 @@ function initSettingsForm() {
         taglineAr: document.getElementById('setTaglineAr').value,
         taglineEn: document.getElementById('setTaglineEn').value,
         tagline: document.getElementById('setTaglineEn').value,
+        heroEyebrowCityAr: document.getElementById('setHeroEyebrowCityAr').value,
+        heroEyebrowNoteAr: document.getElementById('setHeroEyebrowNoteAr').value,
+        heroEyebrowCityEn: document.getElementById('setHeroEyebrowCityEn').value,
+        heroEyebrowNoteEn: document.getElementById('setHeroEyebrowNoteEn').value,
         subtitleAr: document.getElementById('setSubtitleAr').value,
         subtitleEn: document.getElementById('setSubtitleEn').value,
         subtitle: document.getElementById('setSubtitleEn').value,

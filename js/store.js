@@ -19,6 +19,10 @@ const LumiereStore = (() => {
         cream: '#F5F0EB',
         textSecondary: '#6B5E54'
       },
+      heroEyebrowCityAr: 'الإسكندرية',
+      heroEyebrowCityEn: 'Alexandria',
+      heroEyebrowNoteAr: 'توصيل لجميع أنحاء مصر',
+      heroEyebrowNoteEn: 'Delivery across all of Egypt',
       tagline: 'Kwanzou EG — Made to complete your elegance',
       taglineAr: 'Kwanzou EG — إكسسوارات ودهب على ذوقك',
       taglineEn: 'Kwanzou EG — Made to complete your elegance',
@@ -39,7 +43,7 @@ const LumiereStore = (() => {
       currencySymbol: 'ج.م',
       freeShippingThreshold: 1500,
       heroTypography: {
-        eyebrow: { font: 'jost', size: 0.72, weight: 500 },
+        eyebrow: { font: 'cairo', size: 0.82, weight: 600 },
         brand: { font: 'cormorant', size: 3.25, weight: 600 },
         tagline: { font: 'cairo', size: 1.05, weight: 500 },
         subtitle: { font: 'cairo', size: 0.95, weight: 400 }

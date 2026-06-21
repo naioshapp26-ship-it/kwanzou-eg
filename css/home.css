@@ -544,7 +544,7 @@ html[dir="ltr"] .hero__badge { right: 5%; }
     min-width: 0;
     max-width: none;
     margin: 0;
-    padding: 0;
+    padding: 38px 0 0;
     z-index: 2;
     text-align: start;
     background: transparent;
@@ -554,15 +554,18 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   }
 
   html[dir="rtl"] .hero__content {
-    padding: 0;
     text-align: start;
   }
 
   .hero--premium .hero-eyebrow {
-    position: static;
-    width: 100%;
-    margin: 0 0 10px;
-    z-index: auto;
+    position: absolute;
+    top: 8px;
+    inset-inline-end: 12px;
+    inset-inline-start: auto;
+    width: max-content;
+    max-width: min(74%, calc(100% - 112px));
+    margin: 0;
+    z-index: 3;
     display: flex;
     justify-content: flex-start;
   }
@@ -720,6 +723,11 @@ html[dir="ltr"] .hero__badge { right: 5%; }
     object-position: center 48%;
   }
 
+  .hero--premium .hero-eyebrow {
+    top: 6px;
+    inset-inline-end: 10px;
+  }
+
   .hero-eyebrow__chip {
     padding: 5px 10px;
   }
@@ -790,6 +798,12 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 
   .hero--premium .hero-image {
     object-position: center 46%;
+  }
+
+  .hero--premium .hero-eyebrow {
+    top: 4px;
+    inset-inline-end: 8px;
+    max-width: min(78%, calc(100% - 96px));
   }
 
   .hero-eyebrow__chip {

@@ -26,6 +26,31 @@ function sortedCategories(categories) {
   return [...categories].sort((a, b) => (a.sort ?? 99) - (b.sort ?? 99));
 }
 
+const HERO_FONT_MAP = {
+  cairo: "'Cairo', sans-serif",
+  cormorant: "'Cormorant Garamond', Georgia, serif",
+  jost: "'Jost', sans-serif"
+};
+
+const DEFAULT_HERO_TYPO = {
+  eyebrow: { font: 'jost', size: 0.72, weight: 500 },
+  brand: { font: 'cormorant', size: 3.25, weight: 600 },
+  tagline: { font: 'cairo', size: 1.05, weight: 500 },
+  subtitle: { font: 'cairo', size: 0.95, weight: 400 }
+};
+
+function applyHeroTypography(settings) {
+  const hero = document.querySelector('.hero--premium');
+  if (!hero) return;
+  const typo = settings?.heroTypography || {};
+  Object.keys(DEFAULT_HERO_TYPO).forEach(key => {
+    const t = { ...DEFAULT_HERO_TYPO[key], ...(typo[key] || {}) };
+    hero.style.setProperty(`--hero-${key}-font`, HERO_FONT_MAP[t.font] || HERO_FONT_MAP.cairo);
+    hero.style.setProperty(`--hero-${key}-size`, `${t.size}rem`);
+    hero.style.setProperty(`--hero-${key}-weight`, String(t.weight));
+  });
+}
+
 function renderHero(settings, categories) {
   const s = settings || {};
   const heroTitle = document.getElementById('heroTitle');
@@ -65,6 +90,7 @@ function renderHero(settings, categories) {
   }
   if (heroSubtitle) heroSubtitle.textContent = heroSub;
   if (heroExploreLink) heroExploreLink.href = categories[0]?.slug ? `shop.html?cat=${categories[0].slug}` : 'shop.html';
+  applyHeroTypography(s);
 }
 
 function renderCategoryTabs(categories) {

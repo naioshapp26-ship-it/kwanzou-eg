@@ -347,6 +347,44 @@ function initAppearanceForm() {
   };
 }
 
+const DEFAULT_HERO_TYPO = {
+  eyebrow: { font: 'jost', size: 0.72, weight: 500 },
+  brand: { font: 'cormorant', size: 3.25, weight: 600 },
+  tagline: { font: 'cairo', size: 1.05, weight: 500 },
+  subtitle: { font: 'cairo', size: 0.95, weight: 400 }
+};
+
+const HERO_TYPO_FIELDS = [
+  { key: 'eyebrow', prefix: 'Eyebrow' },
+  { key: 'brand', prefix: 'Brand' },
+  { key: 'tagline', prefix: 'Tagline' },
+  { key: 'subtitle', prefix: 'Subtitle' }
+];
+
+function fillHeroTypoForm(typo) {
+  HERO_TYPO_FIELDS.forEach(({ key, prefix }) => {
+    const t = { ...DEFAULT_HERO_TYPO[key], ...(typo?.[key] || {}) };
+    const fontEl = document.getElementById(`heroTypo${prefix}Font`);
+    const sizeEl = document.getElementById(`heroTypo${prefix}Size`);
+    const weightEl = document.getElementById(`heroTypo${prefix}Weight`);
+    if (fontEl) fontEl.value = t.font;
+    if (sizeEl) sizeEl.value = t.size;
+    if (weightEl) weightEl.value = String(t.weight);
+  });
+}
+
+function readHeroTypoForm() {
+  const out = {};
+  HERO_TYPO_FIELDS.forEach(({ key, prefix }) => {
+    out[key] = {
+      font: document.getElementById(`heroTypo${prefix}Font`)?.value || DEFAULT_HERO_TYPO[key].font,
+      size: parseFloat(document.getElementById(`heroTypo${prefix}Size`)?.value) || DEFAULT_HERO_TYPO[key].size,
+      weight: parseInt(document.getElementById(`heroTypo${prefix}Weight`)?.value, 10) || DEFAULT_HERO_TYPO[key].weight
+    };
+  });
+  return out;
+}
+
 function updateThemePreview() {
   const accent = document.getElementById('themeAccent')?.value;
   const bg = document.getElementById('themeBackground')?.value;
@@ -371,6 +409,7 @@ function renderSettings() {
   document.getElementById('setSubtitleEn').value = s.subtitleEn || s.subtitle || '';
   document.getElementById('setInstaHandle').value = s.instaHandle || '@kwanzou.eg';
   document.getElementById('setInstaUrl').value = s.instaUrl || 'https://instagram.com/kwanzou.eg';
+  fillHeroTypoForm(s.heroTypography);
 
   const heroFields = [
     ['setHeroImage', 'heroBgPreview', s.heroImage],
@@ -410,6 +449,7 @@ function initSettingsForm() {
         subtitleAr: document.getElementById('setSubtitleAr').value,
         subtitleEn: document.getElementById('setSubtitleEn').value,
         subtitle: document.getElementById('setSubtitleEn').value,
+        heroTypography: readHeroTypoForm(),
         heroImage: fieldValue('setHeroImage', s.heroImage || ''),
         heroAccent1: fieldValue('setHeroAccent1', s.heroAccent1 || ''),
         heroAccent2: fieldValue('setHeroAccent2', s.heroAccent2 || ''),

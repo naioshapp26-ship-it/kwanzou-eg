@@ -37,7 +37,13 @@ const LumiereStore = (() => {
       instaUrl: 'https://instagram.com/kwanzou.eg',
       currency: 'EGP',
       currencySymbol: 'ج.م',
-      freeShippingThreshold: 1500
+      freeShippingThreshold: 1500,
+      heroTypography: {
+        eyebrow: { font: 'jost', size: 0.72, weight: 500 },
+        brand: { font: 'cormorant', size: 3.25, weight: 600 },
+        tagline: { font: 'cairo', size: 1.05, weight: 500 },
+        subtitle: { font: 'cairo', size: 0.95, weight: 400 }
+      }
     },
     categories: [
       { id: 'cat-necklaces', name: 'Necklaces', nameAr: 'سلاسل', slug: 'necklaces', sort: 1, image: 'https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80', featured: true },
@@ -104,6 +110,16 @@ const LumiereStore = (() => {
     const merged = clone(data);
     merged.settings = { ...defaults.settings, ...(data.settings || {}) };
     merged.settings.theme = { ...defaults.settings.theme, ...(data.settings?.theme || {}) };
+    merged.settings.heroTypography = {
+      ...defaults.settings.heroTypography,
+      ...(data.settings?.heroTypography || {})
+    };
+    ['eyebrow', 'brand', 'tagline', 'subtitle'].forEach(key => {
+      merged.settings.heroTypography[key] = {
+        ...defaults.settings.heroTypography[key],
+        ...(data.settings?.heroTypography?.[key] || {})
+      };
+    });
     if (typeof merged.settings.logo === 'string' &&
         (TRIAL_LOGO_RE.test(merged.settings.logo) || merged.settings.logo.includes('logo-v'))) {
       merged.settings.logo = 'assets/logo.png';

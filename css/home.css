@@ -524,9 +524,9 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 
   .hero__inner {
     display: grid;
-    grid-template-columns: 1fr;
-    align-items: stretch;
-    gap: 0;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px 18px;
     width: 100%;
     min-height: clamp(525px, 68vh, 645px);
     padding: 18px 14px 36px;
@@ -645,30 +645,36 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   }
 
   .hero__visual {
-    position: absolute;
-    bottom: 86px;
-    inset-inline-end: 12px;
-    inset-inline-start: auto;
-    top: auto;
+    position: relative;
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+    inset: auto;
     width: max-content;
-    max-width: 38vw;
+    max-width: min(100%, 48vw);
     height: auto;
+    min-height: 168px;
     margin: 0;
-    padding: 0;
+    padding-inline-end: 22px;
+    padding-inline-start: 0;
+    padding-bottom: 0;
     display: flex;
-    flex-direction: column;
     align-items: flex-end;
-    justify-content: flex-end;
-    gap: 8px;
+    justify-content: flex-start;
+    gap: 6px;
     flex-shrink: 0;
     overflow: visible;
     pointer-events: none;
-    z-index: 2;
-    transform: none;
+    z-index: 1;
+  }
+
+  html[dir="rtl"] .hero__visual {
+    justify-content: flex-end;
+    transform: translateX(-10px);
   }
 
   html[dir="ltr"] .hero__visual {
-    align-items: flex-end;
+    transform: translateX(10px);
   }
 
   .hero__card {
@@ -680,8 +686,8 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   }
 
   .hero__card--main {
-    width: 92px;
-    height: 122px;
+    width: 100px;
+    height: 136px;
     margin: 0 !important;
     border-radius: 16px;
     border-width: 3px;
@@ -690,9 +696,9 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 
   .hero__card--accent {
     display: block;
-    width: 78px;
-    height: 102px;
-    margin: 0 !important;
+    width: 86px;
+    height: 114px;
+    margin: 0 0 6px !important;
     border-radius: 14px;
     opacity: 1;
   }
@@ -725,8 +731,8 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 
   .hero__inner {
     min-height: clamp(495px, 65vh, 585px);
-    grid-template-columns: 1fr;
-    gap: 0;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px 16px;
     padding: 16px 12px 34px;
     padding-inline-end: 16px;
   }
@@ -766,20 +772,28 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   }
 
   .hero__visual {
-    bottom: 78px;
-    inset-inline-end: 10px;
-    max-width: 36vw;
-    gap: 7px;
+    min-height: 156px;
+    padding-inline-end: 20px;
+    gap: 6px;
+  }
+
+  html[dir="rtl"] .hero__visual {
+    transform: translateX(-8px);
+  }
+
+  html[dir="ltr"] .hero__visual {
+    transform: translateX(8px);
   }
 
   .hero__card--main {
-    width: 88px;
-    height: 116px;
+    width: 92px;
+    height: 126px;
   }
 
   .hero__card--accent {
-    width: 74px;
-    height: 98px;
+    width: 78px;
+    height: 106px;
+    margin-bottom: 6px !important;
   }
 
   .hero-actions .btn {
@@ -806,8 +820,8 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 
   .hero__inner {
     min-height: clamp(475px, 63vh, 555px);
-    grid-template-columns: 1fr;
-    gap: 0;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 14px;
     padding: 14px 10px 32px;
     padding-inline-end: 14px;
   }
@@ -850,20 +864,28 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   }
 
   .hero__visual {
-    bottom: 72px;
-    inset-inline-end: 8px;
-    max-width: 34vw;
+    min-height: 142px;
+    padding-inline-end: 18px;
     gap: 6px;
+  }
+
+  html[dir="rtl"] .hero__visual {
+    transform: translateX(-8px);
+  }
+
+  html[dir="ltr"] .hero__visual {
+    transform: translateX(8px);
   }
 
   .hero__card--main {
     width: 84px;
-    height: 112px;
+    height: 116px;
   }
 
   .hero__card--accent {
-    width: 70px;
-    height: 94px;
+    width: 72px;
+    height: 96px;
+    margin-bottom: 4px !important;
   }
 
   .hero-actions .btn {

@@ -514,18 +514,18 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   html[dir="rtl"] .hero--premium .hero-overlay {
     background: linear-gradient(
       -105deg,
-      rgba(250, 248, 245, 0.93) 0%,
-      rgba(250, 248, 245, 0.78) 34%,
-      rgba(232, 223, 213, 0.42) 62%,
-      rgba(250, 248, 245, 0.12) 100%
+      rgba(250, 248, 245, 0.95) 0%,
+      rgba(250, 248, 245, 0.82) 36%,
+      rgba(232, 223, 213, 0.48) 64%,
+      rgba(250, 248, 245, 0.14) 100%
     );
   }
 
   .hero__inner {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(118px, 38%);
+    grid-template-columns: minmax(0, 1fr) minmax(104px, 34%);
     align-items: center;
-    gap: 12px 26px;
+    gap: 12px 18px;
     width: 100%;
     min-height: clamp(410px, 56vh, 520px);
     padding: 18px 14px 20px;
@@ -544,18 +544,17 @@ html[dir="ltr"] .hero__badge { right: 5%; }
     min-width: 0;
     max-width: none;
     margin: 0;
-    padding: 12px 14px 14px;
+    padding: 0;
     z-index: 2;
     text-align: start;
-    border-radius: 18px;
-    background: rgba(250, 248, 245, 0.78);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    box-shadow: 0 6px 24px rgba(44, 36, 32, 0.07);
+    background: transparent;
+    border-radius: 0;
+    backdrop-filter: none;
+    box-shadow: none;
   }
 
   html[dir="rtl"] .hero__content {
-    padding: 12px 14px 14px;
+    padding: 0;
     text-align: start;
   }
 
@@ -572,7 +571,7 @@ html[dir="ltr"] .hero__badge { right: 5%; }
     padding: 6px 12px;
     gap: 6px 8px;
     max-width: 100%;
-    background: rgba(255, 255, 255, 0.45);
+    background: transparent;
   }
 
   .hero--premium .hero-title {
@@ -588,45 +587,48 @@ html[dir="ltr"] .hero__badge { right: 5%; }
     text-align: start !important;
   }
 
+  .hero--premium .hero-title__brand,
+  .hero--premium .hero-title__tagline,
+  .hero--premium .hero-subtitle,
   .hero-eyebrow__city,
   .hero-eyebrow__ship {
-    text-shadow: 0 1px 8px rgba(250, 248, 245, 0.95), 0 0 1px rgba(255, 255, 255, 0.9);
+    text-shadow:
+      0 0 18px rgba(250, 248, 245, 0.98),
+      0 0 6px rgba(250, 248, 245, 0.92),
+      0 1px 2px rgba(44, 36, 32, 0.12);
   }
 
   .hero--premium .hero-title__brand {
     font-size: clamp(1.45rem, 4.6vw, 1.9rem);
-    font-weight: 500;
-    line-height: 1.12;
+    font-weight: var(--hero-brand-weight, 600);
+    line-height: 1.08;
     width: 100%;
     text-align: start !important;
     display: block;
     color: var(--text-primary);
-    text-shadow: 0 1px 10px rgba(250, 248, 245, 0.95), 0 0 1px rgba(255, 255, 255, 0.85);
   }
 
   .hero--premium .hero-title__tagline {
     font-size: clamp(0.76rem, 2.1vw, 0.9rem);
-    font-weight: 400;
-    line-height: 1.5;
+    font-weight: var(--hero-tagline-weight, 500);
+    line-height: 1.48;
     max-width: 100%;
     margin-inline: 0;
     text-align: start !important;
     display: block;
     font-style: normal;
-    color: #4a3f38;
-    text-shadow: 0 1px 8px rgba(250, 248, 245, 0.92), 0 0 1px rgba(255, 255, 255, 0.8);
+    color: var(--champagne-dark);
   }
 
   .hero--premium .hero-subtitle {
     font-size: clamp(0.64rem, 1.95vw, 0.8rem);
-    font-weight: 400;
-    line-height: 1.45;
+    font-weight: var(--hero-subtitle-weight, 400);
+    line-height: 1.42;
     margin-bottom: 10px;
     max-width: 100%;
     margin-inline: 0;
     text-align: start !important;
     color: var(--text-secondary);
-    text-shadow: 0 1px 8px rgba(250, 248, 245, 0.9), 0 0 1px rgba(255, 255, 255, 0.75);
   }
 
   .hero-actions {
@@ -644,19 +646,15 @@ html[dir="ltr"] .hero__badge { right: 5%; }
     inset: auto;
     width: 100%;
     height: auto;
-    min-height: 188px;
+    min-height: 168px;
     margin: 0;
-    padding: 0 0 0 4px;
+    padding: 0;
     display: flex;
     align-items: flex-end;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     pointer-events: none;
     z-index: 1;
-  }
-
-  html[dir="rtl"] .hero__visual {
-    padding: 0 4px 0 0;
   }
 
   .hero__card {
@@ -668,22 +666,21 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   }
 
   .hero__card--main {
-    width: 118px;
-    height: 158px;
+    width: 100px;
+    height: 136px;
     margin: 0 !important;
     border-radius: 16px;
     border-width: 3px;
-    box-shadow: 0 12px 28px rgba(44, 36, 32, 0.18);
+    box-shadow: 0 10px 24px rgba(44, 36, 32, 0.14);
   }
 
   .hero__card--accent {
     display: block;
-    width: 100px;
-    height: 132px;
-    margin: 0 0 8px !important;
+    width: 86px;
+    height: 114px;
+    margin: 0 0 6px !important;
     border-radius: 14px;
     opacity: 1;
-    box-shadow: 0 10px 22px rgba(44, 36, 32, 0.14);
   }
 
   .hero__badge { display: none; }
@@ -714,8 +711,8 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 
   .hero__inner {
     min-height: clamp(380px, 52vh, 460px);
-    grid-template-columns: minmax(0, 1fr) minmax(110px, 36%);
-    gap: 10px 24px;
+    grid-template-columns: minmax(0, 1fr) minmax(96px, 32%);
+    gap: 10px 16px;
     padding: 16px 12px 18px;
   }
 
@@ -748,17 +745,17 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   }
 
   .hero__visual {
-    min-height: 178px;
+    min-height: 156px;
   }
 
   .hero__card--main {
-    width: 110px;
-    height: 148px;
+    width: 92px;
+    height: 126px;
   }
 
   .hero__card--accent {
-    width: 94px;
-    height: 124px;
+    width: 78px;
+    height: 106px;
   }
 
   .hero-actions .btn {
@@ -785,13 +782,9 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 
   .hero__inner {
     min-height: clamp(360px, 50vh, 430px);
-    grid-template-columns: minmax(0, 1fr) minmax(102px, 34%);
-    gap: 8px 22px;
+    grid-template-columns: minmax(0, 1fr) minmax(88px, 30%);
+    gap: 8px 14px;
     padding: 14px 10px 16px;
-  }
-
-  .hero__content {
-    padding: 10px 12px 12px;
   }
 
   .hero--premium .hero-image {
@@ -825,18 +818,18 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   }
 
   .hero__visual {
-    min-height: 168px;
+    min-height: 142px;
   }
 
   .hero__card--main {
-    width: 102px;
-    height: 138px;
+    width: 84px;
+    height: 116px;
   }
 
   .hero__card--accent {
-    width: 88px;
-    height: 116px;
-    margin-bottom: 6px !important;
+    width: 72px;
+    height: 96px;
+    margin-bottom: 4px !important;
   }
 
   .hero-actions .btn {

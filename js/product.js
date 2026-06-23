@@ -46,7 +46,7 @@ function renderProduct() {
       <div class="pd-stock ${inStock ? 'in-stock' : 'out-stock'}">${inStock ? '✓ ' + LumiereI18n.t('in_stock') : LumiereI18n.t('out_of_stock')}</div>
       <div class="pd-delivery">
         <div class="pd-delivery__item">🚚 ${LumiereI18n.t('delivery_fast')}</div>
-        <div class="pd-delivery__item">↩ ${LumiereI18n.t('delivery_returns')}</div>
+        <div class="pd-delivery__item">ℹ ${LumiereI18n.t('delivery_returns')}</div>
         <div class="pd-delivery__item">✓ ${LumiereI18n.t('delivery_authentic')}</div>
       </div>
       <div class="pd-qty">

@@ -35,20 +35,20 @@ main { display: block; overflow-x: hidden; }
   inset: 0;
   background: linear-gradient(
     105deg,
-    rgba(250, 248, 245, 0.97) 0%,
-    rgba(250, 248, 245, 0.88) 35%,
+    rgba(255, 255, 255, 0.97) 0%,
+    rgba(255, 255, 255, 0.88) 35%,
     rgba(232, 223, 213, 0.55) 65%,
-    rgba(250, 248, 245, 0.25) 100%
+    rgba(255, 255, 255, 0.25) 100%
   );
 }
 
 html[dir="rtl"] .hero--premium .hero-overlay {
   background: linear-gradient(
     -105deg,
-    rgba(250, 248, 245, 0.97) 0%,
-    rgba(250, 248, 245, 0.88) 35%,
+    rgba(255, 255, 255, 0.97) 0%,
+    rgba(255, 255, 255, 0.88) 35%,
     rgba(232, 223, 213, 0.55) 65%,
-    rgba(250, 248, 245, 0.25) 100%
+    rgba(255, 255, 255, 0.25) 100%
   );
 }
 
@@ -80,7 +80,7 @@ html[dir="rtl"] .hero--premium .hero-overlay {
   gap: 10px 14px;
   padding: 11px 20px;
   border-radius: 999px;
-  border: 1px solid rgba(201, 169, 98, 0.45);
+  border: 1px solid rgba(255, 107, 0, 0.45);
   background: transparent;
   backdrop-filter: none;
   box-shadow: none;
@@ -92,7 +92,7 @@ html[dir="rtl"] .hero--premium .hero-overlay {
   font-weight: var(--hero-eyebrow-weight, 600);
   color: var(--text-primary);
   letter-spacing: 0.01em;
-  text-shadow: 0 1px 12px rgba(250, 248, 245, 0.95), 0 0 2px rgba(250, 248, 245, 0.85);
+  text-shadow: 0 1px 12px rgba(255, 255, 255, 0.95), 0 0 2px rgba(255, 255, 255, 0.85);
 }
 
 .hero-eyebrow__dot {
@@ -101,7 +101,7 @@ html[dir="rtl"] .hero--premium .hero-overlay {
   border-radius: 50%;
   background: linear-gradient(135deg, var(--champagne) 0%, var(--champagne-dark) 100%);
   flex-shrink: 0;
-  box-shadow: 0 0 0 3px rgba(201, 169, 98, 0.18);
+  box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.18);
 }
 
 .hero-eyebrow__ship {
@@ -110,7 +110,7 @@ html[dir="rtl"] .hero--premium .hero-overlay {
   font-weight: 500;
   color: var(--champagne-dark);
   letter-spacing: 0.02em;
-  text-shadow: 0 1px 10px rgba(250, 248, 245, 0.92), 0 0 2px rgba(250, 248, 245, 0.8);
+  text-shadow: 0 1px 10px rgba(255, 255, 255, 0.92), 0 0 2px rgba(255, 255, 255, 0.8);
 }
 
 html[dir="ltr"] .hero-eyebrow__city {
@@ -197,7 +197,7 @@ html[dir="ltr"] .hero--premium .hero-title__tagline {
   overflow: hidden;
   box-shadow:
     0 24px 56px rgba(44, 36, 32, 0.16),
-    0 0 0 1px rgba(201, 169, 98, 0.12);
+    0 0 0 1px rgba(255, 107, 0, 0.12);
   border: 4px solid var(--white);
   transition: transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.55s ease;
 }
@@ -311,7 +311,7 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   padding: 10px 12px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.94);
-  border: 1px solid rgba(212, 196, 176, 0.48);
+  border: 1px solid rgba(255, 180, 140, 0.48);
   box-shadow: 0 14px 28px rgba(44, 36, 32, 0.14);
   backdrop-filter: blur(8px);
   scrollbar-width: none;
@@ -328,7 +328,7 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--text-secondary);
-  border: 1px solid rgba(212, 196, 176, 0.45);
+  border: 1px solid rgba(255, 180, 140, 0.45);
   background: var(--ivory);
   transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
@@ -336,7 +336,7 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 .home-tab-pill:hover {
   color: var(--text-primary);
   background: var(--cream);
-  border-color: rgba(201, 169, 98, 0.65);
+  border-color: rgba(255, 107, 0, 0.65);
   transform: translateY(-1px);
 }
 
@@ -348,7 +348,7 @@ html[dir="ltr"] .hero__badge { right: 5%; }
 }
 
 .home-section + .home-section {
-  border-top: 1px solid rgba(212, 196, 176, 0.2);
+  border-top: 1px solid rgba(255, 180, 140, 0.2);
 }
 
 .section--ivory { background: var(--ivory); }
@@ -371,7 +371,7 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   border-radius: var(--radius-lg);
   padding: 12px;
   box-shadow: var(--shadow-sm);
-  border: 1px solid rgba(212, 196, 176, 0.2);
+  border: 1px solid rgba(255, 180, 140, 0.2);
   transition: transform 0.4s ease, box-shadow 0.4s ease;
 }
 
@@ -469,7 +469,7 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   background: var(--white);
   border-radius: var(--radius-lg);
   padding: 10px;
-  border: 1px solid rgba(212, 196, 176, 0.35);
+  border: 1px solid rgba(255, 180, 140, 0.35);
   box-shadow: var(--shadow-sm);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
@@ -515,10 +515,10 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   html[dir="rtl"] .hero--premium .hero-overlay {
     background: linear-gradient(
       -105deg,
-      rgba(250, 248, 245, 0.95) 0%,
-      rgba(250, 248, 245, 0.82) 36%,
+      rgba(255, 255, 255, 0.95) 0%,
+      rgba(255, 255, 255, 0.82) 36%,
       rgba(232, 223, 213, 0.48) 64%,
-      rgba(250, 248, 245, 0.14) 100%
+      rgba(255, 255, 255, 0.14) 100%
     );
   }
 
@@ -599,8 +599,8 @@ html[dir="ltr"] .hero__badge { right: 5%; }
   .hero-eyebrow__city,
   .hero-eyebrow__ship {
     text-shadow:
-      0 0 18px rgba(250, 248, 245, 0.98),
-      0 0 6px rgba(250, 248, 245, 0.92),
+      0 0 18px rgba(255, 255, 255, 0.98),
+      0 0 6px rgba(255, 255, 255, 0.92),
       0 1px 2px rgba(44, 36, 32, 0.12);
   }
 

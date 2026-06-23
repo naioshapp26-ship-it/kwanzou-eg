@@ -19,7 +19,7 @@ const LumiereLayout = (() => {
     const path = `${base}${logo.replace(/^\//, '')}`;
     if (logo === 'assets/logo-brand.svg' || logo.endsWith('/assets/logo-brand.svg') ||
         logo === 'assets/logo.png' || logo.endsWith('/assets/logo.png')) {
-      return `${path}?v=4`;
+      return `${path}?v=5`;
     }
     return path;
   }

@@ -63,7 +63,7 @@ function imgSrc(url) {
   if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://')) return url;
   if (url.startsWith('/api/media/')) return url;
   const clean = url.replace(/^\//, '');
-  if (clean === 'assets/logo-brand.svg' || clean === 'assets/logo.png') return `${ADMIN_BASE}assets/logo-brand.svg?v=4`;
+  if (clean === 'assets/logo-brand.svg' || clean === 'assets/logo.png') return `${ADMIN_BASE}assets/logo-brand.svg?v=5`;
   return ADMIN_BASE + clean;
 }
 
@@ -294,12 +294,12 @@ function renderAppearance() {
   const t = s.theme || {};
   document.getElementById('logoPreview').src = imgSrc(s.logo);
   document.getElementById('setLogoUrl').value = s.logo?.startsWith('data:') ? '' : (s.logo || '');
-  document.getElementById('themeAccent').value = t.accent || '#C9A962';
-  document.getElementById('themeAccentDark').value = t.accentDark || '#A8893E';
-  document.getElementById('themePrimary').value = t.primary || '#2C2420';
-  document.getElementById('themeBackground').value = t.background || '#FAF8F5';
-  document.getElementById('themeCream').value = t.cream || '#F5F0EB';
-  document.getElementById('themeSecondary').value = t.textSecondary || '#6B5E54';
+  document.getElementById('themeAccent').value = t.accent || '#FF6B00';
+  document.getElementById('themeAccentDark').value = t.accentDark || '#E85D00';
+  document.getElementById('themePrimary').value = t.primary || '#1A1208';
+  document.getElementById('themeBackground').value = t.background || '#FFFFFF';
+  document.getElementById('themeCream').value = t.cream || '#FFF5EF';
+  document.getElementById('themeSecondary').value = t.textSecondary || '#6B5348';
   updateThemePreview();
 }
 

@@ -839,7 +839,7 @@ html[dir="rtl"] .product-card .wishlist-btn { right: auto; left: 12px; }
 
 .checkout-summary__total strong {
   font-size: 1.15rem;
-  color: var(--champagne-dark, #A8893E);
+  color: var(--champagne-dark, #E85D00);
 }
 
 .checkout-summary__free {

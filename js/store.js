@@ -11,13 +11,13 @@ const LumiereStore = (() => {
       brandName: 'Kwanzou EG',
       logo: 'assets/logo-brand.svg',
       theme: {
-        primary: '#2C2420',
-        accent: '#C9A962',
-        accentLight: '#D4BC7A',
-        accentDark: '#A8893E',
-        background: '#FAF8F5',
-        cream: '#F5F0EB',
-        textSecondary: '#6B5E54'
+        primary: '#1A1208',
+        accent: '#FF6B00',
+        accentLight: '#FF9333',
+        accentDark: '#E85D00',
+        background: '#FFFFFF',
+        cream: '#FFF5EF',
+        textSecondary: '#6B5348'
       },
       heroEyebrowCityAr: 'الإسكندرية',
       heroEyebrowCityEn: 'Alexandria',
@@ -108,12 +108,26 @@ const LumiereStore = (() => {
   }
 
   const TRIAL_LOGO_RE = /^assets\/logo(-.*)?\.svg$/i;
+  const LEGACY_THEME_ACCENTS = new Set(['#c9a962', '#a8893e', '#d4bc7a']);
+
+  function migrateLegacyTheme(theme) {
+    if (!theme || typeof theme !== 'object') return { ...defaults.settings.theme };
+    const accent = String(theme.accent || '').toLowerCase();
+    const background = String(theme.background || '').toLowerCase();
+    if (LEGACY_THEME_ACCENTS.has(accent) || background === '#faf8f5' || background === '#f5f0eb') {
+      return { ...defaults.settings.theme };
+    }
+    return theme;
+  }
 
   function mergeDefaults(data) {
     if (!data || typeof data !== 'object') return clone(defaults);
     const merged = clone(data);
     merged.settings = { ...defaults.settings, ...(data.settings || {}) };
-    merged.settings.theme = { ...defaults.settings.theme, ...(data.settings?.theme || {}) };
+    merged.settings.theme = migrateLegacyTheme({
+      ...defaults.settings.theme,
+      ...(data.settings?.theme || {})
+    });
     merged.settings.heroTypography = {
       ...defaults.settings.heroTypography,
       ...(data.settings?.heroTypography || {})

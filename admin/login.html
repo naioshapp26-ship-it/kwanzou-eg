@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin Sign In | Kwanzou EG</title>
+  <link rel="icon" href="../assets/logo-brand.svg?v=5" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css?v=11">
+  <link rel="stylesheet" href="../css/auth.css?v=2">
+</head>
+<body class="auth-page auth-page--admin">
+  <div class="auth-lang"><button type="button" class="lang-switch" id="langSwitch">English</button></div>
+  <div class="auth-split auth-split--single">
+    <div class="auth-form-panel auth-form-panel--full">
+      <a href="../index.html" class="auth-back" data-i18n="login_back">← Back to Store</a>
+      <div class="auth-form-wrap">
+        <a href="../index.html" class="logo-link-auth logo-link-auth--inline">
+          <img src="../assets/logo-brand.svg?v=5" alt="Kwanzou EG" class="auth-logo">
+        </a>
+        <h1 data-i18n="admin_login_title">Admin Sign In</h1>
+        <p class="auth-sub" data-i18n="admin_login_sub">Authorized staff only.</p>
+        <div class="auth-alert" id="authError" hidden></div>
+        <form id="adminLoginForm" class="auth-form">
+          <div class="form-group">
+            <label for="email" data-i18n="login_email">Email</label>
+            <input type="email" id="email" required autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label for="password" data-i18n="login_password">Password</label>
+            <input type="password" id="password" required autocomplete="current-password">
+          </div>
+          <button type="submit" class="btn btn-primary btn-full" data-i18n="login_submit">Sign In</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/i18n.js"></script>
+  <script src="../js/admin-session.js"></script>
+  <script>
+    (async () => {
+      LumiereI18n.init();
+      LumiereI18n.bindLangSwitch();
+      window.addEventListener('lumiere:langchange', () => LumiereI18n.applyTranslations());
+
+      const existing = await AdminSession.check();
+      if (existing?.ok) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      document.getElementById('adminLoginForm').addEventListener('submit', async e => {
+        e.preventDefault();
+        const errEl = document.getElementById('authError');
+        errEl.hidden = true;
+        const result = await AdminSession.login(
+          document.getElementById('email').value,
+          document.getElementById('password').value
+        );
+        if (!result.ok) {
+          errEl.textContent = LumiereI18n.t(result.error === 'Admin credentials not configured on server'
+            ? 'admin_login_not_configured'
+            : 'login_error');
+          errEl.hidden = false;
+          return;
+        }
+        window.location.href = 'index.html';
+      });
+    })();
+  </script>
+</body>
+</html>

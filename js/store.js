@@ -94,10 +94,7 @@ const LumiereStore = (() => {
       { id: 'ig-5', image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c42?w=600&q=80' },
       { id: 'ig-6', image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&q=80' }
     ],
-    users: [
-      { id: 'u-admin', name: 'Super Admin', email: 'admin@lumiere.com', password: 'admin123', role: 'superadmin', phone: '+20 100 000 0000', createdAt: '2024-01-01' },
-      { id: 'u-demo', name: 'Sarah Mitchell', email: 'customer@lumiere.com', password: 'demo123', role: 'customer', phone: '+20 100 000 0001', createdAt: '2025-03-15', wishlist: ['p-e2', 'p-b2'], orders: [] }
-    ],
+    users: [],
     orders: [],
     newsletter: [],
     cart: {}
@@ -160,14 +157,33 @@ const LumiereStore = (() => {
 
   let _cache = null;
   let _apiMode = false;
+  let _adminMode = false;
   let _ready = null;
 
+  function isApiMode() {
+    return _apiMode;
+  }
+
+  function isAdminMode() {
+    return _adminMode;
+  }
+
+  function cacheUser(user) {
+    if (!user || !_cache) return;
+    _cache.users = _cache.users || [];
+    const idx = _cache.users.findIndex(u => u.id === user.id);
+    if (idx === -1) _cache.users.push({ ...user });
+    else Object.assign(_cache.users[idx], user);
+    localStorage.setItem(KEY, JSON.stringify(_cache));
+  }
+
   async function syncToApi(data) {
-    if (!_apiMode) return true;
+    if (!_apiMode || !_adminMode) return true;
     try {
       const res = await fetch('/api/store', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(data)
       });
       if (!res.ok) {
@@ -196,11 +212,11 @@ const LumiereStore = (() => {
   }
 
   async function flush() {
-    if (!_cache) return true;
+    if (!_cache || !_adminMode) return true;
     const ok = await syncToApi(_cache);
     if (!ok) return false;
     try {
-      const res = await fetch('/api/store');
+      const res = await fetch('/api/store/admin', { credentials: 'include' });
       if (res.ok) {
         const raw = await res.json();
         _cache = mergeDefaults(raw);
@@ -218,16 +234,31 @@ const LumiereStore = (() => {
           if (res.ok) {
             const raw = await res.json();
             _apiMode = true;
+            _adminMode = false;
             _cache = mergeDefaults(raw);
             localStorage.setItem(KEY, JSON.stringify(_cache));
             return _cache;
           }
         } catch (_) {}
+        _apiMode = false;
+        _adminMode = false;
         _cache = loadLocal();
         return _cache;
       })();
     }
     return _ready;
+  }
+
+  async function initAdmin() {
+    const res = await fetch('/api/store/admin', { credentials: 'include' });
+    if (!res.ok) throw new Error('Admin store unavailable');
+    const raw = await res.json();
+    _apiMode = true;
+    _adminMode = true;
+    _cache = mergeDefaults(raw);
+    localStorage.setItem(KEY, JSON.stringify(_cache));
+    _ready = Promise.resolve(_cache);
+    return _cache;
   }
 
   function loadLocal() {
@@ -248,7 +279,7 @@ const LumiereStore = (() => {
     data.catalogVersion = CATALOG_VERSION;
     _cache = data;
     localStorage.setItem(KEY, JSON.stringify(data));
-    syncToApi(data);
+    if (_adminMode) syncToApi(data);
   }
 
   function get() {
@@ -265,6 +296,7 @@ const LumiereStore = (() => {
   }
 
   async function reset() {
+    if (!_adminMode) return get();
     localStorage.removeItem(KEY);
     _cache = clone(defaults);
     localStorage.setItem(KEY, JSON.stringify(_cache));
@@ -388,10 +420,26 @@ const LumiereStore = (() => {
     });
   }
 
-  function addNewsletter(email) {
-    return update(data => {
-      if (!data.newsletter.includes(email)) data.newsletter.push(email);
+  async function addNewsletter(email) {
+    const normalized = String(email || '').trim().toLowerCase();
+    if (!normalized) return false;
+    if (_apiMode && !_adminMode) {
+      try {
+        const res = await fetch('/api/newsletter', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: normalized })
+        });
+        return res.ok;
+      } catch (_) {
+        return false;
+      }
+    }
+    update(data => {
+      data.newsletter = data.newsletter || [];
+      if (!data.newsletter.includes(normalized)) data.newsletter.push(normalized);
     });
+    return true;
   }
 
   function deleteNewsletter(email) {
@@ -411,7 +459,7 @@ const LumiereStore = (() => {
     });
   }
 
-  function placeOrder({
+  async function placeOrder({
     customerName,
     customerEmail,
     customerPhone,
@@ -425,13 +473,7 @@ const LumiereStore = (() => {
     total,
     userId
   }) {
-    const order = {
-      id: 'ORD-' + Date.now(),
-      date: new Date().toISOString().split('T')[0],
-      subtotal: subtotal ?? total,
-      shippingFee: shippingFee ?? 0,
-      total,
-      status: 'Pending',
+    const payload = {
       customerName,
       customerEmail: customerEmail || '',
       customerPhone: customerPhone || '',
@@ -439,10 +481,58 @@ const LumiereStore = (() => {
       shippingAddress: shippingAddress || {},
       paymentMethod: paymentMethod || 'cod',
       paymentMethodLabel: paymentMethodLabel || '',
+      subtotal: subtotal ?? total,
+      shippingFee: shippingFee ?? 0,
+      total,
       userId: userId || null,
-      items: items.map(i => ({ productId: i.id, name: i.name, qty: i.qty, price: i.price }))
+      items: (items || []).map(i => ({ id: i.id, name: i.name, qty: i.qty, price: i.price }))
     };
-    return update(data => {
+
+    if (_apiMode && !_adminMode) {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) throw new Error(data.error || 'order_failed');
+      const order = data.order;
+      if (userId && _cache) {
+        const user = _cache.users.find(u => u.id === userId);
+        if (user) {
+          user.orders = user.orders || [];
+          user.orders.unshift({
+            id: order.id,
+            date: order.date,
+            total: order.total,
+            status: order.status,
+            items: order.items.map(i => ({ name: i.name, qty: i.qty }))
+          });
+          localStorage.setItem(KEY, JSON.stringify(_cache));
+        }
+      }
+      return order;
+    }
+
+    const order = {
+      id: 'ORD-' + Date.now(),
+      date: new Date().toISOString().split('T')[0],
+      subtotal: payload.subtotal,
+      shippingFee: payload.shippingFee,
+      total: payload.total,
+      status: 'Pending',
+      customerName: payload.customerName,
+      customerEmail: payload.customerEmail,
+      customerPhone: payload.customerPhone,
+      customerPhone2: payload.customerPhone2,
+      shippingAddress: payload.shippingAddress,
+      paymentMethod: payload.paymentMethod,
+      paymentMethodLabel: payload.paymentMethodLabel,
+      userId: payload.userId,
+      items: payload.items.map(i => ({ productId: i.id, name: i.name, qty: i.qty, price: i.price }))
+    };
+    update(data => {
+      data.orders = data.orders || [];
       data.orders.unshift(order);
       if (userId) {
         const user = data.users.find(u => u.id === userId);
@@ -457,7 +547,8 @@ const LumiereStore = (() => {
           });
         }
       }
-    }), order;
+    });
+    return order;
   }
 
   function getAllOrders() {
@@ -476,8 +567,25 @@ const LumiereStore = (() => {
     });
   }
 
+  async function updateUserRemote(userId, email, password, patch) {
+    if (_apiMode && !_adminMode) {
+      const res = await fetch('/api/account', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, email, password, patch })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) return { ok: false, error: data.error || 'save_failed' };
+      cacheUser(data.user);
+      return { ok: true, user: data.user };
+    }
+    updateUser(userId, patch);
+    return { ok: true, user: findUserById(userId) };
+  }
+
   return {
-    get, update, reset, defaults, init, flush, getLastSyncError,
+    get, update, reset, defaults, init, initAdmin, flush, getLastSyncError,
+    isApiMode, isAdminMode, cacheUser, updateUserRemote,
     findUser, findUserById, addUser, updateUser, deleteUser,
     addProduct, updateProduct, deleteProduct,
     updateSettings, addCategory, updateCategory, deleteCategory,

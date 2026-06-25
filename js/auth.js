@@ -1,5 +1,5 @@
 /**
- * LUMIÈRE — Authentication
+ * LUMIÈRE — Authentication (customers only; admin uses AdminSession)
  */
 const LumiereAuth = (() => {
   const SESSION_KEY = 'lumiere_session';
@@ -14,7 +14,7 @@ const LumiereAuth = (() => {
   }
 
   function setSession(user) {
-    const session = { id: user.id, email: user.email, name: user.name, role: user.role };
+    const session = { id: user.id, email: user.email, name: user.name, role: user.role, phone: user.phone || '' };
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
     return session;
   }
@@ -23,29 +23,67 @@ const LumiereAuth = (() => {
     sessionStorage.removeItem(SESSION_KEY);
   }
 
-  function login(email, password) {
+  async function login(email, password) {
+    if (LumiereStore.isApiMode()) {
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) {
+          return { ok: false, error: data.error || 'login_error' };
+        }
+        LumiereStore.cacheUser(data.user);
+        return { ok: true, user: setSession(data.user) };
+      } catch (_) {
+        return { ok: false, error: 'login_error' };
+      }
+    }
+
     const user = LumiereStore.findUser(email);
     if (!user || user.password !== password) {
       return { ok: false, error: 'login_error' };
     }
-    const session = setSession(user);
-    return { ok: true, user: session };
+    if (user.role === 'superadmin') {
+      return { ok: false, error: 'admin_use_portal' };
+    }
+    return { ok: true, user: setSession(user) };
   }
 
-  function register({ name, email, password, phone }) {
+  async function register({ name, email, password, phone }) {
     if (!name || !email || !password) {
       return { ok: false, error: 'register_error_required' };
     }
     if (password.length < 6) {
       return { ok: false, error: 'register_error_pass' };
     }
+
+    if (LumiereStore.isApiMode()) {
+      try {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password, phone: phone || '' })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) {
+          return { ok: false, error: data.error || 'register_error_exists' };
+        }
+        LumiereStore.cacheUser(data.user);
+        return { ok: true, user: setSession(data.user) };
+      } catch (_) {
+        return { ok: false, error: 'register_error_exists' };
+      }
+    }
+
     if (LumiereStore.findUser(email)) {
       return { ok: false, error: 'register_error_exists' };
     }
     LumiereStore.addUser({ name, email, password, phone: phone || '' });
     const user = LumiereStore.findUser(email);
-    const session = setSession(user);
-    return { ok: true, user: session };
+    return { ok: true, user: setSession(user) };
   }
 
   function logout() {
@@ -66,18 +104,8 @@ const LumiereAuth = (() => {
   function requireRole(role, redirect = 'index.html') {
     const session = requireAuth();
     if (!session) return null;
-    if (session.role !== role && session.role !== 'superadmin') {
+    if (session.role !== role) {
       window.location.href = redirect;
-      return null;
-    }
-    return session;
-  }
-
-  function requireSuperAdmin() {
-    const session = requireAuth('login.html');
-    if (!session) return null;
-    if (session.role !== 'superadmin') {
-      window.location.href = 'account.html';
       return null;
     }
     return session;
@@ -86,16 +114,11 @@ const LumiereAuth = (() => {
   function getCurrentUser() {
     const session = getSession();
     if (!session) return null;
-    return LumiereStore.findUserById(session.id);
+    return LumiereStore.findUserById(session.id) || session;
   }
 
   function isLoggedIn() {
     return !!getSession();
-  }
-
-  function isSuperAdmin() {
-    const s = getSession();
-    return s && s.role === 'superadmin';
   }
 
   function mediaSrc(url) {
@@ -117,8 +140,8 @@ const LumiereAuth = (() => {
 
   return {
     getSession, login, register, logout,
-    requireAuth, requireRole, requireSuperAdmin,
-    getCurrentUser, isLoggedIn, isSuperAdmin,
+    requireAuth, requireRole,
+    getCurrentUser, isLoggedIn,
     initAuthBranding, mediaSrc
   };
 })();

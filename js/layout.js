@@ -4,6 +4,7 @@
 const LumiereLayout = (() => {
   const isAdmin = window.location.pathname.includes('/admin/');
   const base = isAdmin ? '../' : '';
+  let _adminLoggedIn = false;
 
   const SOCIAL_LINKS = {
     instagram: 'https://www.instagram.com/kwanzou.eg?igsh=MTJ3MW5pMmhoYnl6MQ%3D%3D&utm_source=qr',
@@ -313,7 +314,7 @@ const LumiereLayout = (() => {
     const categories = sortedCategories(data.categories);
     const products = data.products || [];
     const accountLink = session
-      ? (session.role === 'superadmin' ? `${base}admin/index.html` : `${base}account.html`)
+      ? `${base}account.html`
       : `${base}login.html`;
     const accountLabel = session ? session.name.split(' ')[0] : LumiereI18n.t('nav_signin');
     const announcement = LumiereI18n.localizedSettings(settings, 'announcement');
@@ -349,7 +350,7 @@ const LumiereLayout = (() => {
         </a>
         <div class="header-end">
           <div class="header-auth-bar header-auth-bar--desktop">${authToolsDesktop}</div>
-          ${session?.role === 'superadmin' ? `<a href="${base}admin/index.html" class="header-action header-action--admin">${LumiereI18n.t('nav_admin')}</a>` : ''}
+          ${ _adminLoggedIn ? `<a href="${base}admin/index.html" class="header-action header-action--admin">${LumiereI18n.t('nav_admin')}</a>` : ''}
           <a href="${base}cart.html" class="header-action cart-link" title="${LumiereI18n.t('nav_bag')}">
             <span class="header-action__icon">🛍</span>
             <span class="cart-count">0</span>
@@ -489,36 +490,60 @@ const LumiereLayout = (() => {
     });
   }
 
+  async function refreshAdminNav() {
+    if (isAdmin) return;
+    try {
+      const res = await fetch('/api/admin/session', { credentials: 'include' });
+      if (!res.ok) {
+        _adminLoggedIn = false;
+        return;
+      }
+      const data = await res.json();
+      _adminLoggedIn = !!data.ok;
+    } catch (_) {
+      _adminLoggedIn = false;
+    }
+  }
+
   function init(active = '') {
     try {
       LumiereTheme.apply(LumiereStore.get().settings);
     } catch (_) {}
-    const headerEl = document.getElementById('site-header');
-    const footerEl = document.getElementById('site-footer');
-    try {
-      if (headerEl) headerEl.innerHTML = renderHeader(active);
-      stripTopAnnouncementBar();
-    } catch (err) {
-      console.error('Header render error:', err);
-    }
-    try {
-      mountMobileBottomNav(active);
-    } catch (err) {
-      console.error('Mobile nav render error:', err);
-    }
-    try {
-      if (footerEl) footerEl.innerHTML = renderFooter();
-    } catch (err) {
-      console.error('Footer render error:', err);
-    }
-    document.body.classList.toggle('mobile-nav-enabled', !isAdmin);
-    KwanzouCart.updateUI();
-    LumiereI18n.bindLangSwitch(headerEl || document);
-    LumiereI18n.bindLangSwitch(document.getElementById('mobileMenu') || document);
-    initMobileMenu();
-    initMobileMenuAccordions();
-    initCategoriesDropdown();
-    initHeaderScroll();
+
+    const renderAll = () => {
+      const headerEl = document.getElementById('site-header');
+      const footerEl = document.getElementById('site-footer');
+      try {
+        if (headerEl) headerEl.innerHTML = renderHeader(active);
+        stripTopAnnouncementBar();
+      } catch (err) {
+        console.error('Header render error:', err);
+      }
+      try {
+        mountMobileBottomNav(active);
+      } catch (err) {
+        console.error('Mobile nav render error:', err);
+      }
+      try {
+        if (footerEl) footerEl.innerHTML = renderFooter();
+      } catch (err) {
+        console.error('Footer render error:', err);
+      }
+      document.body.classList.toggle('mobile-nav-enabled', !isAdmin);
+      KwanzouCart.updateUI();
+      LumiereI18n.bindLangSwitch(headerEl || document);
+      LumiereI18n.bindLangSwitch(document.getElementById('mobileMenu') || document);
+      initMobileMenu();
+      initMobileMenuAccordions();
+      initCategoriesDropdown();
+      initHeaderScroll();
+    };
+
+    renderAll();
+    refreshAdminNav().then(() => {
+      const headerEl = document.getElementById('site-header');
+      if (headerEl && _adminLoggedIn) headerEl.innerHTML = renderHeader(active);
+    });
   }
 
   let _outsideClickHandler = null;

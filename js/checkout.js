@@ -192,7 +192,7 @@
       ].filter(Boolean).join(' — ');
 
       await LumiereStore.init();
-      const order = LumiereStore.placeOrder({
+      const order = await LumiereStore.placeOrder({
         customerName: (fd.get('name') || '').trim(),
         customerEmail: (fd.get('email') || '').trim(),
         customerPhone: (fd.get('phone') || '').trim(),

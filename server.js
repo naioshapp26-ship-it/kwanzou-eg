@@ -2,6 +2,25 @@ const express = require('express');
 const path = require('path');
 const { initDb, getStore, saveStore, isDbReady, getDbStatus, getPool } = require('./lib/db');
 const { getMedia } = require('./lib/media-store');
+const { sanitizeStoreForPublic } = require('./lib/store-sanitize');
+const {
+  verifyAdminCredentials,
+  createSession,
+  destroySession,
+  getSession,
+  setAdminCookie,
+  clearAdminCookie,
+  requireAdmin,
+  protectAdminStatic,
+  getAdminCredentials
+} = require('./lib/admin-auth');
+const {
+  loginCustomer,
+  registerCustomer,
+  placeOrder,
+  subscribeNewsletter,
+  updateCustomerProfile
+} = require('./lib/public-store-api');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -11,11 +30,13 @@ app.use(express.json({ limit: '50mb' }));
 
 app.get('/api/health', async (_req, res) => {
   const status = getDbStatus();
+  const admin = getAdminCredentials();
   res.json({
     ok: true,
     database: status.ready ? 'connected' : 'offline',
     dbConfigured: status.configured,
     dbError: status.error || null,
+    adminConfigured: admin.configured,
     time: new Date().toISOString()
   });
 });
@@ -39,15 +60,26 @@ app.get('/api/media/:id', async (req, res) => {
 app.get('/api/store', async (_req, res) => {
   try {
     const data = await getStore();
-    if (data) return res.json(data);
-    res.status(503).json({ error: 'Database not connected' });
+    if (!data) return res.status(503).json({ error: 'Database not connected' });
+    res.json(sanitizeStoreForPublic(data));
   } catch (err) {
     console.error('GET /api/store', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
 
-app.put('/api/store', async (req, res) => {
+app.get('/api/store/admin', requireAdmin, async (_req, res) => {
+  try {
+    const data = await getStore();
+    if (!data) return res.status(503).json({ error: 'Database not connected' });
+    res.json(data);
+  } catch (err) {
+    console.error('GET /api/store/admin', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.put('/api/store', requireAdmin, async (req, res) => {
   try {
     if (!req.body || typeof req.body !== 'object') {
       return res.status(400).json({ error: 'Invalid body' });
@@ -63,6 +95,107 @@ app.put('/api/store', async (req, res) => {
   }
 });
 
+app.post('/api/admin/login', (req, res) => {
+  const { email, password } = req.body || {};
+  if (!getAdminCredentials().configured) {
+    return res.status(503).json({ ok: false, error: 'Admin credentials not configured on server' });
+  }
+  if (!verifyAdminCredentials(email, password)) {
+    return res.status(401).json({ ok: false, error: 'login_error' });
+  }
+  const token = createSession(email.trim().toLowerCase());
+  setAdminCookie(res, token);
+  res.json({ ok: true, email: email.trim().toLowerCase() });
+});
+
+app.post('/api/admin/logout', (req, res) => {
+  const session = getSession(req);
+  destroySession(session?.token);
+  clearAdminCookie(res);
+  res.json({ ok: true });
+});
+
+app.get('/api/admin/session', (req, res) => {
+  const session = getSession(req);
+  if (!session) return res.status(401).json({ ok: false });
+  res.json({ ok: true, email: session.email });
+});
+
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body || {};
+    const result = await loginCustomer(email, password);
+    if (!result.ok) {
+      const status = result.error === 'offline' ? 503 : 401;
+      return res.status(status).json(result);
+    }
+    res.json(result);
+  } catch (err) {
+    console.error('POST /api/auth/login', err);
+    res.status(500).json({ ok: false, error: 'Server error' });
+  }
+});
+
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const result = await registerCustomer(req.body || {});
+    if (!result.ok) {
+      const status = result.error === 'offline' || result.error === 'save_failed' ? 503 : 400;
+      return res.status(status).json(result);
+    }
+    res.json(result);
+  } catch (err) {
+    console.error('POST /api/auth/register', err);
+    res.status(500).json({ ok: false, error: 'Server error' });
+  }
+});
+
+app.post('/api/orders', async (req, res) => {
+  try {
+    const result = await placeOrder(req.body || {});
+    if (!result.ok) {
+      const status = result.error === 'offline' || result.error === 'save_failed' ? 503 : 400;
+      return res.status(status).json(result);
+    }
+    res.json(result);
+  } catch (err) {
+    console.error('POST /api/orders', err);
+    res.status(500).json({ ok: false, error: 'Server error' });
+  }
+});
+
+app.post('/api/newsletter', async (req, res) => {
+  try {
+    const email = req.body?.email;
+    const result = await subscribeNewsletter(email);
+    if (!result.ok) {
+      const status = result.error === 'offline' || result.error === 'save_failed' ? 503 : 400;
+      return res.status(status).json(result);
+    }
+    res.json(result);
+  } catch (err) {
+    console.error('POST /api/newsletter', err);
+    res.status(500).json({ ok: false, error: 'Server error' });
+  }
+});
+
+app.patch('/api/account', async (req, res) => {
+  try {
+    const { userId, email, password, patch } = req.body || {};
+    const result = await updateCustomerProfile({ userId, email, password, patch: patch || {} });
+    if (!result.ok) {
+      const status = result.error === 'offline' || result.error === 'save_failed' ? 503 : 401;
+      return res.status(status).json(result);
+    }
+    res.json(result);
+  } catch (err) {
+    console.error('PATCH /api/account', err);
+    res.status(500).json({ ok: false, error: 'Server error' });
+  }
+});
+
+app.use(protectAdminStatic);
+
 app.use(express.static(ROOT, {
   maxAge: '1d',
   setHeaders(res, filePath) {
@@ -77,6 +210,10 @@ async function start() {
     await initDb();
   } catch (err) {
     console.error('Database init failed:', err.message);
+  }
+  const admin = getAdminCredentials();
+  if (!admin.configured) {
+    console.warn('WARNING: Set ADMIN_EMAIL and ADMIN_PASSWORD env vars to enable admin access.');
   }
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Kwanzou EG → http://0.0.0.0:${PORT} (db: ${isDbReady() ? 'yes' : 'no'})`);

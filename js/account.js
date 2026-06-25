@@ -6,10 +6,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   await LumiereStore.init();
   const session = LumiereAuth.requireAuth();
   if (!session) return;
-  if (session.role === 'superadmin') {
-    window.location.href = 'admin/index.html';
-    return;
-  }
 
   refreshAccount();
   window.addEventListener('lumiere:langchange', refreshAccount);
@@ -95,12 +91,18 @@ function renderProfile(user) {
   document.getElementById('profilePhone').value = user.phone || '';
 
   const form = document.getElementById('profileForm');
-  form.onsubmit = e => {
+  form.onsubmit = async e => {
     e.preventDefault();
-    LumiereStore.updateUser(user.id, {
+    const password = window.prompt(LumiereI18n.t('account_confirm_password'));
+    if (!password) return;
+    const result = await LumiereStore.updateUserRemote(user.id, user.email, password, {
       name: document.getElementById('profileName').value,
       phone: document.getElementById('profilePhone').value
     });
+    if (!result.ok) {
+      showToast(LumiereI18n.t(result.error || 'account_save_failed'));
+      return;
+    }
     showToast(LumiereI18n.t('account_saved'));
   };
 }

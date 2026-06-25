@@ -269,11 +269,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     LumiereI18n.init();
     await LumiereStore.init();
     refreshPage();
-    document.getElementById('newsletterForm')?.addEventListener('submit', e => {
+    document.getElementById('newsletterForm')?.addEventListener('submit', async e => {
       e.preventDefault();
-      LumiereStore.addNewsletter(e.target.querySelector('input').value);
-      showToast(LumiereI18n.t('news_welcome'));
-      e.target.reset();
+      const ok = await LumiereStore.addNewsletter(e.target.querySelector('input').value);
+      if (ok) {
+        showToast(LumiereI18n.t('news_welcome'));
+        e.target.reset();
+      }
     });
     window.addEventListener('lumiere:langchange', refreshPage);
   } catch (err) {

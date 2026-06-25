@@ -5,12 +5,18 @@ const ADMIN_BASE = '../';
 
 document.addEventListener('DOMContentLoaded', async () => {
   LumiereI18n.init();
-  await LumiereStore.init();
   LumiereI18n.bindLangSwitch();
-  const session = LumiereAuth.requireSuperAdmin();
+  const session = await AdminSession.require();
   if (!session) return;
 
-  document.getElementById('adminUserName').textContent = session.name;
+  try {
+    await LumiereStore.initAdmin();
+  } catch (_) {
+    await AdminSession.logout();
+    return;
+  }
+
+  document.getElementById('adminUserName').textContent = session.email || 'Admin';
   applyAdminBranding();
   initNavigation();
   renderDashboard();
@@ -27,7 +33,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderNewsletter();
   initModals();
   initLogout();
-  initReset();
   AdminMedia.init(document, toast);
   switchSection('dashboard');
 
@@ -791,15 +796,7 @@ function closeModal() {
 }
 
 function initLogout() {
-  document.getElementById('adminLogout')?.addEventListener('click', () => LumiereAuth.logout());
-}
-
-function initReset() {
-  document.getElementById('resetDataBtn')?.addEventListener('click', async () => {
-    if (!confirm(LumiereI18n.t('admin_reset_confirm'))) return;
-    await LumiereStore.reset();
-    location.reload();
-  });
+  document.getElementById('adminLogout')?.addEventListener('click', () => AdminSession.logout());
 }
 
 function toast(msg) {

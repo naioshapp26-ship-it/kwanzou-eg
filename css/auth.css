@@ -152,3 +152,21 @@
   .auth-split { grid-template-columns: 1fr; }
   .auth-visual { height: 240px; }
 }
+
+.auth-split--single {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-form-panel--full {
+  width: min(100%, 440px);
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+.logo-link-auth--inline {
+  display: block;
+  margin-bottom: 24px;
+}

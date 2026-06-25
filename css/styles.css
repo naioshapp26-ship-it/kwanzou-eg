@@ -1497,6 +1497,21 @@ button {
   color: var(--text-muted);
 }
 
+.footer-info__staff {
+  margin-top: 8px;
+}
+
+.footer-info__staff a {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  opacity: 0.75;
+}
+
+.footer-info__staff a:hover {
+  color: var(--accent-dark);
+  opacity: 1;
+}
+
 .policy-page {
   padding: 40px 0 72px;
   background: var(--ivory);

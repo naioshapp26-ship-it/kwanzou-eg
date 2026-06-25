@@ -475,6 +475,7 @@ const LumiereLayout = (() => {
 
         <div class="footer-info__bottom">
           <p>&copy; ${year} ${brand}. ${LumiereI18n.t('footer_rights')}</p>
+          <p class="footer-info__staff"><a href="${base}admin/login.html">${LumiereI18n.t('login_staff_link')}</a></p>
         </div>
       </div>
     </footer>`;

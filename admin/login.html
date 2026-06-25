@@ -60,9 +60,10 @@
           document.getElementById('password').value
         );
         if (!result.ok) {
-          errEl.textContent = LumiereI18n.t(result.error === 'Admin credentials not configured on server'
+          const key = result.error === 'Admin credentials not configured on server'
             ? 'admin_login_not_configured'
-            : 'login_error');
+            : (result.error === 'login_error' ? 'login_error' : 'admin_login_failed');
+          errEl.textContent = LumiereI18n.t(key);
           errEl.hidden = false;
           return;
         }

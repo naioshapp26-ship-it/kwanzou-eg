@@ -148,6 +148,15 @@
 
 .auth-switch a { color: var(--champagne-dark); font-weight: 500; }
 
+.auth-staff {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+.auth-staff a { color: var(--accent-dark); font-weight: 600; }
+
 @media (max-width: 768px) {
   .auth-split { grid-template-columns: 1fr; }
   .auth-visual { height: 240px; }

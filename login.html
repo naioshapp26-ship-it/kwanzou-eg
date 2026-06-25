@@ -37,6 +37,7 @@
           <button type="submit" class="btn btn-primary btn-full" data-i18n="login_submit">Sign In</button>
         </form>
         <p class="auth-switch"><span data-i18n="login_no_account">No account?</span> <a href="register.html" data-i18n="login_create">Create one</a></p>
+        <p class="auth-staff"><span data-i18n="login_staff">Staff?</span> <a href="admin/login.html" data-i18n="login_staff_link">Admin sign in</a></p>
       </div>
     </div>
   </div>
@@ -68,7 +69,9 @@
         );
         const errEl = document.getElementById('authError');
         if (!result.ok) {
-          errEl.textContent = LumiereI18n.t(result.error);
+          errEl.textContent = result.error === 'admin_use_portal'
+            ? `${LumiereI18n.t('admin_use_portal')} ${LumiereI18n.t('login_staff_link')}: admin/login.html`
+            : LumiereI18n.t(result.error);
           errEl.hidden = false;
           return;
         }

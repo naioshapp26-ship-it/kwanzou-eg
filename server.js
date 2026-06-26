@@ -24,7 +24,7 @@ const {
   updateCustomerProfile,
   changeCustomerPassword
 } = require('./lib/public-store-api');
-const { listStaffAdmins, addStaffAdmin, deleteStaffAdmin } = require('./lib/admin-staff-api');
+const { listStaffAdmins, getStaffAdminById, addStaffAdmin, updateStaffAdmin, deleteStaffAdmin } = require('./lib/admin-staff-api');
 const { requestPasswordReset, validateResetToken, resetPasswordWithToken } = require('./lib/password-reset');
 const { getSmtpConfig, getResendConfig, isMailConfigured } = require('./lib/mail');
 
@@ -163,6 +163,31 @@ app.post('/api/admin/staff', requireSuperAdmin, async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error('POST /api/admin/staff', err);
+    res.status(500).json({ ok: false, error: 'Server error' });
+  }
+});
+
+app.get('/api/admin/staff/:id', requireAdmin, async (req, res) => {
+  try {
+    const admin = await getStaffAdminById(req.params.id);
+    if (!admin) return res.status(404).json({ ok: false, error: 'admin_staff_not_found' });
+    res.json({ ok: true, admin });
+  } catch (err) {
+    console.error('GET /api/admin/staff/:id', err);
+    res.status(500).json({ ok: false, error: 'Server error' });
+  }
+});
+
+app.patch('/api/admin/staff/:id', requireSuperAdmin, async (req, res) => {
+  try {
+    const result = await updateStaffAdmin(req.params.id, req.body || {});
+    if (!result.ok) {
+      const status = result.error === 'offline' || result.error === 'save_failed' ? 503 : 403;
+      return res.status(status).json(result);
+    }
+    res.json(result);
+  } catch (err) {
+    console.error('PATCH /api/admin/staff/:id', err);
     res.status(500).json({ ok: false, error: 'Server error' });
   }
 });

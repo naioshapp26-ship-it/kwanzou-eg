@@ -3,6 +3,7 @@
  */
 const ADMIN_BASE = '../';
 let adminSessionRole = 'admin';
+let _staffCache = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
   LumiereI18n.init();
@@ -515,16 +516,21 @@ async function renderStaffAdmins() {
     const res = await fetch('/api/admin/staff', { credentials: 'include' });
     const data = await res.json().catch(() => ({}));
     const staff = data.ok ? data.staff : [];
+    _staffCache = staff;
     tbody.innerHTML = staff.length ? staff.map(member => `
       <tr>
         <td>${member.name}</td>
-        <td>${member.email}</td>
+        <td>${member.email}${member.isCustomer ? ` <span class="admin-tag">${LumiereI18n.t('admin_staff_customer')}</span>` : ''}</td>
         <td>${member.role === 'superadmin' ? LumiereI18n.t('admin_super') : LumiereI18n.t('admin_staff_role')}</td>
         <td>${member.createdAt || '—'}</td>
         <td class="table-actions">
-          ${isSuper && !member.protected
-            ? `<button class="btn-icon btn-icon--danger" onclick="deleteStaffAdmin('${member.id}')" title="${LumiereI18n.t('admin_delete')}">🗑</button>`
-            : `<span class="admin-protected">${LumiereI18n.t('admin_staff_protected')}</span>`}
+          ${member.protected
+            ? `<span class="admin-protected">${LumiereI18n.t('admin_staff_protected')}</span>`
+            : `<div class="table-actions__group">
+                <button type="button" class="btn btn-sm btn-outline" onclick="viewStaffAdmin('${member.id}')">${LumiereI18n.t('admin_view')}</button>
+                ${isSuper ? `<button type="button" class="btn btn-sm btn-outline" onclick="editStaffAdmin('${member.id}')">${LumiereI18n.t('admin_edit')}</button>` : ''}
+                ${isSuper ? `<button type="button" class="btn btn-sm btn-outline btn-danger-text" onclick="deleteStaffAdmin('${member.id}')">${LumiereI18n.t('admin_delete')}</button>` : ''}
+              </div>`}
         </td>
       </tr>
     `).join('') : `<tr><td colspan="5">${LumiereI18n.t('admin_empty')}</td></tr>`;
@@ -577,9 +583,68 @@ function openAddStaffModal() {
     closeModal();
     await LumiereStore.initAdmin();
     renderStaffAdmins();
-    toast(LumiereI18n.t('admin_staff_added'));
+    toast(LumiereI18n.t(data.promoted ? 'admin_staff_promoted' : 'admin_staff_added'));
   };
 }
+
+window.viewStaffAdmin = function(id) {
+  const member = _staffCache.find(s => s.id === id);
+  if (!member) return;
+  showModal(LumiereI18n.t('admin_view_staff'), `
+    <div class="admin-detail">
+      <p><strong>${LumiereI18n.t('register_name')}:</strong> ${member.name}</p>
+      <p><strong>${LumiereI18n.t('login_email')}:</strong> ${member.email}</p>
+      <p><strong>${LumiereI18n.t('admin_role')}:</strong> ${member.role === 'superadmin' ? LumiereI18n.t('admin_super') : LumiereI18n.t('admin_staff_role')}</p>
+      <p><strong>${LumiereI18n.t('admin_joined')}:</strong> ${member.createdAt || '—'}</p>
+      ${member.isCustomer ? `<p class="admin-hint">${LumiereI18n.t('admin_staff_customer_note')}</p>` : ''}
+      <p class="admin-hint">${LumiereI18n.t('admin_staff_login_hint')}</p>
+    </div>
+  `);
+};
+
+window.editStaffAdmin = function(id) {
+  if (adminSessionRole !== 'superadmin') {
+    toast(LumiereI18n.t('admin_staff_forbidden'));
+    return;
+  }
+  const member = _staffCache.find(s => s.id === id);
+  if (!member || member.protected) return;
+  showModal(LumiereI18n.t('admin_edit_staff'), `
+    <form id="staffEditForm" class="admin-form">
+      <div class="form-group"><label>${LumiereI18n.t('register_name')}</label><input name="name" value="${member.name.replace(/"/g, '&quot;')}" required></div>
+      <div class="form-group"><label>${LumiereI18n.t('login_email')}</label><input value="${member.email}" disabled></div>
+      <div class="form-group password-field-wrap">
+        <label>${LumiereI18n.t('admin_new_password_optional')}</label>
+        <div class="password-field"><input name="password" type="password" minlength="6" placeholder="${LumiereI18n.t('admin_password_optional_ph')}"></div>
+      </div>
+      <button type="submit" class="btn btn-primary">${LumiereI18n.t('admin_save')}</button>
+    </form>
+  `);
+  PasswordToggle.init(document.getElementById('modalBody'));
+
+  document.getElementById('staffEditForm').onsubmit = async e => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const body = { name: fd.get('name') };
+    const pass = fd.get('password');
+    if (pass) body.password = pass;
+    const res = await fetch(`/api/admin/staff/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) {
+      toast(LumiereI18n.t(data.error || 'admin_save_failed'));
+      return;
+    }
+    closeModal();
+    await LumiereStore.initAdmin();
+    renderStaffAdmins();
+    toast(LumiereI18n.t('admin_saved'));
+  };
+};
 
 window.deleteStaffAdmin = async function(id) {
   if (adminSessionRole !== 'superadmin') {

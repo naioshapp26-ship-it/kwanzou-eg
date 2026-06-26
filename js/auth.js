@@ -138,10 +138,51 @@ const LumiereAuth = (() => {
     if (logo && s.logo) logo.src = mediaSrc(s.logo);
   }
 
+  async function requestPasswordReset(email) {
+    try {
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) return { ok: false, error: data.error || 'reset_failed' };
+      return { ok: true, message: data.message || 'reset_email_sent' };
+    } catch (_) {
+      return { ok: false, error: 'reset_failed' };
+    }
+  }
+
+  async function resetPassword(token, password) {
+    try {
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, password })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) return { ok: false, error: data.error || 'reset_invalid' };
+      return { ok: true, message: data.message || 'reset_password_done' };
+    } catch (_) {
+      return { ok: false, error: 'reset_failed' };
+    }
+  }
+
+  async function validateResetToken(token) {
+    try {
+      const res = await fetch(`/api/auth/reset-token?token=${encodeURIComponent(token)}`);
+      const data = await res.json().catch(() => ({}));
+      return !!(res.ok && data.ok);
+    } catch (_) {
+      return false;
+    }
+  }
+
   return {
     getSession, login, register, logout,
     requireAuth, requireRole,
     getCurrentUser, isLoggedIn,
+    requestPasswordReset, resetPassword, validateResetToken,
     initAuthBranding, mediaSrc
   };
 })();

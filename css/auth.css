@@ -116,6 +116,22 @@
   font-size: 0.9rem;
 }
 
+.auth-alert--success {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.auth-forgot {
+  margin: -8px 0 16px;
+  text-align: end;
+  font-size: 0.86rem;
+}
+
+.auth-forgot a {
+  color: var(--accent-dark);
+  font-weight: 500;
+}
+
 .auth-demo {
   margin-top: 28px;
   padding-top: 28px;

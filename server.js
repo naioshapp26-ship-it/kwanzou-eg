@@ -25,6 +25,8 @@ const {
   changeCustomerPassword
 } = require('./lib/public-store-api');
 const { listStaffAdmins, addStaffAdmin, deleteStaffAdmin } = require('./lib/admin-staff-api');
+const { requestPasswordReset, validateResetToken, resetPasswordWithToken } = require('./lib/password-reset');
+const { getSmtpConfig } = require('./lib/mail');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -35,12 +37,14 @@ app.use(express.json({ limit: '50mb' }));
 app.get('/api/health', async (_req, res) => {
   const status = getDbStatus();
   const admin = getAdminCredentials();
+  const mail = getSmtpConfig();
   res.json({
     ok: true,
     database: status.ready ? 'connected' : 'offline',
     dbConfigured: status.configured,
     dbError: status.error || null,
     adminConfigured: admin.configured,
+    mailConfigured: mail.configured,
     time: new Date().toISOString()
   });
 });
@@ -205,6 +209,47 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
+app.post('/api/auth/forgot-password', async (req, res) => {
+  try {
+    const email = req.body?.email;
+    const result = await requestPasswordReset(email);
+    if (!result.ok) {
+      const status = result.error === 'offline' ? 503 : result.error === 'mail_not_configured' ? 503 : 500;
+      return res.status(status).json(result);
+    }
+    res.json(result);
+  } catch (err) {
+    console.error('POST /api/auth/forgot-password', err);
+    res.status(500).json({ ok: false, error: 'Server error' });
+  }
+});
+
+app.get('/api/auth/reset-token', async (req, res) => {
+  try {
+    const result = await validateResetToken(req.query.token);
+    if (!result.ok) return res.status(400).json(result);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('GET /api/auth/reset-token', err);
+    res.status(500).json({ ok: false, error: 'Server error' });
+  }
+});
+
+app.post('/api/auth/reset-password', async (req, res) => {
+  try {
+    const { token, password } = req.body || {};
+    const result = await resetPasswordWithToken(token, password);
+    if (!result.ok) {
+      const status = result.error === 'offline' || result.error === 'save_failed' ? 503 : 400;
+      return res.status(status).json(result);
+    }
+    res.json(result);
+  } catch (err) {
+    console.error('POST /api/auth/reset-password', err);
+    res.status(500).json({ ok: false, error: 'Server error' });
+  }
+});
+
 app.post('/api/orders', async (req, res) => {
   try {
     const result = await placeOrder(req.body || {});
@@ -284,6 +329,9 @@ async function start() {
   const admin = getAdminCredentials();
   if (!admin.configured) {
     console.warn('WARNING: Set ADMIN_EMAIL and ADMIN_PASSWORD env vars to enable admin access.');
+  }
+  if (!getSmtpConfig().configured) {
+    console.warn('WARNING: Set SMTP_HOST, SMTP_USER, SMTP_PASS, SMTP_FROM for password reset emails.');
   }
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Kwanzou EG → http://0.0.0.0:${PORT} (db: ${isDbReady() ? 'yes' : 'no'})`);

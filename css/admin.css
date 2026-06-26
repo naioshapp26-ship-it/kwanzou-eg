@@ -527,6 +527,11 @@ html[dir="rtl"] .admin-nav__item { flex-direction: row-reverse; text-align: righ
   margin: 0 0 12px;
 }
 
+.admin-protected {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
 .product-gallery {
   display: flex;
   flex-direction: column;

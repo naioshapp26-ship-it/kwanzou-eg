@@ -5,12 +5,14 @@ const { getMedia } = require('./lib/media-store');
 const { sanitizeStoreForPublic } = require('./lib/store-sanitize');
 const {
   verifyAdminCredentials,
+  verifyAdminLogin,
   createSession,
   destroySession,
   getSession,
   setAdminCookie,
   clearAdminCookie,
   requireAdmin,
+  requireSuperAdmin,
   protectAdminStatic,
   getAdminCredentials
 } = require('./lib/admin-auth');
@@ -19,8 +21,10 @@ const {
   registerCustomer,
   placeOrder,
   subscribeNewsletter,
-  updateCustomerProfile
+  updateCustomerProfile,
+  changeCustomerPassword
 } = require('./lib/public-store-api');
+const { listStaffAdmins, addStaffAdmin, deleteStaffAdmin } = require('./lib/admin-staff-api');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -84,6 +88,10 @@ app.put('/api/store', requireAdmin, async (req, res) => {
     if (!req.body || typeof req.body !== 'object') {
       return res.status(400).json({ error: 'Invalid body' });
     }
+    if (req.adminSession?.role !== 'superadmin') {
+      const current = await getStore();
+      if (current?.staffAdmins) req.body.staffAdmins = current.staffAdmins;
+    }
     const result = await saveStore(req.body);
     if (!result.ok) {
       return res.status(result.error === 'Database not connected' ? 503 : 500).json({ error: result.error || 'Save failed' });
@@ -95,17 +103,26 @@ app.put('/api/store', requireAdmin, async (req, res) => {
   }
 });
 
-app.post('/api/admin/login', (req, res) => {
-  const { email, password } = req.body || {};
-  if (!getAdminCredentials().configured) {
-    return res.status(503).json({ ok: false, error: 'Admin credentials not configured on server' });
+app.post('/api/admin/login', async (req, res) => {
+  try {
+    const { email, password } = req.body || {};
+    const result = await verifyAdminLogin(email, password, getStore);
+    if (!result.ok) {
+      const configured = getAdminCredentials().configured;
+      const store = await getStore();
+      const hasStaff = (store?.staffAdmins || []).length > 0;
+      if (!configured && !hasStaff) {
+        return res.status(503).json({ ok: false, error: 'Admin credentials not configured on server' });
+      }
+      return res.status(401).json({ ok: false, error: 'login_error' });
+    }
+    const token = createSession(result.email, result.role);
+    setAdminCookie(res, token);
+    res.json({ ok: true, email: result.email, role: result.role });
+  } catch (err) {
+    console.error('POST /api/admin/login', err);
+    res.status(500).json({ ok: false, error: 'Server error' });
   }
-  if (!verifyAdminCredentials(email, password)) {
-    return res.status(401).json({ ok: false, error: 'login_error' });
-  }
-  const token = createSession(email.trim().toLowerCase());
-  setAdminCookie(res, token);
-  res.json({ ok: true, email: email.trim().toLowerCase() });
 });
 
 app.post('/api/admin/logout', (req, res) => {
@@ -118,7 +135,45 @@ app.post('/api/admin/logout', (req, res) => {
 app.get('/api/admin/session', (req, res) => {
   const session = getSession(req);
   if (!session) return res.status(401).json({ ok: false });
-  res.json({ ok: true, email: session.email });
+  res.json({ ok: true, email: session.email, role: session.role });
+});
+
+app.get('/api/admin/staff', requireAdmin, async (_req, res) => {
+  try {
+    const staff = await listStaffAdmins();
+    res.json({ ok: true, staff });
+  } catch (err) {
+    console.error('GET /api/admin/staff', err);
+    res.status(500).json({ ok: false, error: 'Server error' });
+  }
+});
+
+app.post('/api/admin/staff', requireSuperAdmin, async (req, res) => {
+  try {
+    const result = await addStaffAdmin(req.body || {});
+    if (!result.ok) {
+      const status = result.error === 'offline' || result.error === 'save_failed' ? 503 : 400;
+      return res.status(status).json(result);
+    }
+    res.json(result);
+  } catch (err) {
+    console.error('POST /api/admin/staff', err);
+    res.status(500).json({ ok: false, error: 'Server error' });
+  }
+});
+
+app.delete('/api/admin/staff/:id', requireSuperAdmin, async (req, res) => {
+  try {
+    const result = await deleteStaffAdmin(req.params.id);
+    if (!result.ok) {
+      const status = result.error === 'offline' || result.error === 'save_failed' ? 503 : 403;
+      return res.status(status).json(result);
+    }
+    res.json(result);
+  } catch (err) {
+    console.error('DELETE /api/admin/staff', err);
+    res.status(500).json({ ok: false, error: 'Server error' });
+  }
 });
 
 app.post('/api/auth/login', async (req, res) => {
@@ -175,6 +230,21 @@ app.post('/api/newsletter', async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error('POST /api/newsletter', err);
+    res.status(500).json({ ok: false, error: 'Server error' });
+  }
+});
+
+app.patch('/api/account/password', async (req, res) => {
+  try {
+    const { userId, email, currentPassword, newPassword } = req.body || {};
+    const result = await changeCustomerPassword({ userId, email, currentPassword, newPassword });
+    if (!result.ok) {
+      const status = result.error === 'offline' || result.error === 'save_failed' ? 503 : 401;
+      return res.status(status).json(result);
+    }
+    res.json(result);
+  } catch (err) {
+    console.error('PATCH /api/account/password', err);
     res.status(500).json({ ok: false, error: 'Server error' });
   }
 });

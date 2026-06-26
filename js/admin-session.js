@@ -30,7 +30,7 @@ const AdminSession = (() => {
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) return { ok: false, error: data.error || 'login_error' };
-    return { ok: true, email: data.email };
+    return { ok: true, email: data.email, role: data.role || 'admin' };
   }
 
   async function logout() {

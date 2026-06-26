@@ -355,3 +355,15 @@
     padding: 10px 12px;
   }
 }
+
+.profile-password {
+  margin-top: 36px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(212, 196, 176, 0.35);
+}
+
+.profile-password h3 {
+  font-size: 1.05rem;
+  margin-bottom: 18px;
+  color: var(--text-primary);
+}

@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const session = LumiereAuth.requireAuth();
   if (!session) return;
 
+  PasswordToggle.init();
   refreshAccount();
   window.addEventListener('lumiere:langchange', refreshAccount);
 
@@ -93,8 +94,11 @@ function renderProfile(user) {
   const form = document.getElementById('profileForm');
   form.onsubmit = async e => {
     e.preventDefault();
-    const password = window.prompt(LumiereI18n.t('account_confirm_password'));
-    if (!password) return;
+    const password = document.getElementById('profileConfirmPassword')?.value || '';
+    if (!password) {
+      showToast(LumiereI18n.t('account_confirm_password'));
+      return;
+    }
     const result = await LumiereStore.updateUserRemote(user.id, user.email, password, {
       name: document.getElementById('profileName').value,
       phone: document.getElementById('profilePhone').value
@@ -104,6 +108,30 @@ function renderProfile(user) {
       return;
     }
     showToast(LumiereI18n.t('account_saved'));
+  };
+
+  const passwordForm = document.getElementById('passwordForm');
+  passwordForm.onsubmit = async e => {
+    e.preventDefault();
+    const currentPassword = document.getElementById('currentPassword').value;
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    if (newPassword !== confirmPassword) {
+      showToast(LumiereI18n.t('account_password_mismatch'));
+      return;
+    }
+    const result = await LumiereStore.changePasswordRemote(
+      user.id,
+      user.email,
+      currentPassword,
+      newPassword
+    );
+    if (!result.ok) {
+      showToast(LumiereI18n.t(result.error || 'account_save_failed'));
+      return;
+    }
+    passwordForm.reset();
+    showToast(LumiereI18n.t('account_password_changed'));
   };
 }
 

@@ -95,6 +95,7 @@ const LumiereStore = (() => {
       { id: 'ig-6', image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&q=80' }
     ],
     users: [],
+    staffAdmins: [],
     orders: [],
     newsletter: [],
     cart: {}
@@ -148,6 +149,7 @@ const LumiereStore = (() => {
     merged.testimonials = data.testimonials?.length ? data.testimonials : clone(defaults.testimonials);
     merged.instagramGallery = data.instagramGallery?.length ? clone(data.instagramGallery) : clone(defaults.instagramGallery);
     merged.users = data.users?.length ? data.users : clone(defaults.users);
+    merged.staffAdmins = Array.isArray(data.staffAdmins) ? clone(data.staffAdmins) : clone(defaults.staffAdmins);
     merged.newsletter = data.newsletter || [];
     merged.orders = Array.isArray(data.orders) ? data.orders : [];
     merged.cart = data.cart || {};
@@ -567,6 +569,23 @@ const LumiereStore = (() => {
     });
   }
 
+  async function changePasswordRemote(userId, email, currentPassword, newPassword) {
+    if (_apiMode && !_adminMode) {
+      const res = await fetch('/api/account/password', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, email, currentPassword, newPassword })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) return { ok: false, error: data.error || 'save_failed' };
+      return { ok: true };
+    }
+    const user = findUserById(userId);
+    if (!user || user.password !== currentPassword) return { ok: false, error: 'login_error' };
+    updateUser(userId, { password: newPassword });
+    return { ok: true };
+  }
+
   async function updateUserRemote(userId, email, password, patch) {
     if (_apiMode && !_adminMode) {
       const res = await fetch('/api/account', {
@@ -585,7 +604,7 @@ const LumiereStore = (() => {
 
   return {
     get, update, reset, defaults, init, initAdmin, flush, getLastSyncError,
-    isApiMode, isAdminMode, cacheUser, updateUserRemote,
+    isApiMode, isAdminMode, cacheUser, updateUserRemote, changePasswordRemote,
     findUser, findUserById, addUser, updateUser, deleteUser,
     addProduct, updateProduct, deleteProduct,
     updateSettings, addCategory, updateCategory, deleteCategory,

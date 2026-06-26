@@ -23,6 +23,7 @@
       <button class="admin-nav__item" data-section="collections"><span>✨</span> <span data-i18n="admin_collections">Collections</span></button>
       <button class="admin-nav__item" data-section="appearance"><span>🎨</span> <span data-i18n="admin_appearance">Brand & Colors</span></button>
       <button class="admin-nav__item" data-section="settings"><span>⚙️</span> <span data-i18n="admin_settings">Site Settings</span></button>
+      <button class="admin-nav__item" data-section="staff"><span>🛡</span> <span data-i18n="admin_staff">Admin Team</span></button>
       <button class="admin-nav__item" data-section="users"><span>👥</span> <span data-i18n="admin_users">Customers</span></button>
       <button class="admin-nav__item" data-section="testimonials"><span>💬</span> <span data-i18n="admin_testimonials">Testimonials</span></button>
       <button class="admin-nav__item" data-section="newsletter"><span>📧</span> <span data-i18n="admin_newsletter">Newsletter</span></button>
@@ -347,6 +348,27 @@
         </form>
       </section>
 
+      <!-- Staff admins -->
+      <section class="admin-section" id="sec-staff">
+        <div class="admin-section-header">
+          <h2 data-i18n="admin_staff">Admin Team</h2>
+          <button class="btn btn-primary btn-sm" id="addStaffBtn" data-i18n="admin_add_staff">+ Add Admin</button>
+        </div>
+        <p class="admin-hint" data-i18n="admin_staff_hint">Only the super admin can add or remove admins.</p>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr>
+              <th data-i18n="register_name">Name</th>
+              <th data-i18n="login_email">Email</th>
+              <th data-i18n="admin_role">Role</th>
+              <th data-i18n="admin_joined">Joined</th>
+              <th data-i18n="admin_actions">Actions</th>
+            </tr></thead>
+            <tbody id="staffTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
       <!-- Users -->
       <section class="admin-section" id="sec-users">
         <h2>Customer Accounts</h2>
@@ -389,11 +411,12 @@
 
   <div class="toast" id="toast"><span id="toastMessage"></span></div>
 
-  <script src="../js/store.js?v=14"></script>
+  <script src="../js/store.js?v=15"></script>
   <script src="../js/i18n.js"></script>
   <script src="../js/theme.js"></script>
+  <script src="../js/password-toggle.js"></script>
   <script src="../js/admin-session.js"></script>
   <script src="../js/admin-media.js?v=2"></script>
-  <script src="../js/admin.js?v=6"></script>
+  <script src="../js/admin.js?v=7"></script>
 </body>
 </html>

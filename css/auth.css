@@ -132,6 +132,13 @@
   font-weight: 500;
 }
 
+.auth-note {
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  margin: -8px 0 18px;
+  line-height: 1.5;
+}
+
 .auth-demo {
   margin-top: 28px;
   padding-top: 28px;

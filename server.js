@@ -26,7 +26,7 @@ const {
 } = require('./lib/public-store-api');
 const { listStaffAdmins, addStaffAdmin, deleteStaffAdmin } = require('./lib/admin-staff-api');
 const { requestPasswordReset, validateResetToken, resetPasswordWithToken } = require('./lib/password-reset');
-const { getSmtpConfig } = require('./lib/mail');
+const { getSmtpConfig, getResendConfig, isMailConfigured } = require('./lib/mail');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -37,14 +37,15 @@ app.use(express.json({ limit: '50mb' }));
 app.get('/api/health', async (_req, res) => {
   const status = getDbStatus();
   const admin = getAdminCredentials();
-  const mail = getSmtpConfig();
+  const mail = isMailConfigured();
   res.json({
     ok: true,
     database: status.ready ? 'connected' : 'offline',
     dbConfigured: status.configured,
     dbError: status.error || null,
     adminConfigured: admin.configured,
-    mailConfigured: mail.configured,
+    mailConfigured: mail,
+    mailProvider: getResendConfig().configured ? 'resend' : (getSmtpConfig().configured ? 'smtp' : 'none'),
     time: new Date().toISOString()
   });
 });
@@ -330,8 +331,8 @@ async function start() {
   if (!admin.configured) {
     console.warn('WARNING: Set ADMIN_EMAIL and ADMIN_PASSWORD env vars to enable admin access.');
   }
-  if (!getSmtpConfig().configured) {
-    console.warn('WARNING: Set SMTP_HOST, SMTP_USER, SMTP_PASS, SMTP_FROM for password reset emails.');
+  if (!isMailConfigured()) {
+    console.warn('WARNING: Set RESEND_API_KEY + RESEND_FROM or SMTP_* for password reset emails.');
   }
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Kwanzou EG → http://0.0.0.0:${PORT} (db: ${isDbReady() ? 'yes' : 'no'})`);

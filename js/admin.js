@@ -326,12 +326,27 @@ function renderOrders() {
   });
 }
 
+function orderItemImageHtml(item) {
+  const products = LumiereStore.get().products || [];
+  const product = products.find(p => p.id === item.productId || p.id === item.id);
+  const src = item.image || product?.image || '';
+  if (!src) {
+    return '<span class="order-item-thumb order-item-thumb--empty">—</span>';
+  }
+  return `<img class="order-item-thumb" src="${imgSrc(src)}" alt="">`;
+}
+
 window.viewOrder = function(id) {
   const o = LumiereStore.getAllOrders().find(x => x.id === id);
   if (!o) return;
   const sym = currencySym();
   const rows = (o.items || []).map(i => `
-    <tr><td>${i.name}</td><td>${i.qty}</td><td>${i.price?.toLocaleString()} ${sym}</td><td>${(i.price * i.qty).toLocaleString()} ${sym}</td></tr>
+    <tr>
+      <td class="order-item-cell">${orderItemImageHtml(i)}<span>${i.name}</span></td>
+      <td>${i.qty}</td>
+      <td>${i.price?.toLocaleString()} ${sym}</td>
+      <td>${(i.price * i.qty).toLocaleString()} ${sym}</td>
+    </tr>
   `).join('');
   showModal(LumiereI18n.t('admin_order_detail') + ' ' + o.id, `
     <div class="order-detail">
@@ -647,7 +662,10 @@ function viewCustomer(userId) {
     <tr>
       <td>${o.id}</td>
       <td>${o.date}</td>
-      <td>${(o.items || []).map(i => `${i.name} ×${i.qty}`).join('، ')}</td>
+      <td>${(o.items || []).map(i => {
+        const img = orderItemImageHtml(i);
+        return `<div class="order-item-cell">${img}<span>${i.name} ×${i.qty}</span></div>`;
+      }).join('')}</td>
       <td>${o.total?.toLocaleString()} ${currencySym()}</td>
       <td>${LumiereI18n.translateStatus(o.status)}</td>
     </tr>

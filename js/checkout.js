@@ -184,7 +184,8 @@
           id: item.id,
           name: LumiereI18n.localized(p, 'name') || p?.name,
           qty: item.qty,
-          price: p?.price || 0
+          price: p?.price || 0,
+          image: p?.image || ''
         };
       }).filter(i => i.name);
 

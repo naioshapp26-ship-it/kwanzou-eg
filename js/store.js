@@ -523,7 +523,7 @@ const LumiereStore = (() => {
       shippingFee: shippingFee ?? 0,
       total,
       userId: userId || null,
-      items: (items || []).map(i => ({ id: i.id, name: i.name, qty: i.qty, price: i.price }))
+      items: (items || []).map(i => ({ id: i.id, name: i.name, qty: i.qty, price: i.price, image: i.image || '' }))
     };
 
     if (_apiMode && !_adminMode) {
@@ -568,7 +568,7 @@ const LumiereStore = (() => {
       paymentMethod: payload.paymentMethod,
       paymentMethodLabel: payload.paymentMethodLabel,
       userId: payload.userId,
-      items: payload.items.map(i => ({ productId: i.id, name: i.name, qty: i.qty, price: i.price }))
+      items: payload.items.map(i => ({ productId: i.id, name: i.name, qty: i.qty, price: i.price, image: i.image || '' }))
     };
     update(data => {
       data.orders = data.orders || [];

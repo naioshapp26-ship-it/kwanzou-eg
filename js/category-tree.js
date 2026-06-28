@@ -2,7 +2,7 @@
  * Category tree — parent/child helpers & default subcategories
  */
 const CategoryTree = (() => {
-  const CATALOG_SUBCATEGORY_VERSION = 6;
+  const CATALOG_SUBCATEGORY_VERSION = 7;
 
   const DEFAULT_TOP_LEVEL = [
     {
@@ -212,7 +212,13 @@ const CategoryTree = (() => {
 
   function getFilterSlugs(categories, slug) {
     const cat = getBySlug(categories, slug);
-    if (!cat) return new Set([slug]);
+    if (!cat) {
+      const slugs = new Set([slug]);
+      (categories || []).forEach(c => {
+        if (c.slug.startsWith(`${slug}-`)) slugs.add(c.slug);
+      });
+      return slugs;
+    }
     const slugs = new Set([slug]);
     getChildren(categories, cat.id).forEach(child => {
       getFilterSlugs(categories, child.slug).forEach(s => slugs.add(s));
@@ -420,6 +426,12 @@ const CategoryTree = (() => {
 
     if (version < 6) {
       ensureStarterProducts(merged);
+      assignProductsToSubcategories(merged.products, merged.categories);
+    }
+
+    if (version < 7) {
+      ensureDefaultParents(merged.categories);
+      ensureSubcategories(merged.categories);
       assignProductsToSubcategories(merged.products, merged.categories);
     }
 

@@ -122,7 +122,11 @@ const ProductUI = {
     const allowed = typeof CategoryTree !== 'undefined'
       ? CategoryTree.getFilterSlugs(categories, slug)
       : new Set([slug]);
-    return products.filter(p => allowed.has(p.categorySlug));
+    return products.filter(p => {
+      if (allowed.has(p.categorySlug)) return true;
+      if (!categories.some(c => c.slug === slug) && p.categorySlug?.startsWith(`${slug}-`)) return true;
+      return false;
+    });
   },
 
   bindCartButtons(root = document) {

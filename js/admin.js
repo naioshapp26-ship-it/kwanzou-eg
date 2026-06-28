@@ -73,7 +73,7 @@ function imgSrc(url) {
   if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://')) return url;
   if (url.startsWith('/api/media/')) return url;
   const clean = url.replace(/^\//, '');
-  if (clean === 'assets/logo-brand.svg' || clean === 'assets/logo.png') return `${ADMIN_BASE}assets/logo-brand.svg?v=5`;
+  if (clean === 'assets/logo-brand.svg' || clean === 'assets/logo.png') return `${ADMIN_BASE}assets/logo-brand.svg?v=6`;
   return ADMIN_BASE + clean;
 }
 

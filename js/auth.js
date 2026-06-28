@@ -126,7 +126,7 @@ const LumiereAuth = (() => {
     if (url.startsWith('data:') || url.startsWith('http://') || url.startsWith('https://') || url.startsWith('/api/media/')) {
       return url;
     }
-    if (url === 'assets/logo-brand.svg' || url === 'assets/logo.png') return `${url}?v=5`;
+    if (url === 'assets/logo-brand.svg' || url === 'assets/logo.png') return `${url}?v=6`;
     return url;
   }
 

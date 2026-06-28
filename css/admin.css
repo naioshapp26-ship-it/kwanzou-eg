@@ -706,3 +706,8 @@ html[dir="rtl"] .admin-table td { text-align: right; }
   .hero-typo-row--head { display: none; }
   .hero-typo-row > span:first-child { grid-column: 1 / -1; font-weight: 600; }
 }
+
+.cat-indent {
+  color: var(--accent, #FF6B00);
+  font-weight: 600;
+}

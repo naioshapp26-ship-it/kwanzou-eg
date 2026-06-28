@@ -269,18 +269,27 @@ function renderProducts() {
 
 function renderCategories() {
   const cats = LumiereStore.get().categories;
-  document.getElementById('categoriesTableBody').innerHTML = cats.map(c => `
+  const rows = typeof CategoryTree !== 'undefined'
+    ? CategoryTree.flattenForAdmin(cats)
+    : cats.map(c => ({ category: c, depth: 0 }));
+
+  document.getElementById('categoriesTableBody').innerHTML = rows.map(({ category: c, depth }) => {
+    const parent = c.parentId ? cats.find(p => p.id === c.parentId) : null;
+    const parentLabel = parent ? (parent.nameAr || parent.name) : '—';
+    const nameCell = `${depth ? '<span class="cat-indent">↳ </span>' : ''}${c.nameAr || c.name}`;
+    return `
     <tr>
       <td><img class="table-thumb" src="${imgSrc(c.image)}" alt=""></td>
-      <td>${c.nameAr || c.name}</td>
+      <td>${nameCell}</td>
+      <td>${parentLabel}</td>
       <td>${c.slug}</td>
       <td>${c.featured ? '✓' : '—'}</td>
       <td class="table-actions">
         <button class="btn-icon" onclick="editCategory('${c.id}')">✏️</button>
         <button class="btn-icon btn-icon--danger" onclick="deleteCategory('${c.id}')">🗑</button>
       </td>
-    </tr>
-  `).join('');
+    </tr>`;
+  }).join('');
 }
 
 function renderCollections() {
@@ -712,9 +721,11 @@ window.deleteProduct = function(id) {
 function openProductModal(product = null) {
   const isEdit = !!product;
   const cats = LumiereStore.get().categories;
-  const catOptions = cats.map(c =>
-    `<option value="${c.slug}" ${product?.categorySlug === c.slug ? 'selected' : ''}>${c.nameAr || c.name}</option>`
-  ).join('');
+  const catOptions = typeof CategoryTree !== 'undefined'
+    ? CategoryTree.buildProductSelectOptions(cats, product?.categorySlug || '')
+    : cats.map(c =>
+      `<option value="${c.slug}" ${product?.categorySlug === c.slug ? 'selected' : ''}>${c.nameAr || c.name}</option>`
+    ).join('');
 
   showModal(isEdit ? LumiereI18n.t('admin_edit_product') : LumiereI18n.t('admin_add_product'), `
     <form id="productForm" class="admin-form">
@@ -792,6 +803,12 @@ window.editCategory = function(id) {
 };
 
 window.deleteCategory = function(id) {
+  const cats = LumiereStore.get().categories;
+  const hasChildren = cats.some(c => c.parentId === id);
+  if (hasChildren) {
+    toast(LumiereI18n.t('admin_delete_subcategories_first'));
+    return;
+  }
   if (!confirm(LumiereI18n.t('admin_confirm_delete'))) return;
   LumiereStore.deleteCategory(id);
   renderCategories();
@@ -800,6 +817,11 @@ window.deleteCategory = function(id) {
 };
 
 function openCategoryModal(cat = null) {
+  const cats = LumiereStore.get().categories;
+  const parentOptions = typeof CategoryTree !== 'undefined'
+    ? CategoryTree.buildParentSelectOptions(cats, cat?.parentId || '', cat?.id || '')
+    : '<option value="">—</option>';
+
   showModal(cat ? LumiereI18n.t('admin_edit_category') : LumiereI18n.t('admin_add_category'), `
     <form id="catForm" class="admin-form">
       <div class="form-row">
@@ -809,6 +831,11 @@ function openCategoryModal(cat = null) {
       <div class="form-row">
         <div class="form-group"><label>Slug</label><input name="slug" value="${cat?.slug || ''}" required pattern="[a-z0-9-]+"></div>
         <div class="form-group"><label>${LumiereI18n.t('admin_sort')}</label><input name="sort" type="number" value="${cat?.sort ?? 99}"></div>
+      </div>
+      <div class="form-group">
+        <label>${LumiereI18n.t('admin_parent_category')}</label>
+        <select name="parentId">${parentOptions}</select>
+        <small>${LumiereI18n.t('admin_parent_category_hint')}</small>
       </div>
       ${imageUploadHTML('image', cat?.image, LumiereI18n.t('admin_category_image'))}
       <label><input type="checkbox" name="featured" ${cat?.featured ? 'checked' : ''}> ${LumiereI18n.t('admin_featured_home')}</label>
@@ -820,13 +847,15 @@ function openCategoryModal(cat = null) {
   document.getElementById('catForm').onsubmit = async e => {
     e.preventDefault();
     const fd = new FormData(e.target);
+    const parentId = (fd.get('parentId') || '').toString() || null;
     const data = {
       name: fd.get('name'),
       nameAr: fd.get('nameAr'),
       slug: fd.get('slug'),
       sort: +fd.get('sort'),
       image: fd.get('image') || cat?.image,
-      featured: fd.has('featured')
+      featured: fd.has('featured'),
+      parentId
     };
     if (cat) LumiereStore.updateCategory(cat.id, data);
     else LumiereStore.addCategory(data);

@@ -118,7 +118,11 @@ const ProductUI = {
   filterByCategory(products, slug) {
     if (!slug || slug === 'all') return products;
     if (slug === 'new-arrivals') return products.filter(p => p.badge === 'New' || p.badge === 'جديد');
-    return products.filter(p => p.categorySlug === slug);
+    const categories = typeof LumiereStore !== 'undefined' ? (LumiereStore.get().categories || []) : [];
+    const allowed = typeof CategoryTree !== 'undefined'
+      ? CategoryTree.getFilterSlugs(categories, slug)
+      : new Set([slug]);
+    return products.filter(p => allowed.has(p.categorySlug));
   },
 
   bindCartButtons(root = document) {

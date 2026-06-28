@@ -1063,3 +1063,15 @@ html[dir="rtl"] .product-card .wishlist-btn { right: auto; left: 12px; }
   .cart-item { grid-template-columns: 60px 1fr; }
   .cart-item__total, .cart-item__remove { grid-column: 2; }
 }
+
+.shop-subfilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 20px;
+}
+
+.filter-chip--sub {
+  font-size: 0.82rem;
+  padding: 6px 14px;
+}

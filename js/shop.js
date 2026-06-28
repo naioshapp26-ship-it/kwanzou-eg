@@ -21,18 +21,81 @@ function filterTabLabel(item) {
 
 function isFilterActive(item, catSlug, query) {
   if (item.key === 'sale') return query === 'sale';
-  return catSlug === item.key && !query;
+  if (catSlug === item.key && !query) return true;
+  if (typeof CategoryTree !== 'undefined' && catSlug && item.key) {
+    return CategoryTree.isDescendantOf(LumiereStore.get().categories || [], catSlug, item.key) && !query;
+  }
+  return false;
 }
 
 function getShopTitle(catSlug, query, params) {
   if (query === 'sale') return LumiereI18n.getLang() === 'ar' ? 'UP TO 50%' : 'UP TO 50%';
-  const tabs = typeof LumiereLayout.getHomeCategoryTabs === 'function'
-    ? LumiereLayout.getHomeCategoryTabs()
-    : [];
-  const tab = tabs.find(t => t.key === catSlug && !query);
-  if (tab) return filterTabLabel(tab);
+  if (catSlug) {
+    const cat = LumiereStore.get().categories.find(c => c.slug === catSlug);
+    if (cat) return LumiereI18n.translateCategory(cat);
+  }
   if (query) return `"${params.get('q')}"`;
   return LumiereI18n.t('shop_all');
+}
+
+function renderShopBreadcrumb(catSlug, title) {
+  const categories = LumiereStore.get().categories || [];
+  const cat = catSlug ? categories.find(c => c.slug === catSlug) : null;
+  const parent = cat && typeof CategoryTree !== 'undefined'
+    ? CategoryTree.getParent(categories, cat)
+    : null;
+
+  let trail = `
+    <a href="index.html">${LumiereI18n.t('nav_home')}</a>
+    <span>/</span>
+    <a href="shop.html">${LumiereI18n.t('shop_all')}</a>`;
+
+  if (parent) {
+    trail += `
+    <span>/</span>
+    <a href="shop.html?cat=${parent.slug}">${LumiereI18n.translateCategory(parent)}</a>`;
+  }
+  if (catSlug || title !== LumiereI18n.t('shop_all')) {
+    trail += `<span>/</span><span>${title}</span>`;
+  }
+  return trail;
+}
+
+function renderSubcategoryFilters(catSlug, categories) {
+  const el = document.getElementById('shopSubFilters');
+  if (!el || typeof CategoryTree === 'undefined') return;
+
+  const cat = catSlug ? categories.find(c => c.slug === catSlug) : null;
+  if (!cat) {
+    el.innerHTML = '';
+    el.hidden = true;
+    return;
+  }
+
+  let parent = cat;
+  let children = CategoryTree.getChildren(categories, cat.id);
+  if (!children.length && cat.parentId) {
+    parent = CategoryTree.getParent(categories, cat) || cat;
+    children = CategoryTree.getChildren(categories, parent.id);
+  }
+  if (!children.length) {
+    el.innerHTML = '';
+    el.hidden = true;
+    return;
+  }
+
+  const allActive = catSlug === parent.slug ? ' active' : '';
+  const allLabel = `${LumiereI18n.translateCategory(parent)} — ${LumiereI18n.t('shop_all')}`;
+  const chips = [
+    `<a href="shop.html?cat=${parent.slug}" class="filter-chip filter-chip--sub${allActive}">${allLabel}</a>`,
+    ...children.map(child => {
+      const active = catSlug === child.slug ? ' active' : '';
+      return `<a href="shop.html?cat=${child.slug}" class="filter-chip filter-chip--sub${active}">${LumiereI18n.translateCategory(child)}</a>`;
+    })
+  ];
+
+  el.innerHTML = chips.join('');
+  el.hidden = false;
 }
 
 function renderShop() {
@@ -52,8 +115,11 @@ function renderShop() {
   }
 
   const data = LumiereStore.get();
+  const navActive = catSlug && typeof CategoryTree !== 'undefined'
+    ? (CategoryTree.getParent(data.categories, CategoryTree.getBySlug(data.categories, catSlug))?.slug || catSlug)
+    : catSlug;
 
-  LumiereLayout.init(catSlug || (sortParam ? 'shop' : 'shop'));
+  LumiereLayout.init(navActive || (sortParam ? 'shop' : 'shop'));
 
   let products = [...data.products];
   if (catSlug) products = ProductUI.filterByCategory(products, catSlug);
@@ -67,11 +133,7 @@ function renderShop() {
   document.getElementById('shopTitle').textContent = title;
   document.getElementById('shopCount').textContent = `${products.length} ${LumiereI18n.t('products_count')}`;
 
-  document.getElementById('breadcrumb').innerHTML = `
-    <a href="index.html">${LumiereI18n.t('nav_home')}</a>
-    <span>/</span>
-    <a href="shop.html">${LumiereI18n.t('shop_all')}</a>
-    ${catSlug || query ? `<span>/</span><span>${title}</span>` : ''}`;
+  document.getElementById('breadcrumb').innerHTML = renderShopBreadcrumb(catSlug, title);
 
   const navTabs = typeof LumiereLayout.getHomeCategoryTabs === 'function'
     ? LumiereLayout.getHomeCategoryTabs()
@@ -91,6 +153,8 @@ function renderShop() {
       : isFilterActive({ key: f.key }, catSlug, query);
     return `<a href="${f.href}" class="filter-chip${active ? ' active' : ''}">${f.label}</a>`;
   }).join('');
+
+  renderSubcategoryFilters(catSlug, data.categories || []);
 
   const sortEl = document.getElementById('shopSort');
   sortEl.onchange = () => renderGrid(sortProducts(products, sortEl.value));
@@ -119,11 +183,4 @@ function renderGrid(products) {
   empty.hidden = true;
   grid.innerHTML = products.map(p => ProductUI.cardHTML(p)).join('');
   ProductUI.bindCartButtons(grid);
-}
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  document.getElementById('toastMessage').textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
 }

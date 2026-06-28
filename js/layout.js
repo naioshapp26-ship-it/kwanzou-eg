@@ -96,7 +96,19 @@ const LumiereLayout = (() => {
       : (subcat.en || subcat.name || subcat.ar || subcat.nameAr || '');
   }
 
-  function buildSubcategories(category, products) {
+  function buildSubcategories(category, products, categories) {
+    const allCategories = categories || LumiereStore.get().categories || [];
+    if (typeof CategoryTree !== 'undefined' && category?.id) {
+      const children = CategoryTree.getChildren(allCategories, category.id);
+      if (children.length) {
+        return children.map(c => ({
+          ar: c.nameAr || c.name,
+          en: c.name || c.nameAr,
+          slug: c.slug
+        }));
+      }
+    }
+
     const explicit = Array.isArray(category.subcategories) ? category.subcategories : [];
     const explicitItems = explicit.map(item => {
       if (typeof item === 'string') return { ar: item, en: item, query: item };
@@ -109,38 +121,28 @@ const LumiereLayout = (() => {
 
     if (explicitItems.length) return explicitItems;
 
-    const hints = SUBCATEGORY_HINTS[category.slug] || [
-      { ar: 'الأكثر طلبًا', en: 'Most Popular', query: 'popular' },
-      { ar: 'وصل جديد', en: 'New In', query: 'new' },
-      { ar: 'مختارات مميزة', en: 'Featured Picks', query: 'featured' }
-    ];
+    const hints = SUBCATEGORY_HINTS[category.slug] || [];
+    if (hints.length) return hints.slice(0, 6);
 
-    const fromProducts = (products || [])
+    return (products || [])
       .filter(p => p.categorySlug === category.slug)
-      .slice(0, 3)
+      .slice(0, 4)
       .map(p => ({
         ar: p.nameAr || p.name,
         en: p.name || p.nameAr,
-        query: p.name || p.nameAr
+        slug: p.categorySlug
       }));
-
-    const merged = [...hints, ...fromProducts];
-    const seen = new Set();
-    return merged.filter(item => {
-      const key = (item.query || item.en || item.ar || '').toLowerCase();
-      if (!key || seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    }).slice(0, 6);
   }
 
-  function renderMegaSubmenu(category, products, base) {
+  function renderMegaSubmenu(category, products, base, categories) {
     const label = LumiereI18n.translateCategory(category);
-    const subs = buildSubcategories(category, products);
+    const subs = buildSubcategories(category, products, categories);
     const items = subs.map(sub => {
       const subLabel = subcategoryLabel(sub);
-      const query = sub.query || subLabel;
-      return `<li><a href="${base}shop.html?cat=${category.slug}&q=${encodeURIComponent(query)}">${subLabel}</a></li>`;
+      const href = sub.slug
+        ? `${base}shop.html?cat=${encodeURIComponent(sub.slug)}`
+        : shopHref(category.slug, sub.query || subLabel);
+      return `<li><a href="${href}">${subLabel}</a></li>`;
     }).join('');
 
     return `
@@ -155,7 +157,10 @@ const LumiereLayout = (() => {
   }
 
   function renderCategoryDropdown(categories, base) {
-    const listItems = categories.map(cat => {
+    const topLevel = typeof CategoryTree !== 'undefined'
+      ? CategoryTree.getTopLevel(categories)
+      : sortedCategories(categories);
+    const listItems = topLevel.map(cat => {
       const label = LumiereI18n.translateCategory(cat);
       return `<li><a href="${base}shop.html?cat=${cat.slug}" role="menuitem">${label}</a></li>`;
     }).join('');
@@ -186,10 +191,11 @@ const LumiereLayout = (() => {
     if (item.subs) return item.subs;
     if (!item.slug) return [];
     const category = categories.find(c => c.slug === item.slug) || { slug: item.slug };
-    return buildSubcategories(category, products).map(sub => ({
+    return buildSubcategories(category, products, categories).map(sub => ({
       ar: sub.ar,
       en: sub.en,
-      cat: item.cat || item.slug,
+      slug: sub.slug,
+      cat: sub.slug || item.slug,
       query: sub.query
     }));
   }
@@ -201,7 +207,10 @@ const LumiereLayout = (() => {
   }
 
   function getStoreNavTabs() {
-    const cats = sortedCategories(LumiereStore.get().categories || []);
+    const all = LumiereStore.get().categories || [];
+    const cats = typeof CategoryTree !== 'undefined'
+      ? CategoryTree.getTopLevel(all)
+      : sortedCategories(all.filter(c => !c.parentId));
     return [
       { href: shopHref('', 'sale'), ar: 'UP TO 50%', en: 'UP TO 50%', key: 'sale' },
       ...cats.map(c => ({
@@ -223,7 +232,11 @@ const LumiereLayout = (() => {
   function isDesktopNavActive(item, active, categories) {
     if (item.key === 'home') return active === 'home';
     if (item.key === 'sale') return false;
-    return active === item.key || categories.some(c => c.slug === item.key && active === c.slug);
+    if (active === item.key) return true;
+    if (typeof CategoryTree !== 'undefined') {
+      return CategoryTree.isDescendantOf(categories, active, item.key);
+    }
+    return categories.some(c => c.slug === item.key && active === c.slug);
   }
 
   function renderDesktopHeaderNav(active = '', categories = []) {
@@ -234,32 +247,33 @@ const LumiereLayout = (() => {
   }
 
   function renderMobileSideMenu(products, categories) {
+    const topLevel = typeof CategoryTree !== 'undefined'
+      ? CategoryTree.getTopLevel(categories)
+      : sortedCategories(categories.filter(c => !c.parentId));
+
     const catalog = [
       { type: 'link', href: `${base}index.html`, i18n: 'nav_home' },
       { type: 'link', href: shopHref('', 'sale'), ar: 'UP TO 50%', en: 'UP TO 50%' },
-      { type: 'expandable', slug: 'necklaces', ar: 'سلاسل', en: 'Necklaces' },
-      { type: 'expandable', slug: 'bracelets', ar: 'أساور', en: 'Bracelets' },
-      {
-        type: 'expandable',
-        cat: 'accessories',
-        ar: 'حلقان',
-        en: 'Earrings',
-        subs: SUBCATEGORY_HINTS.earrings
-      },
-      { type: 'link', cat: 'accessories', query: 'anklet', ar: 'خلخال', en: 'Anklet' },
-      { type: 'expandable', slug: 'rings', ar: 'خواتم', en: 'Rings' },
-      { type: 'link', cat: 'accessories', query: 'piercing', ar: 'بيرسينج', en: 'Piercing' },
-      { type: 'link', cat: 'accessories', query: 'gift', ar: 'هدايا', en: 'Gifts' },
-      { type: 'link', cat: 'accessories', query: 'kids', ar: 'أطفال', en: 'Children' },
-      {
-        type: 'expandable',
-        ar: 'منتجات أخرى',
-        en: 'Other Products',
-        subs: [
-          { ar: 'برفانات', en: 'Perfumes', cat: 'perfumes' },
-          { ar: 'شنط', en: 'Bags', cat: 'handbags' }
-        ]
-      },
+      ...topLevel.map(parent => {
+        const children = typeof CategoryTree !== 'undefined'
+          ? CategoryTree.getChildren(categories, parent.id)
+          : [];
+        if (!children.length) {
+          return { type: 'link', cat: parent.slug, ar: parent.nameAr || parent.name, en: parent.name || parent.nameAr };
+        }
+        return {
+          type: 'expandable',
+          slug: parent.slug,
+          ar: parent.nameAr || parent.name,
+          en: parent.name || parent.nameAr,
+          subs: children.map(child => ({
+            ar: child.nameAr || child.name,
+            en: child.name || child.nameAr,
+            slug: child.slug,
+            cat: child.slug
+          }))
+        };
+      }),
       {
         type: 'expandable',
         i18n: 'footer_about_title',
@@ -293,7 +307,10 @@ const LumiereLayout = (() => {
   function inferBottomActive(active, categories) {
     const path = window.location.pathname.toLowerCase();
     const file = path.split('/').pop() || 'index.html';
-    const inShopCategory = categories.some(c => c.slug === active);
+    const inShopCategory = categories.some(c => c.slug === active) ||
+      (typeof CategoryTree !== 'undefined' && categories.some(c =>
+        CategoryTree.isDescendantOf(categories, active, c.slug)
+      ));
 
     if (file === 'account.html') {
       return window.location.hash === '#wishlist' ? 'wishlist' : 'account';

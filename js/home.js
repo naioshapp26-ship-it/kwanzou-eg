@@ -23,7 +23,10 @@ function mediaSrc(url) {
 }
 
 function sortedCategories(categories) {
-  return [...categories].sort((a, b) => (a.sort ?? 99) - (b.sort ?? 99));
+  if (typeof CategoryTree !== 'undefined') {
+    return CategoryTree.getTopLevel(categories || []);
+  }
+  return [...(categories || [])].filter(c => !c.parentId).sort((a, b) => (a.sort ?? 99) - (b.sort ?? 99));
 }
 
 const HERO_FONT_MAP = {

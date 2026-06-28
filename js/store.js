@@ -3,7 +3,7 @@
  */
 const LumiereStore = (() => {
   const KEY = 'kwanzou_store_v12';
-  const CATALOG_VERSION = 3;
+  const CATALOG_VERSION = 4;
 
   const defaults = {
     catalogVersion: CATALOG_VERSION,
@@ -154,6 +154,9 @@ const LumiereStore = (() => {
     merged.orders = Array.isArray(data.orders) ? data.orders : [];
     merged.cart = data.cart || {};
     merged.catalogVersion = merged.catalogVersion || CATALOG_VERSION;
+    if (typeof CategoryTree !== 'undefined' && CategoryTree.migrateCatalog) {
+      return CategoryTree.migrateCatalog(merged);
+    }
     return merged;
   }
 
@@ -365,6 +368,7 @@ const LumiereStore = (() => {
   function addCategory(cat) {
     return update(data => {
       cat.id = 'cat-' + Date.now();
+      if (cat.parentId === undefined || cat.parentId === '') cat.parentId = null;
       data.categories.push(cat);
     });
   }

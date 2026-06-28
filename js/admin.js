@@ -4,6 +4,8 @@
 const ADMIN_BASE = '../';
 let adminSessionRole = 'admin';
 let _staffCache = [];
+let _knownNotifIds = new Set();
+let _adminNotifTimer = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
   LumiereI18n.init();
@@ -38,6 +40,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderNewsletter();
   initModals();
   initLogout();
+  initAdminNotifications();
   AdminMedia.init(document, toast);
   switchSection('dashboard');
 
@@ -164,6 +167,123 @@ function renderDashboard() {
   document.getElementById('dashRecentProducts').innerHTML = data.products.slice(-3).reverse().map(p =>
     `<div class="dash-product-row"><img src="${imgSrc(p.image)}" alt=""><span>${p.nameAr || p.name}</span><span>${p.price} ${currencySym()}</span></div>`
   ).join('');
+  renderDashboardNotifications(data.adminNotifications || []);
+}
+
+function formatNotifTime(iso) {
+  if (!iso) return '—';
+  try {
+    return new Date(iso).toLocaleString(LumiereI18n.getLang() === 'ar' ? 'ar-EG' : 'en-GB', {
+      day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+    });
+  } catch (_) {
+    return iso;
+  }
+}
+
+function renderNotificationItems(notifications, { clickable = true } = {}) {
+  if (!notifications.length) {
+    return `<p class="admin-hint">${LumiereI18n.t('admin_notif_empty')}</p>`;
+  }
+  return notifications.map(n => `
+    <button type="button" class="admin-notif-item${n.read ? '' : ' unread'}" data-id="${n.id}" data-order="${n.orderId || ''}" ${clickable ? '' : 'disabled'}>
+      <div class="admin-notif-item__title">${n.title}</div>
+      <div class="admin-notif-item__msg">${n.message}</div>
+      <div class="admin-notif-item__time">${formatNotifTime(n.createdAt)}</div>
+    </button>
+  `).join('');
+}
+
+function renderDashboardNotifications(notifications) {
+  const el = document.getElementById('dashNotifications');
+  if (!el) return;
+  el.innerHTML = renderNotificationItems(notifications.slice(0, 5));
+  el.querySelectorAll('.admin-notif-item').forEach(btn => {
+    btn.onclick = () => handleAdminNotificationClick(btn.dataset.id, btn.dataset.order);
+  });
+}
+
+function renderAdminNotificationPanel(notifications, unreadCount) {
+  const badge = document.getElementById('adminNotifBadge');
+  const list = document.getElementById('adminNotifList');
+  if (badge) {
+    badge.textContent = unreadCount;
+    badge.hidden = unreadCount <= 0;
+  }
+  if (list) {
+    list.innerHTML = renderNotificationItems(notifications.slice(0, 20));
+    list.querySelectorAll('.admin-notif-item').forEach(btn => {
+      btn.onclick = () => handleAdminNotificationClick(btn.dataset.id, btn.dataset.order);
+    });
+  }
+}
+
+async function handleAdminNotificationClick(id, orderId) {
+  try {
+    await fetch(`/api/admin/notifications/${encodeURIComponent(id)}/read`, {
+      method: 'PATCH',
+      credentials: 'include'
+    });
+  } catch (_) {}
+  document.getElementById('adminNotifPanel')?.setAttribute('hidden', '');
+  if (orderId) {
+    switchSection('orders');
+    viewOrder(orderId);
+  }
+  pollAdminNotifications();
+}
+
+function initAdminNotifications() {
+  const btn = document.getElementById('adminNotifBtn');
+  const panel = document.getElementById('adminNotifPanel');
+  const readAll = document.getElementById('adminNotifReadAll');
+
+  btn?.addEventListener('click', e => {
+    e.stopPropagation();
+    const open = panel?.hasAttribute('hidden');
+    if (open) panel.removeAttribute('hidden');
+    else panel?.setAttribute('hidden', '');
+  });
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#adminNotifications')) panel?.setAttribute('hidden', '');
+  });
+
+  readAll?.addEventListener('click', async e => {
+    e.preventDefault();
+    try {
+      await fetch('/api/admin/notifications/read-all', { method: 'PATCH', credentials: 'include' });
+    } catch (_) {}
+    pollAdminNotifications();
+  });
+
+  if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+    Notification.requestPermission().catch(() => {});
+  }
+
+  pollAdminNotifications();
+  _adminNotifTimer = setInterval(pollAdminNotifications, 20000);
+}
+
+async function pollAdminNotifications() {
+  try {
+    const res = await fetch('/api/admin/notifications', { credentials: 'include' });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) return;
+    const notifications = data.notifications || [];
+    const unread = notifications.filter(n => !n.read);
+    notifications.forEach(n => {
+      if (!_knownNotifIds.has(n.id) && _knownNotifIds.size > 0 && !n.read) {
+        toast(`${n.title} — ${n.message}`);
+        if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+          new Notification(n.title, { body: n.message, tag: n.id });
+        }
+      }
+    });
+    notifications.forEach(n => _knownNotifIds.add(n.id));
+    renderAdminNotificationPanel(notifications, unread.length);
+    renderDashboardNotifications(notifications);
+  } catch (_) {}
 }
 
 function renderOrders() {
@@ -500,19 +620,65 @@ function initSettingsForm() {
 
 function renderUsers() {
   const users = LumiereStore.get().users.filter(u => u.role !== 'superadmin' && u.role !== 'admin');
-  document.getElementById('usersTableBody').innerHTML = users.length ? users.map(u => `
+  const orders = LumiereStore.getAllOrders();
+  document.getElementById('usersTableBody').innerHTML = users.length ? users.map(u => {
+    const orderCount = (u.orders || []).length || orders.filter(o => o.userId === u.id).length;
+    return `
     <tr>
       <td>${u.name}</td>
       <td>${u.email}</td>
       <td>${u.phone || '—'}</td>
-      <td>${u.role}</td>
+      <td>${orderCount}</td>
       <td>${u.createdAt}</td>
       <td class="table-actions">
+        <button type="button" class="btn btn-sm btn-outline" onclick="viewCustomer('${u.id}')">${LumiereI18n.t('admin_view')}</button>
         <button class="btn-icon btn-icon--danger" onclick="deleteUser('${u.id}')">🗑</button>
       </td>
-    </tr>
-  `).join('') : `<tr><td colspan="6">${LumiereI18n.t('admin_empty')}</td></tr>`;
+    </tr>`;
+  }).join('') : `<tr><td colspan="6">${LumiereI18n.t('admin_empty')}</td></tr>`;
 }
+
+function viewCustomer(userId) {
+  const user = LumiereStore.get().users.find(u => u.id === userId);
+  if (!user) return;
+  const orders = LumiereStore.getAllOrders().filter(o => o.userId === userId);
+  const profile = user.shippingProfile || {};
+  const ordersHtml = orders.length ? orders.map(o => `
+    <tr>
+      <td>${o.id}</td>
+      <td>${o.date}</td>
+      <td>${(o.items || []).map(i => `${i.name} ×${i.qty}`).join('، ')}</td>
+      <td>${o.total?.toLocaleString()} ${currencySym()}</td>
+      <td>${LumiereI18n.translateStatus(o.status)}</td>
+    </tr>
+  `).join('') : `<tr><td colspan="5">${LumiereI18n.t('account_no_orders')}</td></tr>`;
+
+  showModal(`${LumiereI18n.t('admin_customer_detail')} — ${user.name}`, `
+    <div class="admin-form">
+      <p><strong>${LumiereI18n.t('login_email')}:</strong> ${user.email}</p>
+      <p><strong>${LumiereI18n.t('register_phone')}:</strong> ${user.phone || '—'}</p>
+      <p><strong>${LumiereI18n.t('account_stat_member')}:</strong> ${user.createdAt || '—'}</p>
+      ${profile.city || profile.address ? `
+        <h4>${LumiereI18n.t('checkout_address_section')}</h4>
+        <p>${profile.city || ''} ${profile.address || ''}</p>
+        <p>${profile.phone || user.phone || ''}</p>
+      ` : ''}
+      <h4>${LumiereI18n.t('account_orders')}</h4>
+      <table class="admin-table">
+        <thead><tr>
+          <th>${LumiereI18n.t('account_order_id')}</th>
+          <th>${LumiereI18n.t('account_date')}</th>
+          <th>${LumiereI18n.t('admin_order_items')}</th>
+          <th>${LumiereI18n.t('account_total')}</th>
+          <th>${LumiereI18n.t('account_status')}</th>
+        </tr></thead>
+        <tbody>${ordersHtml}</tbody>
+      </table>
+    </div>
+  `);
+}
+
+window.viewCustomer = viewCustomer;
 
 async function renderStaffAdmins() {
   const tbody = document.getElementById('staffTableBody');

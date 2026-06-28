@@ -19,14 +19,28 @@ const {
 const {
   loginCustomer,
   registerCustomer,
+  getCustomerAccount,
   placeOrder,
   subscribeNewsletter,
   updateCustomerProfile,
-  changeCustomerPassword
+  changeCustomerPassword,
+  updateCustomerWishlist
 } = require('./lib/public-store-api');
 const { listStaffAdmins, getStaffAdminById, addStaffAdmin, updateStaffAdmin, deleteStaffAdmin } = require('./lib/admin-staff-api');
 const { requestPasswordReset, validateResetToken, resetPasswordWithToken } = require('./lib/password-reset');
 const { getSmtpConfig, getResendConfig, isMailConfigured, getMailStatus } = require('./lib/mail');
+const {
+  createCustomerSession,
+  getCustomerSession,
+  setCustomerCookie,
+  clearCustomerCookie,
+  requireCustomer
+} = require('./lib/customer-auth');
+const {
+  listAdminNotifications,
+  markNotificationRead,
+  markAllNotificationsRead
+} = require('./lib/admin-notifications');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -215,11 +229,18 @@ app.post('/api/auth/login', async (req, res) => {
       const status = result.error === 'offline' ? 503 : 401;
       return res.status(status).json(result);
     }
+    const token = createCustomerSession(result.user.id, result.user.email);
+    setCustomerCookie(res, token);
     res.json(result);
   } catch (err) {
     console.error('POST /api/auth/login', err);
     res.status(500).json({ ok: false, error: 'Server error' });
   }
+});
+
+app.post('/api/auth/logout', (_req, res) => {
+  clearCustomerCookie(res);
+  res.json({ ok: true });
 });
 
 app.post('/api/auth/register', async (req, res) => {
@@ -229,9 +250,25 @@ app.post('/api/auth/register', async (req, res) => {
       const status = result.error === 'offline' || result.error === 'save_failed' ? 503 : 400;
       return res.status(status).json(result);
     }
+    const token = createCustomerSession(result.user.id, result.user.email);
+    setCustomerCookie(res, token);
     res.json(result);
   } catch (err) {
     console.error('POST /api/auth/register', err);
+    res.status(500).json({ ok: false, error: 'Server error' });
+  }
+});
+
+app.get('/api/account/me', requireCustomer, async (req, res) => {
+  try {
+    const result = await getCustomerAccount(req.customerSession.userId);
+    if (!result.ok) {
+      const status = result.error === 'offline' ? 503 : 401;
+      return res.status(status).json(result);
+    }
+    res.json(result);
+  } catch (err) {
+    console.error('GET /api/account/me', err);
     res.status(500).json({ ok: false, error: 'Server error' });
   }
 });
@@ -279,7 +316,14 @@ app.post('/api/auth/reset-password', async (req, res) => {
 
 app.post('/api/orders', async (req, res) => {
   try {
-    const result = await placeOrder(req.body || {});
+    const body = { ...(req.body || {}) };
+    const session = getCustomerSession(req);
+    if (body.userId && session && body.userId !== session.userId) {
+      return res.status(403).json({ ok: false, error: 'unauthorized' });
+    }
+    if (body.userId && !session) body.userId = null;
+    if (session && !body.userId) body.userId = session.userId;
+    const result = await placeOrder(body);
     if (!result.ok) {
       const status = result.error === 'offline' || result.error === 'save_failed' ? 503 : 400;
       return res.status(status).json(result);
@@ -306,10 +350,15 @@ app.post('/api/newsletter', async (req, res) => {
   }
 });
 
-app.patch('/api/account/password', async (req, res) => {
+app.patch('/api/account/password', requireCustomer, async (req, res) => {
   try {
-    const { userId, email, currentPassword, newPassword } = req.body || {};
-    const result = await changeCustomerPassword({ userId, email, currentPassword, newPassword });
+    const { currentPassword, newPassword } = req.body || {};
+    const result = await changeCustomerPassword({
+      userId: req.customerSession.userId,
+      email: req.customerSession.email,
+      currentPassword,
+      newPassword
+    });
     if (!result.ok) {
       const status = result.error === 'offline' || result.error === 'save_failed' ? 503 : 401;
       return res.status(status).json(result);
@@ -321,10 +370,15 @@ app.patch('/api/account/password', async (req, res) => {
   }
 });
 
-app.patch('/api/account', async (req, res) => {
+app.patch('/api/account', requireCustomer, async (req, res) => {
   try {
-    const { userId, email, password, patch } = req.body || {};
-    const result = await updateCustomerProfile({ userId, email, password, patch: patch || {} });
+    const { password, patch } = req.body || {};
+    const result = await updateCustomerProfile({
+      userId: req.customerSession.userId,
+      email: req.customerSession.email,
+      password,
+      patch: patch || {}
+    });
     if (!result.ok) {
       const status = result.error === 'offline' || result.error === 'save_failed' ? 503 : 401;
       return res.status(status).json(result);
@@ -332,6 +386,62 @@ app.patch('/api/account', async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error('PATCH /api/account', err);
+    res.status(500).json({ ok: false, error: 'Server error' });
+  }
+});
+
+app.patch('/api/account/wishlist', requireCustomer, async (req, res) => {
+  try {
+    const { password, wishlist } = req.body || {};
+    const result = await updateCustomerWishlist({
+      userId: req.customerSession.userId,
+      email: req.customerSession.email,
+      password,
+      wishlist
+    });
+    if (!result.ok) {
+      const status = result.error === 'offline' || result.error === 'save_failed' ? 503 : 401;
+      return res.status(status).json(result);
+    }
+    res.json(result);
+  } catch (err) {
+    console.error('PATCH /api/account/wishlist', err);
+    res.status(500).json({ ok: false, error: 'Server error' });
+  }
+});
+
+app.get('/api/admin/notifications', requireAdmin, async (_req, res) => {
+  try {
+    const result = await listAdminNotifications();
+    if (!result.ok) return res.status(503).json(result);
+    res.json(result);
+  } catch (err) {
+    console.error('GET /api/admin/notifications', err);
+    res.status(500).json({ ok: false, error: 'Server error' });
+  }
+});
+
+app.patch('/api/admin/notifications/read-all', requireAdmin, async (_req, res) => {
+  try {
+    const result = await markAllNotificationsRead();
+    if (!result.ok) return res.status(503).json(result);
+    res.json(result);
+  } catch (err) {
+    console.error('PATCH /api/admin/notifications/read-all', err);
+    res.status(500).json({ ok: false, error: 'Server error' });
+  }
+});
+
+app.patch('/api/admin/notifications/:id/read', requireAdmin, async (req, res) => {
+  try {
+    const result = await markNotificationRead(req.params.id);
+    if (!result.ok) {
+      const status = result.error === 'not_found' ? 404 : 503;
+      return res.status(status).json(result);
+    }
+    res.json(result);
+  } catch (err) {
+    console.error('PATCH /api/admin/notifications/:id/read', err);
     res.status(500).json({ ok: false, error: 'Server error' });
   }
 });

@@ -8,16 +8,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!session) return;
 
   PasswordToggle.init();
-  refreshAccount();
-  window.addEventListener('lumiere:langchange', refreshAccount);
+  const user = await LumiereAuth.refreshCurrentUser();
+  if (!user) {
+    LumiereAuth.logout();
+    return;
+  }
+  refreshAccount(user);
+  window.addEventListener('lumiere:langchange', () => refreshAccount());
 
   if (location.hash === '#wishlist') switchTab('wishlist');
 });
 
-function refreshAccount() {
+function refreshAccount(userArg) {
   LumiereLayout.init();
   LumiereI18n.applyTranslations();
-  const user = LumiereAuth.getCurrentUser();
+  const user = userArg || LumiereAuth.getCurrentUser();
   if (!user) return;
 
   document.getElementById('welcomeName').textContent = LumiereI18n.getLang() === 'ar'

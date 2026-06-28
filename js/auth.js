@@ -21,6 +21,7 @@ const LumiereAuth = (() => {
 
   function clearSession() {
     sessionStorage.removeItem(SESSION_KEY);
+    if (typeof LumiereStore !== 'undefined') LumiereStore.setPrivateUser(null);
   }
 
   async function login(email, password) {
@@ -29,6 +30,7 @@ const LumiereAuth = (() => {
         const res = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ email, password })
         });
         const data = await res.json().catch(() => ({}));
@@ -65,6 +67,7 @@ const LumiereAuth = (() => {
         const res = await fetch('/api/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ name, email, password, phone: phone || '' })
         });
         const data = await res.json().catch(() => ({}));
@@ -86,7 +89,12 @@ const LumiereAuth = (() => {
     return { ok: true, user: setSession(user) };
   }
 
-  function logout() {
+  async function logout() {
+    if (LumiereStore.isApiMode()) {
+      try {
+        await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+      } catch (_) {}
+    }
     clearSession();
     const base = window.location.pathname.includes('/admin/') ? '../' : '';
     window.location.href = `${base}index.html`;
@@ -109,6 +117,18 @@ const LumiereAuth = (() => {
       return null;
     }
     return session;
+  }
+
+  async function refreshCurrentUser() {
+    const session = getSession();
+    if (!session) return null;
+    if (LumiereStore.isApiMode()) {
+      const result = await LumiereStore.fetchAccountMe();
+      if (!result.ok || !result.user) return null;
+      setSession(result.user);
+      return result.user;
+    }
+    return LumiereStore.findUserById(session.id) || session;
   }
 
   function getCurrentUser() {
@@ -181,7 +201,7 @@ const LumiereAuth = (() => {
   return {
     getSession, login, register, logout,
     requireAuth, requireRole,
-    getCurrentUser, isLoggedIn,
+    getCurrentUser, refreshCurrentUser, isLoggedIn,
     requestPasswordReset, resetPassword, validateResetToken,
     initAuthBranding, mediaSrc
   };

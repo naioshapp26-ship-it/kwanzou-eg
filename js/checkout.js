@@ -7,6 +7,7 @@
   document.addEventListener('DOMContentLoaded', async () => {
     LumiereI18n.init();
     await LumiereStore.init();
+    if (LumiereAuth.isLoggedIn()) await LumiereAuth.refreshCurrentUser();
     LumiereLayout.init('shop');
     renderCart();
     window.addEventListener('lumiere:langchange', () => {
@@ -133,16 +134,17 @@
     return { fee, grand, free };
   }
 
-  function bindCheckoutForm(form) {
+  function bindCheckoutForm(form, profile = {}) {
+    if (profile.governorate) form.dataset.defaultGov = profile.governorate;
     const countrySelect = form.querySelector('[name="country"]');
     const govSelect = form.querySelector('[name="governorate"]');
 
     const refreshGovernorates = () => {
       const code = countrySelect.value;
-      const prev = govSelect.value;
+      const prev = govSelect.value || form.dataset.defaultGov || '';
       govSelect.innerHTML = `<option value="">${LumiereI18n.t('checkout_select_governorate')}</option>` +
         governorateOptions(code, prev);
-      if (!govSelect.value && govSelect.options.length > 1) {
+      if (!govSelect.value && govSelect.options.length > 1 && !prev) {
         govSelect.selectedIndex = 1;
       }
       updateTotals(form);
@@ -218,6 +220,7 @@
 
       items.forEach(i => KwanzouCart.remove(i.id));
       KwanzouCart.updateUI();
+      if (session) await LumiereAuth.refreshCurrentUser();
       showOrderConfirmation(order, orderItems);
     };
   }
@@ -265,6 +268,8 @@
     const items = KwanzouCart.get();
     const products = LumiereStore.get().products;
     const session = LumiereAuth.getSession();
+    const user = LumiereAuth.getCurrentUser();
+    const profile = user?.shippingProfile || {};
 
     if (!items.length) {
       el.innerHTML = `<div class="cart-empty"><p>${LumiereI18n.t('cart_empty')}</p><a href="shop.html" class="btn btn-primary">${LumiereI18n.t('shop_all')}</a></div>`;
@@ -312,31 +317,31 @@
             <h3 class="checkout-form__section">${LumiereI18n.t('checkout_contact')}</h3>
             <div class="form-group">
               <label>${LumiereI18n.t('checkout_name')} <span class="required">*</span></label>
-              <input type="text" name="name" autocomplete="name" value="${session?.name || ''}">
+              <input type="text" name="name" autocomplete="name" value="${user?.name || session?.name || ''}">
               <span class="field-error-msg"></span>
             </div>
             <div class="form-row form-row--2">
               <div class="form-group">
                 <label>${LumiereI18n.t('checkout_phone')} <span class="required">*</span></label>
-                <input type="tel" name="phone" autocomplete="tel" inputmode="tel" placeholder="01xxxxxxxxx" value="${session?.phone || ''}">
+                <input type="tel" name="phone" autocomplete="tel" inputmode="tel" placeholder="01xxxxxxxxx" value="${profile.phone || user?.phone || session?.phone || ''}">
                 <span class="field-error-msg"></span>
               </div>
               <div class="form-group">
                 <label>${LumiereI18n.t('checkout_phone2')}</label>
-                <input type="tel" name="phone2" inputmode="tel" placeholder="01xxxxxxxxx">
+                <input type="tel" name="phone2" inputmode="tel" placeholder="01xxxxxxxxx" value="${profile.phone2 || ''}">
                 <span class="field-error-msg"></span>
               </div>
             </div>
             <div class="form-group">
               <label>${LumiereI18n.t('checkout_email')}</label>
-              <input type="email" name="email" autocomplete="email" value="${session?.email || ''}">
+              <input type="email" name="email" autocomplete="email" value="${user?.email || session?.email || ''}">
             </div>
 
             <h3 class="checkout-form__section">${LumiereI18n.t('checkout_address_section')}</h3>
             <div class="form-row form-row--2">
               <div class="form-group">
                 <label>${LumiereI18n.t('checkout_country')} <span class="required">*</span></label>
-                <select name="country">${countryOptions('EG')}</select>
+                <select name="country">${countryOptions(profile.country || 'EG')}</select>
                 <span class="field-error-msg"></span>
               </div>
               <div class="form-group">
@@ -349,21 +354,21 @@
             </div>
             <div class="form-group">
               <label>${LumiereI18n.t('checkout_city')} <span class="required">*</span></label>
-              <input type="text" name="city" placeholder="${LumiereI18n.t('checkout_city_ph')}">
+              <input type="text" name="city" placeholder="${LumiereI18n.t('checkout_city_ph')}" value="${profile.city || ''}">
               <span class="field-error-msg"></span>
             </div>
             <div class="form-group">
               <label>${LumiereI18n.t('checkout_address')} <span class="required">*</span></label>
-              <textarea name="address" rows="2" placeholder="${LumiereI18n.t('checkout_address_ph')}"></textarea>
+              <textarea name="address" rows="2" placeholder="${LumiereI18n.t('checkout_address_ph')}">${profile.address || ''}</textarea>
               <span class="field-error-msg"></span>
             </div>
             <div class="form-group">
               <label>${LumiereI18n.t('checkout_landmark')}</label>
-              <input type="text" name="landmark" placeholder="${LumiereI18n.t('checkout_landmark_ph')}">
+              <input type="text" name="landmark" placeholder="${LumiereI18n.t('checkout_landmark_ph')}" value="${profile.landmark || ''}">
             </div>
             <div class="form-group">
               <label>${LumiereI18n.t('checkout_notes')}</label>
-              <textarea name="notes" rows="2" placeholder="${LumiereI18n.t('checkout_notes_ph')}"></textarea>
+              <textarea name="notes" rows="2" placeholder="${LumiereI18n.t('checkout_notes_ph')}">${profile.notes || ''}</textarea>
             </div>
 
             <h3 class="checkout-form__section">${LumiereI18n.t('checkout_payment_section')}</h3>
@@ -374,7 +379,7 @@
         </div>
       </div>`;
 
-    bindCheckoutForm(document.getElementById('checkoutForm'));
+    bindCheckoutForm(document.getElementById('checkoutForm'), profile);
   }
 
   window.renderCart = renderCart;

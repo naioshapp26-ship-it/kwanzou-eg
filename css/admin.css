@@ -711,3 +711,121 @@ html[dir="rtl"] .admin-table td { text-align: right; }
   color: var(--accent, #FF6B00);
   font-weight: 600;
 }
+
+.admin-topbar__user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-notifications {
+  position: relative;
+}
+
+.admin-notifications__btn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid rgba(26, 18, 8, 0.12);
+  background: #fff;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.admin-notifications__badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #FF6B00;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-notifications__panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: min(360px, 88vw);
+  max-height: 420px;
+  overflow: auto;
+  background: #fff;
+  border: 1px solid rgba(26, 18, 8, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(26, 18, 8, 0.12);
+  z-index: 300;
+}
+
+html[dir="rtl"] .admin-notifications__panel {
+  left: auto;
+  right: 0;
+}
+
+.admin-notifications__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(26, 18, 8, 0.08);
+}
+
+.admin-notifications__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-notif-item {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(26, 18, 8, 0.06);
+  cursor: pointer;
+  text-align: start;
+}
+
+.admin-notif-item:hover { background: #FFF5EF; }
+.admin-notif-item.unread { background: rgba(255, 107, 0, 0.08); }
+
+.admin-notif-item__title {
+  font-weight: 600;
+  font-size: 0.88rem;
+  margin-bottom: 4px;
+}
+
+.admin-notif-item__msg {
+  font-size: 0.8rem;
+  color: #6B5348;
+}
+
+.admin-notif-item__time {
+  font-size: 0.72rem;
+  color: #8a7b70;
+  margin-top: 6px;
+}
+
+.admin-notif-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-notif-feed .admin-notif-item {
+  border: 1px solid rgba(26, 18, 8, 0.08);
+  border-radius: 10px;
+}
+
+.admin-tag {
+  display: inline-block;
+  font-size: 0.68rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255, 107, 0, 0.12);
+  color: #E85D00;
+}

@@ -3,6 +3,7 @@
  */
 const LumiereStore = (() => {
   const KEY = 'kwanzou_store_v12';
+  const PRIVATE_USER_KEY = 'kwanzou_private_user_v1';
   const CATALOG_VERSION = 7;
 
   const defaults = {
@@ -173,13 +174,39 @@ const LumiereStore = (() => {
     return _adminMode;
   }
 
+  function setPrivateUser(user) {
+    if (!user) {
+      localStorage.removeItem(PRIVATE_USER_KEY);
+      return;
+    }
+    localStorage.setItem(PRIVATE_USER_KEY, JSON.stringify(user));
+  }
+
+  function getPrivateUser() {
+    try {
+      const raw = localStorage.getItem(PRIVATE_USER_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
   function cacheUser(user) {
-    if (!user || !_cache) return;
-    _cache.users = _cache.users || [];
-    const idx = _cache.users.findIndex(u => u.id === user.id);
-    if (idx === -1) _cache.users.push({ ...user });
-    else Object.assign(_cache.users[idx], user);
-    localStorage.setItem(KEY, JSON.stringify(_cache));
+    if (!user) return;
+    setPrivateUser(user);
+  }
+
+  async function fetchAccountMe() {
+    if (!_apiMode || _adminMode) return { ok: false, error: 'offline' };
+    try {
+      const res = await fetch('/api/account/me', { credentials: 'include' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok || !data.user) return { ok: false, error: data.error || 'unauthorized' };
+      setPrivateUser(data.user);
+      return { ok: true, user: data.user };
+    } catch (_) {
+      return { ok: false, error: 'offline' };
+    }
   }
 
   async function syncToApi(data) {
@@ -241,6 +268,7 @@ const LumiereStore = (() => {
             _apiMode = true;
             _adminMode = false;
             _cache = mergeDefaults(raw);
+            _cache.users = [];
             localStorage.setItem(KEY, JSON.stringify(_cache));
             return _cache;
           }
@@ -310,10 +338,14 @@ const LumiereStore = (() => {
   }
 
   function findUser(email) {
+    const privateUser = getPrivateUser();
+    if (privateUser && privateUser.email?.toLowerCase() === email.toLowerCase()) return privateUser;
     return get().users.find(u => u.email.toLowerCase() === email.toLowerCase());
   }
 
   function findUserById(id) {
+    const privateUser = getPrivateUser();
+    if (privateUser && privateUser.id === id) return privateUser;
     return get().users.find(u => u.id === id);
   }
 
@@ -498,23 +530,24 @@ const LumiereStore = (() => {
       const res = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(payload)
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) throw new Error(data.error || 'order_failed');
       const order = data.order;
-      if (userId && _cache) {
-        const user = _cache.users.find(u => u.id === userId);
-        if (user) {
-          user.orders = user.orders || [];
-          user.orders.unshift({
+      if (userId) {
+        const privateUser = getPrivateUser();
+        if (privateUser && privateUser.id === userId) {
+          privateUser.orders = privateUser.orders || [];
+          privateUser.orders.unshift({
             id: order.id,
             date: order.date,
             total: order.total,
             status: order.status,
             items: order.items.map(i => ({ name: i.name, qty: i.qty }))
           });
-          localStorage.setItem(KEY, JSON.stringify(_cache));
+          setPrivateUser(privateUser);
         }
       }
       return order;
@@ -578,7 +611,8 @@ const LumiereStore = (() => {
       const res = await fetch('/api/account/password', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, email, currentPassword, newPassword })
+        credentials: 'include',
+        body: JSON.stringify({ currentPassword, newPassword })
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) return { ok: false, error: data.error || 'save_failed' };
@@ -595,7 +629,8 @@ const LumiereStore = (() => {
       const res = await fetch('/api/account', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, email, password, patch })
+        credentials: 'include',
+        body: JSON.stringify({ password, patch })
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) return { ok: false, error: data.error || 'save_failed' };
@@ -608,7 +643,8 @@ const LumiereStore = (() => {
 
   return {
     get, update, reset, defaults, init, initAdmin, flush, getLastSyncError,
-    isApiMode, isAdminMode, cacheUser, updateUserRemote, changePasswordRemote,
+    isApiMode, isAdminMode, cacheUser, setPrivateUser, getPrivateUser, fetchAccountMe,
+    updateUserRemote, changePasswordRemote,
     findUser, findUserById, addUser, updateUser, deleteUser,
     addProduct, updateProduct, deleteProduct,
     updateSettings, addCategory, updateCategory, deleteCategory,

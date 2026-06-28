@@ -39,6 +39,16 @@
       <button class="admin-menu-toggle" id="sidebarToggle">☰</button>
       <h1 id="adminPageTitle">Dashboard</h1>
       <div class="admin-topbar__user">
+        <div class="admin-notifications" id="adminNotifications">
+          <button type="button" class="admin-notifications__btn" id="adminNotifBtn" aria-label="Notifications">🔔<span class="admin-notifications__badge" id="adminNotifBadge" hidden>0</span></button>
+          <div class="admin-notifications__panel" id="adminNotifPanel" hidden>
+            <div class="admin-notifications__head">
+              <strong data-i18n="admin_notifications">Notifications</strong>
+              <button type="button" class="admin-link" id="adminNotifReadAll" data-i18n="admin_notif_read_all">Mark all read</button>
+            </div>
+            <div class="admin-notifications__list" id="adminNotifList"></div>
+          </div>
+        </div>
         <button type="button" class="lang-switch" id="langSwitch">English</button>
         <span id="adminUserName">Admin</span>
       </div>
@@ -66,6 +76,10 @@
           <div class="admin-card">
             <h3>Recent Products</h3>
             <div id="dashRecentProducts"></div>
+          </div>
+          <div class="admin-card">
+            <h3 data-i18n="admin_recent_notifications">Recent Notifications</h3>
+            <div id="dashNotifications" class="admin-notif-feed"></div>
           </div>
         </div>
       </section>
@@ -374,7 +388,7 @@
         <h2>Customer Accounts</h2>
         <div class="admin-table-wrap">
           <table class="admin-table">
-            <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Joined</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th data-i18n="admin_customer_orders">Orders</th><th>Joined</th><th>Actions</th></tr></thead>
             <tbody id="usersTableBody"></tbody>
           </table>
         </div>

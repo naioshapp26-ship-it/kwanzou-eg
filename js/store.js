@@ -3,7 +3,7 @@
  */
 const LumiereStore = (() => {
   const KEY = 'kwanzou_store_v12';
-  const CATALOG_VERSION = 4;
+  const CATALOG_VERSION = 5;
 
   const defaults = {
     catalogVersion: CATALOG_VERSION,

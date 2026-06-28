@@ -7,8 +7,8 @@ const LumiereI18n = (() => {
 
   const strings = {
     ar: {
-      meta_title: 'Kwanzou EG | استالس، شنط، ميكب وبرفانات',
-      meta_desc: 'Kwanzou EG — إكسسوارات استالس، شنط، ميكب وبرفانات في مصر.',
+      meta_title: 'Kwanzou EG | إكسسوارات ودهب',
+      meta_desc: 'Kwanzou EG — سلاسل، أساور، حلقان، خواتم، شنط وبرفانات في مصر.',
       nav_home: 'الرئيسية',
       nav_categories: 'الأقسام',
       nav_shop_all: 'كل المنتجات',
@@ -16,7 +16,7 @@ const LumiereI18n = (() => {
       shop_title: 'تسوق | Kwanzou EG',
       product_title: 'منتج | Kwanzou EG',
       cart_title: 'الشنطة | Kwanzou EG',
-      search_placeholder: 'دور على استالس، شنط، ميكب، برفانات...',
+      search_placeholder: 'دور على سلاسل، حلقان، شنط، برفانات...',
       quick_earrings: 'حلق',
       buy_now: 'اشتري دلوقتي',
       in_stock: 'موجود',
@@ -222,7 +222,7 @@ const LumiereI18n = (() => {
       login_no_account: 'معندكش حساب؟',
       login_create: 'اعمل حساب',
       login_back: '← رجوع للمتجر',
-      login_visual: 'استالس، شنط، ميكب وبرفانات في مكان واحد.',
+      login_visual: 'سلاسل، حلقان، شنط وبرفانات في مكان واحد.',
       login_error: 'الإيميل أو الباسورد غلط.',
       login_forgot: 'نسيت كلمة المرور؟',
       forgot_title: 'نسيت كلمة المرور | Kwanzou EG',

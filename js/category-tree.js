@@ -2,7 +2,28 @@
  * Category tree — parent/child helpers & default subcategories
  */
 const CategoryTree = (() => {
-  const CATALOG_SUBCATEGORY_VERSION = 4;
+  const CATALOG_SUBCATEGORY_VERSION = 5;
+
+  const DEFAULT_TOP_LEVEL = [
+    {
+      id: 'cat-perfumes',
+      name: 'Perfumes',
+      nameAr: 'برفانات',
+      slug: 'perfumes',
+      sort: 5,
+      image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&q=80',
+      featured: true
+    },
+    {
+      id: 'cat-handbags',
+      name: 'Bags',
+      nameAr: 'شنط',
+      slug: 'handbags',
+      sort: 6,
+      image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&q=80',
+      featured: true
+    }
+  ];
 
   const SUBCATEGORY_TEMPLATES = {
     necklaces: [
@@ -140,29 +161,29 @@ const CategoryTree = (() => {
     return html;
   }
 
-  function migrateCatalog(data) {
-    const version = data?.catalogVersion || 0;
-    if (version >= CATALOG_SUBCATEGORY_VERSION) return data;
+  function ensureDefaultParents(categories) {
+    const existingSlugs = new Set(categories.map(c => c.slug));
+    DEFAULT_TOP_LEVEL.forEach(parent => {
+      if (existingSlugs.has(parent.slug)) return;
+      categories.push({ ...parent, parentId: null });
+      existingSlugs.add(parent.slug);
+    });
+  }
 
-    const merged = JSON.parse(JSON.stringify(data || {}));
-    merged.categories = (merged.categories || []).map(c => ({
-      ...c,
-      parentId: c.parentId || null
-    }));
-
-    const existingSlugs = new Set(merged.categories.map(c => c.slug));
-    const parentBySlug = new Map(getTopLevel(merged.categories).map(c => [c.slug, c]));
+  function ensureSubcategories(categories) {
+    const existingSlugs = new Set(categories.map(c => c.slug));
+    const parentBySlug = new Map(getTopLevel(categories).map(c => [c.slug, c]));
 
     Object.entries(SUBCATEGORY_TEMPLATES).forEach(([parentSlug, templates]) => {
       const parent = parentBySlug.get(parentSlug);
       if (!parent) return;
       templates.forEach((tpl, idx) => {
-        const existing = merged.categories.find(c => c.slug === tpl.slug);
+        const existing = categories.find(c => c.slug === tpl.slug);
         if (existing) {
           if (!existing.parentId) existing.parentId = parent.id;
           return;
         }
-        merged.categories.push({
+        categories.push({
           id: `cat-${tpl.slug}`,
           parentId: parent.id,
           name: tpl.name,
@@ -175,6 +196,20 @@ const CategoryTree = (() => {
         existingSlugs.add(tpl.slug);
       });
     });
+  }
+
+  function migrateCatalog(data) {
+    const version = data?.catalogVersion || 0;
+    if (version >= CATALOG_SUBCATEGORY_VERSION) return data;
+
+    const merged = JSON.parse(JSON.stringify(data || {}));
+    merged.categories = (merged.categories || []).map(c => ({
+      ...c,
+      parentId: c.parentId || null
+    }));
+
+    ensureDefaultParents(merged.categories);
+    ensureSubcategories(merged.categories);
 
     merged.catalogVersion = CATALOG_SUBCATEGORY_VERSION;
     return merged;

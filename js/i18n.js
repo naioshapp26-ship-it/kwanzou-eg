@@ -954,7 +954,12 @@ const LumiereI18n = (() => {
   }
 
   function productCategory(product) {
-    if (product?.categorySlug) return translateCategory({ slug: product.categorySlug });
+    if (product?.categorySlug) {
+      const cats = typeof LumiereStore !== 'undefined' ? (LumiereStore.get().categories || []) : [];
+      const cat = cats.find(c => c.slug === product.categorySlug);
+      if (cat) return translateCategory(cat);
+      return product.category || product.categorySlug;
+    }
     return localized(product, 'category') || product?.category || '';
   }
 

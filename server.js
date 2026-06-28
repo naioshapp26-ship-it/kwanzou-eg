@@ -26,7 +26,7 @@ const {
 } = require('./lib/public-store-api');
 const { listStaffAdmins, getStaffAdminById, addStaffAdmin, updateStaffAdmin, deleteStaffAdmin } = require('./lib/admin-staff-api');
 const { requestPasswordReset, validateResetToken, resetPasswordWithToken } = require('./lib/password-reset');
-const { getSmtpConfig, getResendConfig, isMailConfigured } = require('./lib/mail');
+const { getSmtpConfig, getResendConfig, isMailConfigured, getMailStatus } = require('./lib/mail');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
@@ -37,15 +37,16 @@ app.use(express.json({ limit: '50mb' }));
 app.get('/api/health', async (_req, res) => {
   const status = getDbStatus();
   const admin = getAdminCredentials();
-  const mail = isMailConfigured();
+  const mailStatus = getMailStatus();
   res.json({
     ok: true,
     database: status.ready ? 'connected' : 'offline',
     dbConfigured: status.configured,
     dbError: status.error || null,
     adminConfigured: admin.configured,
-    mailConfigured: mail,
-    mailProvider: getResendConfig().configured ? 'resend' : (getSmtpConfig().configured ? 'smtp' : 'none'),
+    mailConfigured: mailStatus.configured,
+    mailProvider: mailStatus.provider,
+    mailReason: mailStatus.reason || null,
     time: new Date().toISOString()
   });
 });
@@ -357,7 +358,12 @@ async function start() {
     console.warn('WARNING: Set ADMIN_EMAIL and ADMIN_PASSWORD env vars to enable admin access.');
   }
   if (!isMailConfigured()) {
-    console.warn('WARNING: Set RESEND_API_KEY + RESEND_FROM or SMTP_* for password reset emails.');
+    const mail = getMailStatus();
+    if (mail.reason === 'placeholder_pass') {
+      console.warn('WARNING: SMTP_PASS looks like a placeholder. Create a Gmail App Password and set SMTP_PASS on Railway.');
+    } else {
+      console.warn('WARNING: Set RESEND_API_KEY + RESEND_FROM or SMTP_HOST/SMTP_USER/SMTP_PASS/SMTP_FROM for password reset emails.');
+    }
   }
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Kwanzou EG → http://0.0.0.0:${PORT} (db: ${isDbReady() ? 'yes' : 'no'})`);

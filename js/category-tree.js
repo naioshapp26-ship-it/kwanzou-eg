@@ -2,7 +2,7 @@
  * Category tree — parent/child helpers & default subcategories
  */
 const CategoryTree = (() => {
-  const CATALOG_SUBCATEGORY_VERSION = 5;
+  const CATALOG_SUBCATEGORY_VERSION = 6;
 
   const DEFAULT_TOP_LEVEL = [
     {
@@ -24,6 +24,124 @@ const CategoryTree = (() => {
       featured: true
     }
   ];
+
+  const STARTER_PRODUCTS = [
+    {
+      id: 'p-f1',
+      name: 'Floral Perfume 50ml',
+      nameAr: 'برفان زهري 50ml',
+      category: 'Daily Perfumes',
+      categorySlug: 'perfumes-daily',
+      price: 680,
+      rating: 5,
+      reviews: 89,
+      image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=600&q=80',
+      images: ['https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&q=80'],
+      badge: 'Best Seller',
+      featured: true,
+      bestseller: true,
+      stock: 18,
+      descAr: 'برفان زهري خفيف وثابت.',
+      descEn: 'Light floral perfume.'
+    },
+    {
+      id: 'p-f2',
+      name: 'Oud Perfume 30ml',
+      nameAr: 'برفان عود 30ml',
+      category: 'Evening Scents',
+      categorySlug: 'perfumes-evening',
+      price: 950,
+      rating: 5,
+      reviews: 64,
+      image: 'https://images.unsplash.com/photo-1592945403244-b3fb4447f053?w=600&q=80',
+      images: ['https://images.unsplash.com/photo-1592945403244-b3fb4447f053?w=800&q=80'],
+      badge: 'New',
+      featured: true,
+      bestseller: true,
+      stock: 12,
+      descAr: 'برفان عود فاخر للسهرات.',
+      descEn: 'Rich oud perfume for evenings.'
+    },
+    {
+      id: 'p-h1',
+      name: 'Leather Tote Bag',
+      nameAr: 'شنطة جلد',
+      category: 'Tote Bags',
+      categorySlug: 'handbags-tote',
+      price: 1250,
+      rating: 5,
+      reviews: 92,
+      image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=600&q=80',
+      images: ['https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&q=80'],
+      badge: 'Best Seller',
+      featured: true,
+      bestseller: true,
+      stock: 15,
+      descAr: 'شنطة جلد عملية وشيك.',
+      descEn: 'Spacious leather tote bag.'
+    },
+    {
+      id: 'p-h2',
+      name: 'Mini Crossbody Bag',
+      nameAr: 'شنطة كروس',
+      category: 'Crossbody Bags',
+      categorySlug: 'handbags-crossbody',
+      price: 890,
+      rating: 4,
+      reviews: 67,
+      image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&q=80',
+      images: ['https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&q=80'],
+      badge: 'New',
+      featured: true,
+      bestseller: false,
+      stock: 20,
+      descAr: 'شنطة كروس صغيرة للخروجات.',
+      descEn: 'Compact crossbody bag.'
+    }
+  ];
+
+  const SUBCATEGORY_KEYWORDS = {
+    necklaces: [
+      { slug: 'necklaces-summer', keys: ['صيف', 'summer'] },
+      { slug: 'necklaces-trendy', keys: ['ترند', 'trend', 'trendy'] },
+      { slug: 'necklaces-simple', keys: ['سنبل', 'simple', 'minimal', 'na'] },
+      { slug: 'necklaces-statement', keys: ['استرس', 'statement', 'bold'] },
+      { slug: 'necklaces-layered', keys: ['طبقات', 'layer', 'layered'] },
+      { slug: 'necklaces-pendant', keys: ['دلاية', 'pendant', 'charm'] }
+    ],
+    bracelets: [
+      { slug: 'bracelets-pearl', keys: ['لؤلؤ', 'pearl'] },
+      { slug: 'bracelets-statement', keys: ['كف', 'cuff', 'statement', 'ستايل'] },
+      { slug: 'bracelets-stack', keys: ['طقم', 'stack', 'bangle'] },
+      { slug: 'bracelets-minimal', keys: ['minimal', 'ناعم', 'na'] }
+    ],
+    accessories: [
+      { slug: 'earrings-hoop', keys: ['هوب', 'hoop'] },
+      { slug: 'earrings-zircon', keys: ['zircon', 'zircon', 'زيركون'] },
+      { slug: 'earrings-summer', keys: ['صيف', 'summer'] },
+      { slug: 'earrings-korean', keys: ['كوري', 'korean'] },
+      { slug: 'earrings-evening', keys: ['سواريه', 'evening', 'drop'] },
+      { slug: 'earrings-set', keys: ['طقم', 'set', 'مجموعة'] }
+    ],
+    rings: [
+      { slug: 'rings-statement', keys: ['statement', 'استرس', 'بارز'] },
+      { slug: 'rings-stack', keys: ['stack', 'stacking', 'staak', 'ستاك', 'crystal'] },
+      { slug: 'rings-trend', keys: ['ترند', 'trend'] },
+      { slug: 'rings-daily', keys: ['daily', 'يوم', 'بسيط', 'minimal', 'band'] }
+    ],
+    perfumes: [
+      { slug: 'perfumes-evening', keys: ['oud', 'عود', 'evening', 'مساء', 'سهر'] },
+      { slug: 'perfumes-gift', keys: ['gift', 'هد', 'set', 'طقم'] },
+      { slug: 'perfumes-daily', keys: ['floral', 'زهر', 'daily', 'يوم', '50ml', '30ml', 'برفان'] }
+    ],
+    handbags: [
+      { slug: 'handbags-crossbody', keys: ['cross', 'كروس', 'crossbody'] },
+      { slug: 'handbags-mini', keys: ['mini', 'ميني', 'small', 'صغير'] },
+      { slug: 'handbags-tote', keys: ['tote', 'جلد', 'leather', 'كبير', 'large', 'شنطة'] }
+    ]
+  };
+
+  const PARENT_SLUGS = ['necklaces', 'bracelets', 'accessories', 'rings', 'perfumes', 'handbags'];
 
   const SUBCATEGORY_TEMPLATES = {
     necklaces: [
@@ -161,6 +279,92 @@ const CategoryTree = (() => {
     return html;
   }
 
+  function productSearchText(product) {
+    return [
+      product.name,
+      product.nameAr,
+      product.descEn,
+      product.descAr,
+      product.category
+    ].filter(Boolean).join(' ').toLowerCase();
+  }
+
+  function resolveSubcategorySlug(product, categories) {
+    const current = getBySlug(categories, product.categorySlug);
+    if (current?.parentId) return product.categorySlug;
+
+    const parentSlug = PARENT_SLUGS.includes(product.categorySlug)
+      ? product.categorySlug
+      : getParent(categories, current)?.slug;
+    if (!parentSlug) return product.categorySlug;
+
+    const parent = getBySlug(categories, parentSlug);
+    const children = getChildren(categories, parent?.id);
+    if (!children.length) return product.categorySlug;
+
+    const text = productSearchText(product);
+    const rules = SUBCATEGORY_KEYWORDS[parentSlug] || [];
+    for (const rule of rules) {
+      if (rule.keys.some(key => text.includes(String(key).toLowerCase()))) {
+        return rule.slug;
+      }
+    }
+
+    let hash = 0;
+    for (let i = 0; i < String(product.id).length; i += 1) {
+      hash = ((hash << 5) - hash) + String(product.id).charCodeAt(i);
+      hash |= 0;
+    }
+    const idx = Math.abs(hash) % children.length;
+    return children[idx].slug;
+  }
+
+  function syncProductCategory(product, categories, slug) {
+    const cat = getBySlug(categories, slug);
+    product.categorySlug = slug;
+    if (cat) product.category = cat.name;
+  }
+
+  function hasProductsInBranch(products, categories, parentSlug) {
+    const allowed = getFilterSlugs(categories, parentSlug);
+    return products.some(p => allowed.has(p.categorySlug));
+  }
+
+  function ensureStarterProducts(merged) {
+    const products = merged.products || [];
+    const categories = merged.categories || [];
+    const existingIds = new Set(products.map(p => p.id));
+
+    if (!hasProductsInBranch(products, categories, 'perfumes')) {
+      STARTER_PRODUCTS.filter(p => p.id.startsWith('p-f')).forEach(starter => {
+        if (!existingIds.has(starter.id)) {
+          products.push(JSON.parse(JSON.stringify(starter)));
+          existingIds.add(starter.id);
+        }
+      });
+    }
+
+    if (!hasProductsInBranch(products, categories, 'handbags')) {
+      STARTER_PRODUCTS.filter(p => p.id.startsWith('p-h')).forEach(starter => {
+        if (!existingIds.has(starter.id)) {
+          products.push(JSON.parse(JSON.stringify(starter)));
+          existingIds.add(starter.id);
+        }
+      });
+    }
+
+    merged.products = products;
+  }
+
+  function assignProductsToSubcategories(products, categories) {
+    (products || []).forEach(product => {
+      const nextSlug = resolveSubcategorySlug(product, categories);
+      if (nextSlug && nextSlug !== product.categorySlug) {
+        syncProductCategory(product, categories, nextSlug);
+      }
+    });
+  }
+
   function ensureDefaultParents(categories) {
     const existingSlugs = new Set(categories.map(c => c.slug));
     DEFAULT_TOP_LEVEL.forEach(parent => {
@@ -203,13 +407,21 @@ const CategoryTree = (() => {
     if (version >= CATALOG_SUBCATEGORY_VERSION) return data;
 
     const merged = JSON.parse(JSON.stringify(data || {}));
+    merged.products = merged.products || [];
     merged.categories = (merged.categories || []).map(c => ({
       ...c,
       parentId: c.parentId || null
     }));
 
-    ensureDefaultParents(merged.categories);
-    ensureSubcategories(merged.categories);
+    if (version < 5) {
+      ensureDefaultParents(merged.categories);
+      ensureSubcategories(merged.categories);
+    }
+
+    if (version < 6) {
+      ensureStarterProducts(merged);
+      assignProductsToSubcategories(merged.products, merged.categories);
+    }
 
     merged.catalogVersion = CATALOG_SUBCATEGORY_VERSION;
     return merged;
@@ -229,6 +441,8 @@ const CategoryTree = (() => {
     flattenForAdmin,
     buildProductSelectOptions,
     buildParentSelectOptions,
+    ensureStarterProducts,
+    assignProductsToSubcategories,
     migrateCatalog
   };
 })();

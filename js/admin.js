@@ -1000,6 +1000,16 @@ window.deleteCategory = function(id) {
   toast(LumiereI18n.t('admin_deleted'));
 };
 
+function slugifyCategory(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_]+/g, '-')
+    .replace(/[^a-z0-9-]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
 function openCategoryModal(cat = null) {
   const cats = LumiereStore.get().categories;
   const parentOptions = typeof CategoryTree !== 'undefined'
@@ -1032,10 +1042,20 @@ function openCategoryModal(cat = null) {
     e.preventDefault();
     const fd = new FormData(e.target);
     const parentId = (fd.get('parentId') || '').toString() || null;
+    const slug = slugifyCategory(fd.get('slug') || fd.get('name'));
+    if (!slug) {
+      toast(LumiereI18n.t('admin_slug_invalid'));
+      return;
+    }
+    const dup = cats.some(c => c.slug === slug && c.id !== cat?.id);
+    if (dup) {
+      toast(LumiereI18n.t('admin_slug_duplicate'));
+      return;
+    }
     const data = {
       name: fd.get('name'),
       nameAr: fd.get('nameAr'),
-      slug: fd.get('slug'),
+      slug,
       sort: +fd.get('sort'),
       image: fd.get('image') || cat?.image,
       featured: fd.has('featured'),

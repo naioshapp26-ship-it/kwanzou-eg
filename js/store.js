@@ -33,6 +33,9 @@ const LumiereStore = (() => {
       announcement: 'Free shipping across Egypt on orders over 1,500 EGP',
       announcementAr: 'توصيل مجاني لكل مصر على الطلبات فوق 1,500 ج.م',
       announcementEn: 'Free shipping across Egypt on orders over 1,500 EGP',
+      announcementLines: [
+        { en: 'Free shipping across Egypt on orders over 1,500 EGP', ar: 'توصيل مجاني لكل مصر على الطلبات فوق 1,500 ج.م' }
+      ],
       heroImage: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1920&q=85',
       heroAccent1: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=650&q=80',
       heroAccent2: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=650&q=80',
@@ -145,6 +148,13 @@ const LumiereStore = (() => {
     }
     if (merged.settings.logo === 'assets/logo.png' || merged.settings.logo.endsWith('/assets/logo.png')) {
       merged.settings.logo = 'assets/logo-brand.svg';
+    }
+    if (!Array.isArray(merged.settings.announcementLines) || !merged.settings.announcementLines.length) {
+      const en = merged.settings.announcementEn || merged.settings.announcement || '';
+      const ar = merged.settings.announcementAr || '';
+      merged.settings.announcementLines = (en || ar)
+        ? [{ en, ar }]
+        : clone(defaults.settings.announcementLines);
     }
     merged.categories = data.categories?.length ? clone(data.categories) : clone(defaults.categories);
     merged.products = data.products?.length ? clone(data.products) : clone(defaults.products);

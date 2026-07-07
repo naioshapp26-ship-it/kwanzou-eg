@@ -348,13 +348,17 @@ const LumiereLayout = (() => {
       ? `${base}account.html`
       : `${base}login.html`;
     const accountLabel = session ? session.name.split(' ')[0] : LumiereI18n.t('nav_signin');
-    const announcement = LumiereI18n.localizedSettings(settings, 'announcement');
+    const announcement = LumiereI18n.announcementText(settings);
+    const escAnn = String(announcement || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
     const logo = logoPath(settings);
-    const announcementBar = announcement
+    const announcementBar = escAnn
       ? `<div class="announcement-bar" role="region" aria-label="${LumiereI18n.t('announcement_label')}">
           <div class="announcement-bar__track">
-            <span class="announcement-bar__text">${announcement}</span>
-            <span class="announcement-bar__text" aria-hidden="true">${announcement}</span>
+            <span class="announcement-bar__text">${escAnn}</span>
+            <span class="announcement-bar__text" aria-hidden="true">${escAnn}</span>
           </div>
         </div>`
       : '';
@@ -400,7 +404,7 @@ const LumiereLayout = (() => {
         ${desktopHeaderNav}
       </nav>
       <div class="mobile-menu" id="mobileMenu">
-        <div class="mobile-menu__announcement">${announcement}</div>
+        <div class="mobile-menu__announcement">${escAnn}</div>
         <form class="header-search mobile-search" action="${base}shop.html" method="get">
           <input type="search" name="q" placeholder="${LumiereI18n.t('search_placeholder')}">
           <button type="submit">🔍</button>

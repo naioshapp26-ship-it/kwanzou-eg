@@ -447,6 +447,11 @@ const LumiereI18n = (() => {
       admin_currency: 'رمز العملة',
       admin_announcement: 'شريط الإعلان (إنجليزي)',
       admin_announcement_ar: 'شريط الإعلان (عربي)',
+      admin_announcement_lines: 'جمل شريط الإعلان',
+      admin_announcement_line: 'جملة',
+      admin_announcement_add: '+ جملة جديدة',
+      admin_announcement_remove: 'حذف',
+      admin_announcement_hint: 'كل جملة لها نص عربي وإنجليزي. الجمل كلها بتظهر في البانر المتحرك.',
       admin_hero: 'الصفحة الرئيسية',
       admin_hero_eyebrow_hint: 'السطر العلوي في الهيرو — المدينة + رسالة التوصيل.',
       admin_hero_eyebrow_city_ar: 'المدينة (عربي)',
@@ -955,6 +960,11 @@ const LumiereI18n = (() => {
       admin_currency: 'Currency Symbol',
       admin_announcement: 'Announcement Bar (English)',
       admin_announcement_ar: 'Announcement Bar (Arabic)',
+      admin_announcement_lines: 'Announcement sentences',
+      admin_announcement_line: 'Sentence',
+      admin_announcement_add: '+ Add sentence',
+      admin_announcement_remove: 'Remove',
+      admin_announcement_hint: 'Each sentence has Arabic and English text. All appear in the scrolling banner.',
       admin_hero: 'Homepage Hero',
       admin_hero_eyebrow_hint: 'Top hero line — city name + delivery message.',
       admin_hero_eyebrow_city_ar: 'City (Arabic)',
@@ -1076,6 +1086,29 @@ const LumiereI18n = (() => {
     return settings[key] || settings[field] || '';
   }
 
+  function normalizeAnnouncementLines(settings) {
+    const s = settings || {};
+    if (Array.isArray(s.announcementLines) && s.announcementLines.length) {
+      return s.announcementLines
+        .map(line => ({
+          en: String(line?.en || '').trim(),
+          ar: String(line?.ar || '').trim()
+        }))
+        .filter(line => line.en || line.ar);
+    }
+    const en = String(s.announcementEn || s.announcement || '').trim();
+    const ar = String(s.announcementAr || '').trim();
+    return (en || ar) ? [{ en, ar }] : [];
+  }
+
+  function announcementText(settings) {
+    const lang = getLang();
+    return normalizeAnnouncementLines(settings)
+      .map(line => (lang === 'ar' ? (line.ar || line.en) : (line.en || line.ar)).trim())
+      .filter(Boolean)
+      .join('   •   ');
+  }
+
   function translateCategory(cat) {
     if (cat.slug && categoryKeys[cat.slug]) {
       return categoryKeys[cat.slug][getLang()] || cat.name;
@@ -1159,6 +1192,7 @@ const LumiereI18n = (() => {
 
   return {
     t, getLang, setLang, toggleLang, isRTL, localized, localizedSettings,
+    normalizeAnnouncementLines, announcementText,
     translateCategory, productCategory, translateBadge, translateStatus,
     applyTranslations, applyDocumentLang, langSwitcherHTML, bindLangSwitch, init
   };

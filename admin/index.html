@@ -202,8 +202,12 @@
                 <div class="form-group"><label data-i18n="admin_brand_name">Brand Name</label><input type="text" id="setBrand" required></div>
                 <div class="form-group"><label data-i18n="admin_currency">Currency Symbol</label><input type="text" id="setCurrency" maxlength="5"></div>
               </div>
-              <div class="form-group"><label data-i18n="admin_announcement">Announcement Bar</label><input type="text" id="setAnnouncement"></div>
-              <div class="form-group"><label data-i18n="admin_announcement_ar">Announcement (Arabic)</label><input type="text" id="setAnnouncementAr"></div>
+              <div class="form-group announcement-lines-admin">
+                <label data-i18n="admin_announcement_lines">جمل شريط الإعلان</label>
+                <p class="admin-hint" data-i18n="admin_announcement_hint">كل جملة لها نص عربي وإنجليزي. الجمل كلها بتظهر في البانر المتحرك.</p>
+                <div id="announcementLinesWrap"></div>
+                <button type="button" class="btn btn-sm btn-outline" id="addAnnouncementLine" data-i18n="admin_announcement_add">+ جملة جديدة</button>
+              </div>
             </div>
             <div class="admin-card">
               <h3 data-i18n="admin_hero">Homepage Hero</h3>
@@ -474,6 +478,6 @@
   <script src="../js/admin-media.js?v=2"></script>
   <script src="../js/checkout-shipping.js?v=1"></script>
   <script src="../js/admin-shipping.js?v=1"></script>
-  <script src="../js/admin.js?v=12"></script>
+  <script src="../js/admin.js?v=13"></script>
 </body>
 </html>

@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderSettings();
   initAppearanceForm();
   initSettingsForm();
+  initAnnouncementLineControls();
   AdminShipping.init();
   renderUsers();
   renderStaffAdmins();
@@ -561,8 +562,7 @@ function renderSettings() {
   const s = LumiereStore.get().settings;
   document.getElementById('setBrand').value = s.brandName || '';
   document.getElementById('setCurrency').value = s.currencySymbol || s.currency || 'ج.م';
-  document.getElementById('setAnnouncement').value = s.announcementEn || s.announcement || '';
-  document.getElementById('setAnnouncementAr').value = s.announcementAr || '';
+  renderAnnouncementLines(s);
   document.getElementById('setTaglineAr').value = s.taglineAr || '';
   document.getElementById('setTaglineEn').value = s.taglineEn || s.tagline || '';
   document.getElementById('setHeroEyebrowCityAr').value = s.heroEyebrowCityAr || '';
@@ -591,6 +591,88 @@ function renderSettings() {
   renderInstagramGalleryAdmin();
 }
 
+function getAnnouncementLinesFromSettings(s) {
+  if (Array.isArray(s?.announcementLines) && s.announcementLines.length) {
+    return s.announcementLines.map(line => ({
+      en: line?.en || '',
+      ar: line?.ar || ''
+    }));
+  }
+  return [{
+    en: s?.announcementEn || s?.announcement || '',
+    ar: s?.announcementAr || ''
+  }];
+}
+
+function renderAnnouncementLines(settings) {
+  const wrap = document.getElementById('announcementLinesWrap');
+  if (!wrap) return;
+  const lines = getAnnouncementLinesFromSettings(settings || {});
+  wrap.innerHTML = lines.map((line, idx) => announcementLineRowHTML(line, idx, lines.length)).join('');
+  bindAnnouncementLineControls();
+}
+
+function announcementLineRowHTML(line, idx, total) {
+  const label = `${LumiereI18n.t('admin_announcement_line')} ${idx + 1}`;
+  const en = String(line.en || '').replace(/"/g, '&quot;');
+  const ar = String(line.ar || '').replace(/"/g, '&quot;');
+  return `<div class="announcement-line-row" data-idx="${idx}">
+    <div class="announcement-line-row__head">
+      <strong>${label}</strong>
+      ${total > 1 ? `<button type="button" class="btn btn-sm btn-outline ann-line-remove" data-i18n="admin_announcement_remove">${LumiereI18n.t('admin_announcement_remove')}</button>` : ''}
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label data-i18n="admin_announcement_ar">عربي</label><input type="text" class="ann-line-ar" value="${ar}" placeholder="توصيل مجاني..."></div>
+      <div class="form-group"><label data-i18n="admin_announcement">English</label><input type="text" class="ann-line-en" value="${en}" placeholder="Free shipping..."></div>
+    </div>
+  </div>`;
+}
+
+function bindAnnouncementLineControls() {
+  document.querySelectorAll('.ann-line-remove').forEach(btn => {
+    btn.onclick = () => {
+      btn.closest('.announcement-line-row')?.remove();
+      reindexAnnouncementLines();
+    };
+  });
+}
+
+function initAnnouncementLineControls() {
+  const addBtn = document.getElementById('addAnnouncementLine');
+  if (!addBtn || addBtn.dataset.bound) return;
+  addBtn.dataset.bound = '1';
+  addBtn.addEventListener('click', () => {
+    const wrap = document.getElementById('announcementLinesWrap');
+    if (!wrap) return;
+    const count = wrap.querySelectorAll('.announcement-line-row').length;
+    wrap.insertAdjacentHTML('beforeend', announcementLineRowHTML({ en: '', ar: '' }, count, count + 1));
+    reindexAnnouncementLines();
+    bindAnnouncementLineControls();
+  });
+}
+
+function reindexAnnouncementLines() {
+  const wrap = document.getElementById('announcementLinesWrap');
+  if (!wrap) return;
+  const rows = [...wrap.querySelectorAll('.announcement-line-row')];
+  rows.forEach((row, idx) => {
+    row.dataset.idx = String(idx);
+    const strong = row.querySelector('.announcement-line-row__head strong');
+    if (strong) strong.textContent = `${LumiereI18n.t('admin_announcement_line')} ${idx + 1}`;
+    const removeBtn = row.querySelector('.ann-line-remove');
+    if (removeBtn) removeBtn.hidden = rows.length <= 1;
+  });
+}
+
+function collectAnnouncementLines() {
+  const wrap = document.getElementById('announcementLinesWrap');
+  if (!wrap) return [];
+  return [...wrap.querySelectorAll('.announcement-line-row')].map(row => ({
+    ar: row.querySelector('.ann-line-ar')?.value?.trim() || '',
+    en: row.querySelector('.ann-line-en')?.value?.trim() || ''
+  })).filter(line => line.ar || line.en);
+}
+
 function initSettingsForm() {
   document.getElementById('settingsForm').onsubmit = async e => {
     e.preventDefault();
@@ -598,15 +680,18 @@ function initSettingsForm() {
     const instaUrl = fieldValue('setInstaUrl', s.instaUrl || 'https://instagram.com/kwanzou.eg');
     const galleryWrap = document.getElementById('instagramGalleryWrap');
     const galleryImages = galleryWrap ? AdminMedia.collectGallery(galleryWrap, 'instagramGallery') : [];
+    const announcementLines = collectAnnouncementLines();
+    const firstLine = announcementLines[0] || { en: '', ar: '' };
 
     LumiereStore.update(data => {
       Object.assign(data.settings, {
         brandName: document.getElementById('setBrand').value,
         currencySymbol: document.getElementById('setCurrency').value,
         currency: document.getElementById('setCurrency').value,
-        announcementEn: document.getElementById('setAnnouncement').value,
-        announcement: document.getElementById('setAnnouncement').value,
-        announcementAr: document.getElementById('setAnnouncementAr').value,
+        announcementLines,
+        announcementEn: firstLine.en,
+        announcement: firstLine.en,
+        announcementAr: firstLine.ar,
         taglineAr: document.getElementById('setTaglineAr').value,
         taglineEn: document.getElementById('setTaglineEn').value,
         tagline: document.getElementById('setTaglineEn').value,
@@ -634,6 +719,7 @@ function initSettingsForm() {
     });
     applyAdminBranding();
     await persistAfterSave();
+    renderAnnouncementLines(LumiereStore.get().settings);
     renderInstagramGalleryAdmin();
   };
 }

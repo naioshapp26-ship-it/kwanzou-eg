@@ -4,7 +4,6 @@
 const LumiereLayout = (() => {
   const isAdmin = window.location.pathname.includes('/admin/');
   const base = isAdmin ? '../' : '';
-  let _adminLoggedIn = false;
 
   const SOCIAL_LINKS = {
     instagram: 'https://www.instagram.com/kwanzou.eg?igsh=MTJ3MW5pMmhoYnl6MQ%3D%3D&utm_source=qr',
@@ -367,7 +366,6 @@ const LumiereLayout = (() => {
         </a>
         <div class="header-end">
           <div class="header-auth-bar header-auth-bar--desktop">${authToolsDesktop}</div>
-          ${ _adminLoggedIn ? `<a href="${base}admin/index.html" class="header-action header-action--admin">${LumiereI18n.t('nav_admin')}</a>` : ''}
           <a href="${base}cart.html" class="header-action cart-link" title="${LumiereI18n.t('nav_bag')}">
             <span class="header-action__icon">🛍</span>
             <span class="cart-count">0</span>
@@ -435,6 +433,7 @@ const LumiereLayout = (() => {
 
   function renderFooter() {
     const s = LumiereStore.get().settings;
+    const session = typeof LumiereAuth !== 'undefined' ? LumiereAuth.getSession() : null;
     const logo = logoPath(s);
     const year = new Date().getFullYear();
     const brand = s.brandName || 'Kwanzou EG';
@@ -476,6 +475,7 @@ const LumiereLayout = (() => {
             <summary>${LumiereI18n.t('footer_about_title')}</summary>
             <ul>
               <li><a href="${base}account.html">${LumiereI18n.t('footer_customer_service')}</a></li>
+              <li><a href="${session ? `${base}account.html#wishlist` : `${base}login.html`}">${LumiereI18n.t('footer_wishlist')}</a></li>
               <li><a href="${base}shop.html?sort=bestseller">${LumiereI18n.t('bs_title')}</a></li>
               <li><a href="${FOOTER_PHONE_HREF}">${LumiereI18n.t('footer_contact_us')}</a></li>
             </ul>
@@ -492,7 +492,6 @@ const LumiereLayout = (() => {
 
         <div class="footer-info__bottom">
           <p>&copy; ${year} ${brand}. ${LumiereI18n.t('footer_rights')}</p>
-          <p class="footer-info__staff"><a href="${base}admin/login.html">${LumiereI18n.t('login_staff_link')}</a></p>
         </div>
       </div>
     </footer>`;
@@ -506,21 +505,6 @@ const LumiereLayout = (() => {
     document.querySelectorAll('.announcement-bar').forEach(el => {
       if (!el.closest('.mobile-menu')) el.remove();
     });
-  }
-
-  async function refreshAdminNav() {
-    if (isAdmin) return;
-    try {
-      const res = await fetch('/api/admin/session', { credentials: 'include' });
-      if (!res.ok) {
-        _adminLoggedIn = false;
-        return;
-      }
-      const data = await res.json();
-      _adminLoggedIn = !!data.ok;
-    } catch (_) {
-      _adminLoggedIn = false;
-    }
   }
 
   function init(active = '') {
@@ -558,10 +542,6 @@ const LumiereLayout = (() => {
     };
 
     renderAll();
-    refreshAdminNav().then(() => {
-      const headerEl = document.getElementById('site-header');
-      if (headerEl && _adminLoggedIn) headerEl.innerHTML = renderHeader(active);
-    });
   }
 
   let _outsideClickHandler = null;

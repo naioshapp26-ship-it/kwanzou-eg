@@ -392,11 +392,10 @@ app.patch('/api/account', requireCustomer, async (req, res) => {
 
 app.patch('/api/account/wishlist', requireCustomer, async (req, res) => {
   try {
-    const { password, wishlist } = req.body || {};
+    const { wishlist } = req.body || {};
     const result = await updateCustomerWishlist({
       userId: req.customerSession.userId,
       email: req.customerSession.email,
-      password,
       wishlist
     });
     if (!result.ok) {

@@ -624,6 +624,27 @@ const LumiereStore = (() => {
     return { ok: true };
   }
 
+  async function updateWishlistRemote(wishlist) {
+    if (_apiMode && !_adminMode) {
+      const res = await fetch('/api/account/wishlist', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ wishlist })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) return { ok: false, error: data.error || 'save_failed' };
+      cacheUser(data.user);
+      return { ok: true, user: data.user };
+    }
+    const session = typeof LumiereAuth !== 'undefined' ? LumiereAuth.getSession() : null;
+    if (!session) return { ok: false, error: 'unauthorized' };
+    updateUser(session.id, { wishlist });
+    const user = findUserById(session.id);
+    setPrivateUser(user);
+    return { ok: true, user };
+  }
+
   async function updateUserRemote(userId, email, password, patch) {
     if (_apiMode && !_adminMode) {
       const res = await fetch('/api/account', {
@@ -644,7 +665,7 @@ const LumiereStore = (() => {
   return {
     get, update, reset, defaults, init, initAdmin, flush, getLastSyncError,
     isApiMode, isAdminMode, cacheUser, setPrivateUser, getPrivateUser, fetchAccountMe,
-    updateUserRemote, changePasswordRemote,
+    updateUserRemote, changePasswordRemote, updateWishlistRemote,
     findUser, findUserById, addUser, updateUser, deleteUser,
     addProduct, updateProduct, deleteProduct,
     updateSettings, addCategory, updateCategory, deleteCategory,

@@ -17,6 +17,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.addEventListener('lumiere:langchange', () => refreshAccount());
 
   if (location.hash === '#wishlist') switchTab('wishlist');
+  document.addEventListener('kwanzou:wishlistchange', async () => {
+    const user = await LumiereAuth.refreshCurrentUser();
+    if (user) refreshAccount(user);
+  });
 });
 
 function refreshAccount(userArg) {
@@ -89,6 +93,7 @@ function renderWishlist(user) {
 
   grid.innerHTML = wishlist.map(p => ProductUI.cardHTML(p)).join('');
   ProductUI.bindCartButtons(grid);
+  if (typeof KwanzouWishlist !== 'undefined') KwanzouWishlist.bindButtons(grid);
 }
 
 function renderProfile(user) {

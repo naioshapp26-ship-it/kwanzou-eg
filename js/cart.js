@@ -103,6 +103,7 @@ const ProductUI = {
       <a href="${url}" class="wc-product__image-wrap">
         <img src="${p.image}" alt="${name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&q=80'">
         ${this.badgesHTML(p)}
+        <button type="button" class="btn-wishlist${typeof KwanzouWishlist !== 'undefined' && KwanzouWishlist.has(p.id) ? ' active' : ''}" data-id="${p.id}" aria-label="${LumiereI18n.t('account_wishlist')}" aria-pressed="${typeof KwanzouWishlist !== 'undefined' && KwanzouWishlist.has(p.id) ? 'true' : 'false'}">♥</button>
       </a>
       <div class="wc-product__body">
         <h2 class="wc-product__title"><a href="${url}">${name}</a></h2>
@@ -140,5 +141,6 @@ const ProductUI = {
         if (typeof showToast === 'function') showToast(`${name} — ${LumiereI18n.t('added_bag')}`);
       };
     });
+    if (typeof KwanzouWishlist !== 'undefined') KwanzouWishlist.bindButtons(root);
   }
 };

@@ -181,6 +181,35 @@ ul.products {
   color: var(--champagne-dark);
 }
 
+.btn-wishlist {
+  position: absolute;
+  top: 10px;
+  inset-inline-end: 10px;
+  z-index: 2;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  color: #b0a090;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-wishlist:hover,
+.btn-wishlist.active {
+  color: #E85D00;
+  transform: scale(1.05);
+}
+
+.pd-actions .btn-wishlist.active {
+  border-color: #E85D00;
+  color: #E85D00;
+}
+
 /* Category cloud — Flouka h3 grid */
 .category-cloud {
   display: grid;

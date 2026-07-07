@@ -60,6 +60,7 @@ function renderProduct() {
       <div class="pd-actions">
         <button class="btn btn-primary btn-full" id="btnBuyNow" ${!inStock ? 'disabled' : ''}>${LumiereI18n.t('buy_now')}</button>
         <button class="btn btn-outline btn-full" id="btnAddCart" ${!inStock ? 'disabled' : ''}>${LumiereI18n.t('add_cart')}</button>
+        <button type="button" class="btn btn-outline btn-full btn-wishlist${typeof KwanzouWishlist !== 'undefined' && KwanzouWishlist.has(product.id) ? ' active' : ''}" id="btnWishlist" data-id="${product.id}">♥ ${LumiereI18n.t('account_wishlist')}</button>
       </div>
       <div class="pd-meta">
         <span>${LumiereI18n.t('sku')}: ${ProductUI.sku(product)}</span>
@@ -96,6 +97,7 @@ function renderProduct() {
   ProductUI.bindCartButtons(document.getElementById('relatedGrid'));
 
   bindProductEvents(product);
+  if (typeof KwanzouWishlist !== 'undefined') KwanzouWishlist.bindButtons(document.getElementById('productDetail'));
   LumiereI18n.applyTranslations();
 }
 

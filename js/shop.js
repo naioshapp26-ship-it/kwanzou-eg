@@ -5,7 +5,7 @@ const LEGACY_CAT_REDIRECT = {
   jewelry: 'necklaces',
   earrings: 'accessories'
 };
-const REMOVED_CAT_SLUGS = ['watches', 'scarves', 'sunglasses', 'new-arrivals'];
+const REMOVED_CAT_SLUGS = ['watches', 'scarves', 'sunglasses'];
 
 document.addEventListener('DOMContentLoaded', async () => {
   LumiereI18n.init();
@@ -124,7 +124,9 @@ function renderShop() {
   let products = [...data.products];
   if (catSlug) products = ProductUI.filterByCategory(products, catSlug);
   else if (sortParam === 'bestseller') products = products.filter(p => p.bestseller);
-  if (query) products = products.filter(p => {
+  else if (query === 'sale') {
+    products = products.filter(p => p.onSale || ProductUI.salePrice(p));
+  } else if (query) products = products.filter(p => {
     const name = (LumiereI18n.localized(p, 'name') || p.name).toLowerCase();
     return name.includes(query) || p.category?.toLowerCase().includes(query);
   });

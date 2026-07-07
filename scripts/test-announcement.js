@@ -2,13 +2,20 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 
-const code = fs.readFileSync(path.join(__dirname, '../js/i18n.js'), 'utf8');
+let code = fs.readFileSync(path.join(__dirname, '../js/i18n.js'), 'utf8');
+code = code.replace('const LumiereI18n =', 'var LumiereI18n =');
+let langStore = 'ar';
 const sandbox = {
-  localStorage: { getItem: () => 'ar', setItem: () => {} },
-  document: { documentElement: { lang: 'ar', dir: 'rtl', setAttribute: () => {} }, querySelectorAll: () => [] }
+  localStorage: {
+    getItem: k => (k === 'lumiere_lang' ? langStore : null),
+    setItem: (k, v) => { if (k === 'lumiere_lang') langStore = v; }
+  },
+  document: { documentElement: { lang: 'ar', dir: 'rtl', setAttribute: () => {} }, querySelectorAll: () => [] },
+  CustomEvent: class CustomEvent { constructor(type, opts) { this.type = type; this.detail = opts?.detail; } },
+  window: null
 };
+sandbox.window = { dispatchEvent: () => {}, addEventListener: () => {} };
 vm.runInNewContext(code, sandbox);
-const LumiereI18n = sandbox.LumiereI18n;
 
 const settings = {
   announcementLines: [
@@ -17,18 +24,18 @@ const settings = {
   ]
 };
 
-const ar = LumiereI18n.announcementText(settings);
+const ar = sandbox.LumiereI18n.announcementText(settings);
 if (!ar.includes('جملة واحد') || !ar.includes('جملة اتنين')) {
   throw new Error(`Arabic merge failed: ${ar}`);
 }
 
-LumiereI18n.setLang('en');
-const en = LumiereI18n.announcementText(settings);
+sandbox.LumiereI18n.setLang('en');
+const en = sandbox.LumiereI18n.announcementText(settings);
 if (!en.includes('Line one EN') || !en.includes('Line two EN')) {
   throw new Error(`English merge failed: ${en}`);
 }
 
-const legacy = LumiereI18n.normalizeAnnouncementLines({
+const legacy = sandbox.LumiereI18n.normalizeAnnouncementLines({
   announcementEn: 'Legacy EN',
   announcementAr: 'قديم عربي'
 });

@@ -28,6 +28,11 @@ const LumiereLayout = (() => {
     return [...categories].sort((a, b) => (a.sort ?? 99) - (b.sort ?? 99));
   }
 
+  function hasSaleProducts() {
+    const products = LumiereStore.get().products || [];
+    return products.some(p => p.onSale || (p.salePrice && p.salePrice < p.price) || (p.discount > 0));
+  }
+
   const SUBCATEGORY_HINTS = {
     accessories: [
       { ar: 'إكسسوارات يومية', en: 'Daily Accessories', query: 'daily' },
@@ -210,8 +215,14 @@ const LumiereLayout = (() => {
     const cats = typeof CategoryTree !== 'undefined'
       ? CategoryTree.getTopLevel(all)
       : sortedCategories(all.filter(c => !c.parentId));
+    const products = LumiereStore.get().products || [];
+    const hasSale = hasSaleProducts();
+    const tabs = [];
+    if (hasSale) {
+      tabs.push({ href: shopHref('', 'sale'), ar: 'UP TO 50%', en: 'UP TO 50%', key: 'sale' });
+    }
     return [
-      { href: shopHref('', 'sale'), ar: 'UP TO 50%', en: 'UP TO 50%', key: 'sale' },
+      ...tabs,
       ...cats.map(c => ({
         href: shopHref(c.slug),
         ar: c.nameAr || c.name,
@@ -252,7 +263,7 @@ const LumiereLayout = (() => {
 
     const catalog = [
       { type: 'link', href: `${base}index.html`, i18n: 'nav_home' },
-      { type: 'link', href: shopHref('', 'sale'), ar: 'UP TO 50%', en: 'UP TO 50%' },
+      ...(hasSaleProducts() ? [{ type: 'link', href: shopHref('', 'sale'), ar: 'UP TO 50%', en: 'UP TO 50%' }] : []),
       ...topLevel.map(parent => {
         const children = typeof CategoryTree !== 'undefined'
           ? CategoryTree.getChildren(categories, parent.id)
@@ -474,7 +485,7 @@ const LumiereLayout = (() => {
           <details class="footer-info__accordion">
             <summary>${LumiereI18n.t('footer_about_title')}</summary>
             <ul>
-              <li><a href="${base}account.html">${LumiereI18n.t('footer_customer_service')}</a></li>
+              <li><a href="${FOOTER_PHONE_HREF}">${LumiereI18n.t('footer_customer_service')}</a></li>
               <li><a href="${session ? `${base}account.html#wishlist` : `${base}login.html`}">${LumiereI18n.t('footer_wishlist')}</a></li>
               <li><a href="${base}shop.html?sort=bestseller">${LumiereI18n.t('bs_title')}</a></li>
               <li><a href="${FOOTER_PHONE_HREF}">${LumiereI18n.t('footer_contact_us')}</a></li>

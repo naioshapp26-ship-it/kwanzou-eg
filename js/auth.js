@@ -38,6 +38,7 @@ const LumiereAuth = (() => {
           return { ok: false, error: data.error || 'login_error' };
         }
         LumiereStore.cacheUser(data.user);
+        await mergeWishlistIfNeeded();
         return { ok: true, user: setSession(data.user) };
       } catch (_) {
         return { ok: false, error: 'login_error' };
@@ -51,7 +52,14 @@ const LumiereAuth = (() => {
     if (user.role === 'superadmin') {
       return { ok: false, error: 'admin_use_portal' };
     }
+    await mergeWishlistIfNeeded();
     return { ok: true, user: setSession(user) };
+  }
+
+  async function mergeWishlistIfNeeded() {
+    if (typeof KwanzouWishlist !== 'undefined') {
+      await KwanzouWishlist.mergeLocalOnLogin();
+    }
   }
 
   async function register({ name, email, password, phone }) {
@@ -75,6 +83,7 @@ const LumiereAuth = (() => {
           return { ok: false, error: data.error || 'register_error_exists' };
         }
         LumiereStore.cacheUser(data.user);
+        await mergeWishlistIfNeeded();
         return { ok: true, user: setSession(data.user) };
       } catch (_) {
         return { ok: false, error: 'register_error_exists' };
@@ -86,6 +95,7 @@ const LumiereAuth = (() => {
     }
     LumiereStore.addUser({ name, email, password, phone: phone || '' });
     const user = LumiereStore.findUser(email);
+    await mergeWishlistIfNeeded();
     return { ok: true, user: setSession(user) };
   }
 

@@ -125,10 +125,13 @@ function renderShop() {
   if (catSlug) products = ProductUI.filterByCategory(products, catSlug);
   else if (sortParam === 'bestseller') products = products.filter(p => p.bestseller);
   else if (query === 'sale') {
-    products = products.filter(p => p.onSale || ProductUI.salePrice(p));
+    products = products.filter(p => ProductUI.isOnSale(p));
   } else if (query) products = products.filter(p => {
-    const name = (LumiereI18n.localized(p, 'name') || p.name).toLowerCase();
-    return name.includes(query) || p.category?.toLowerCase().includes(query);
+    const hay = [
+      p.name, p.nameAr, p.sku, p.category, p.categorySlug,
+      LumiereI18n.localized(p, 'name')
+    ].filter(Boolean).join(' ').toLowerCase();
+    return hay.includes(query);
   });
 
   const title = getShopTitle(catSlug, query, params);
@@ -159,6 +162,9 @@ function renderShop() {
   renderSubcategoryFilters(catSlug, data.categories || []);
 
   const sortEl = document.getElementById('shopSort');
+  if (sortParam && sortEl.querySelector(`option[value="${sortParam}"]`)) {
+    sortEl.value = sortParam;
+  }
   sortEl.onchange = () => renderGrid(sortProducts(products, sortEl.value));
   renderGrid(sortProducts(products, sortEl.value));
 
@@ -167,9 +173,10 @@ function renderShop() {
 
 function sortProducts(list, sort) {
   const arr = [...list];
-  if (sort === 'price-asc') arr.sort((a, b) => a.price - b.price);
-  else if (sort === 'price-desc') arr.sort((a, b) => b.price - a.price);
+  if (sort === 'price-asc') arr.sort((a, b) => ProductUI.effectivePrice(a) - ProductUI.effectivePrice(b));
+  else if (sort === 'price-desc') arr.sort((a, b) => ProductUI.effectivePrice(b) - ProductUI.effectivePrice(a));
   else if (sort === 'rating') arr.sort((a, b) => b.rating - a.rating);
+  else if (sort === 'bestseller') arr.sort((a, b) => (b.bestseller ? 1 : 0) - (a.bestseller ? 1 : 0));
   else arr.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
   return arr;
 }

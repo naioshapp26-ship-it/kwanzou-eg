@@ -96,12 +96,12 @@
   }
 
   function paymentOptionsHTML() {
-    return CheckoutShipping.getConfig().paymentMethods.map(m => `
-      <label class="payment-option ${m.enabled ? '' : 'payment-option--disabled'}">
-        <input type="radio" name="payment" value="${m.id}" ${m.enabled ? 'checked' : ''} ${m.enabled ? '' : 'disabled'}>
+    return CheckoutShipping.enabledPaymentMethods().map(m => `
+      <label class="payment-option">
+        <input type="radio" name="payment" value="${m.id}" ${m.id === 'cod' ? 'checked' : ''}>
         <span class="payment-option__box">
           <span class="payment-option__title">${CheckoutShipping.paymentLabel(m)}</span>
-          ${m.enabled ? `<span class="payment-option__desc">${LumiereI18n.t('checkout_cod_desc')}</span>` : ''}
+          <span class="payment-option__desc">${LumiereI18n.t('checkout_cod_desc')}</span>
         </span>
       </label>
     `).join('');
@@ -180,11 +180,12 @@
 
       const orderItems = items.map(item => {
         const p = products.find(x => x.id === item.id);
+        const unit = ProductUI.effectivePrice(p);
         return {
           id: item.id,
           name: LumiereI18n.localized(p, 'name') || p?.name,
           qty: item.qty,
-          price: p?.price || 0,
+          price: unit,
           image: p?.image || ''
         };
       }).filter(i => i.name);
@@ -281,12 +282,22 @@
     const rows = items.map(item => {
       const p = products.find(x => x.id === item.id);
       if (!p) return '';
-      const sub = p.price * item.qty;
+      const unit = ProductUI.effectivePrice(p);
+      const sub = unit * item.qty;
       cartSubtotal += sub;
       const name = LumiereI18n.localized(p, 'name') || p.name;
+      const priceLabel = ProductUI.salePrice(p)
+        ? `<span class="cart-item__price-sale">${KwanzouCart.formatPrice(unit)} <del>${KwanzouCart.formatPrice(p.price)}</del></span>`
+        : `<span>${KwanzouCart.formatPrice(unit)}</span>`;
+      const max = p.stock != null ? p.stock : 99;
       return `<div class="cart-item">
         <a href="product.html?id=${p.id}"><img src="${p.image}" alt=""></a>
-        <div class="cart-item__info"><a href="product.html?id=${p.id}"><strong>${name}</strong></a><span>${KwanzouCart.formatPrice(p.price)} × ${item.qty}</span></div>
+        <div class="cart-item__info"><a href="product.html?id=${p.id}"><strong>${name}</strong></a>${priceLabel}
+        <div class="cart-qty">
+          <button type="button" class="cart-qty__btn" onclick="window.changeCartQty('${p.id}',-1)" aria-label="-">−</button>
+          <span class="cart-qty__num">${item.qty}</span>
+          <button type="button" class="cart-qty__btn" onclick="window.changeCartQty('${p.id}',1)" ${item.qty >= max ? 'disabled' : ''} aria-label="+">+</button>
+        </div></div>
         <div class="cart-item__total">${KwanzouCart.formatPrice(sub)}</div>
         <button class="cart-item__remove" onclick="KwanzouCart.remove('${p.id}');renderCart()" type="button">✕</button>
       </div>`;
@@ -384,4 +395,8 @@
   }
 
   window.renderCart = renderCart;
+  window.changeCartQty = (id, delta) => {
+    KwanzouCart.changeQty(id, delta);
+    renderCart();
+  };
 })();

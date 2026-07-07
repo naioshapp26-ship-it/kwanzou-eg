@@ -18,11 +18,39 @@ const KwanzouCart = (() => {
   }
 
   function add(productId, qty = 1) {
+    const p = LumiereStore.get().products.find(x => x.id === productId);
+    const max = p?.stock != null ? p.stock : 999;
     const items = get();
     const existing = items.find(i => i.id === productId);
-    if (existing) existing.qty += qty;
-    else items.push({ id: productId, qty });
+    const current = existing?.qty || 0;
+    const next = Math.min(current + qty, max);
+    if (next <= current) return { ok: false, error: 'stock_limit' };
+    if (existing) existing.qty = next;
+    else items.push({ id: productId, qty: next });
     save(items);
+    return { ok: true };
+  }
+
+  function setQty(productId, qty) {
+    if (qty <= 0) {
+      remove(productId);
+      return { ok: true };
+    }
+    const p = LumiereStore.get().products.find(x => x.id === productId);
+    const max = p?.stock != null ? p.stock : 999;
+    const q = Math.min(qty, max);
+    const items = get();
+    const existing = items.find(i => i.id === productId);
+    if (existing) existing.qty = q;
+    else items.push({ id: productId, qty: q });
+    save(items);
+    return { ok: true };
+  }
+
+  function changeQty(productId, delta) {
+    const item = get().find(i => i.id === productId);
+    const current = item?.qty || 0;
+    return setQty(productId, current + delta);
   }
 
   function remove(productId) {
@@ -40,7 +68,7 @@ const KwanzouCart = (() => {
     return `${price.toLocaleString()} ${sym}`;
   }
 
-  return { get, add, remove, count, updateUI, formatPrice };
+  return { get, add, remove, setQty, changeQty, count, updateUI, formatPrice };
 })();
 
 /**
@@ -62,6 +90,16 @@ const ProductUI = {
     if (p.salePrice && p.salePrice < p.price) return p.salePrice;
     if (p.discount && p.discount > 0) return Math.round(p.price * (1 - p.discount / 100));
     return null;
+  },
+
+  effectivePrice(p) {
+    if (!p) return 0;
+    const sale = this.salePrice(p);
+    return sale != null && sale < p.price ? sale : p.price;
+  },
+
+  isOnSale(p) {
+    return !!(p?.onSale || this.salePrice(p));
   },
 
   badgesHTML(p) {
@@ -135,9 +173,13 @@ const ProductUI = {
       btn.onclick = e => {
         e.preventDefault();
         e.stopPropagation();
-        KwanzouCart.add(btn.dataset.id);
+        const result = KwanzouCart.add(btn.dataset.id);
         const p = LumiereStore.get().products.find(x => x.id === btn.dataset.id);
         const name = LumiereI18n.localized(p, 'name') || p?.name;
+        if (result?.ok === false && result.error === 'stock_limit') {
+          if (typeof showToast === 'function') showToast(LumiereI18n.t('stock_limit'));
+          return;
+        }
         if (typeof showToast === 'function') showToast(`${name} — ${LumiereI18n.t('added_bag')}`);
       };
     });

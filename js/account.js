@@ -59,8 +59,8 @@ function renderOrders(user) {
     return;
   }
 
-  tbody.innerHTML = orders.map(o => `
-    <tr>
+  tbody.innerHTML = orders.map((o, idx) => `
+    <tr class="orders-table__row" data-order-idx="${idx}" role="button" tabindex="0">
       <td><strong>${o.id}</strong></td>
       <td>${o.date}</td>
       <td>${(o.items || []).map(i => i.name).join('، ')}</td>
@@ -68,6 +68,12 @@ function renderOrders(user) {
       <td><span class="status-badge status-badge--${(o.status || 'pending').toLowerCase()}">${LumiereI18n.translateStatus(o.status)}</span></td>
     </tr>
   `).join('');
+
+  tbody.querySelectorAll('.orders-table__row').forEach(row => {
+    const open = () => showOrderDetail(orders[Number(row.dataset.orderIdx)]);
+    row.addEventListener('click', open);
+    row.addEventListener('keydown', e => { if (e.key === 'Enter') open(); });
+  });
 
   recent.innerHTML = orders.slice(0, 3).map(o => `
     <div class="order-card">
@@ -79,6 +85,33 @@ function renderOrders(user) {
       <span class="status-badge status-badge--${(o.status || 'pending').toLowerCase()}">${LumiereI18n.translateStatus(o.status)}</span>
     </div>
   `).join('');
+}
+
+function showOrderDetail(order) {
+  if (!order) return;
+  const addr = order.shippingAddress || {};
+  const itemsHtml = (order.items || []).map(i =>
+    `<li>${i.name} × ${i.qty} — ${formatOrderTotal((i.price || 0) * i.qty)}</li>`
+  ).join('');
+  const el = document.getElementById('orderDetailModal');
+  if (!el) return;
+  el.innerHTML = `
+    <div class="order-detail-backdrop"></div>
+    <div class="order-detail-card" role="dialog" aria-modal="true">
+      <button type="button" class="order-detail-close" aria-label="Close">✕</button>
+      <h3>${LumiereI18n.t('account_order_detail')}</h3>
+      <p><strong>${LumiereI18n.t('account_order_id')}:</strong> ${order.id}</p>
+      <p><strong>${LumiereI18n.t('account_date')}:</strong> ${order.date}</p>
+      <p><strong>${LumiereI18n.t('account_status')}:</strong> ${LumiereI18n.translateStatus(order.status)}</p>
+      ${addr.city ? `<p><strong>${LumiereI18n.t('checkout_city')}:</strong> ${addr.city}</p>` : ''}
+      ${addr.address ? `<p><strong>${LumiereI18n.t('checkout_address')}:</strong> ${addr.address}</p>` : ''}
+      <p><strong>${LumiereI18n.t('checkout_payment')}:</strong> ${order.paymentMethodLabel || LumiereI18n.t('checkout_payment_cod')}</p>
+      <ul class="order-detail-items">${itemsHtml}</ul>
+      <p><strong>${LumiereI18n.t('account_total')}:</strong> ${formatOrderTotal(order.total)}</p>
+    </div>`;
+  el.hidden = false;
+  el.querySelector('.order-detail-close')?.addEventListener('click', () => { el.hidden = true; });
+  el.querySelector('.order-detail-backdrop')?.addEventListener('click', () => { el.hidden = true; });
 }
 
 function renderWishlist(user) {

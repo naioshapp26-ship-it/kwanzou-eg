@@ -115,7 +115,11 @@ function bindProductEvents(product) {
   document.getElementById('qtyPlus').onclick = () => { if (+qtyInput.value < product.stock) qtyInput.value = +qtyInput.value + 1; };
 
   document.getElementById('btnAddCart').onclick = () => {
-    KwanzouCart.add(product.id, +qtyInput.value);
+    const result = KwanzouCart.add(product.id, +qtyInput.value);
+    if (result?.ok === false) {
+      showToast(LumiereI18n.t('stock_limit'));
+      return;
+    }
     showToast(`${LumiereI18n.localized(product, 'name')} — ${LumiereI18n.t('added_bag')}`);
   };
 

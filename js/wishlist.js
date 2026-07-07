@@ -1,5 +1,5 @@
 /**
- * Customer wishlist — syncs with account when logged in
+ * Customer wishlist — local for guests, synced when logged in
  */
 const KwanzouWishlist = (() => {
   const LOCAL_KEY = 'kwanzou_wishlist_local';
@@ -34,29 +34,36 @@ const KwanzouWishlist = (() => {
     if (typeof LumiereStore !== 'undefined' && LumiereStore.isApiMode?.() && LumiereAuth.isLoggedIn()) {
       const result = await LumiereStore.updateWishlistRemote(ids);
       if (!result.ok) return result;
+      writeLocal([]);
       return { ok: true, wishlist: result.user?.wishlist || ids };
     }
     const user = LumiereStore?.findUserById?.(LumiereAuth.getSession()?.id);
     if (user) {
       LumiereStore.updateUser(user.id, { wishlist: ids });
       LumiereStore.setPrivateUser?.({ ...user, wishlist: ids });
+      writeLocal([]);
     } else {
       writeLocal(ids);
     }
     return { ok: true, wishlist: ids };
   }
 
+  async function mergeLocalOnLogin() {
+    const local = readLocal();
+    if (!local.length || !LumiereAuth.isLoggedIn()) return;
+    const current = getIds();
+    const merged = [...new Set([...current, ...local])];
+    await sync(merged);
+  }
+
   async function toggle(productId) {
     if (!productId) return { ok: false, error: 'invalid' };
-    if (typeof LumiereAuth !== 'undefined' && !LumiereAuth.isLoggedIn()) {
-      return { ok: false, error: 'login_required', redirect: `login.html?redirect=${encodeURIComponent(location.pathname + location.search)}` };
-    }
     const ids = getIds();
     const next = ids.includes(productId) ? ids.filter(id => id !== productId) : [...ids, productId];
     const result = await sync(next);
     if (!result.ok) return result;
     document.dispatchEvent(new CustomEvent('kwanzou:wishlistchange', { detail: { productId, wishlist: result.wishlist } }));
-    return { ok: true, added: !ids.includes(productId), wishlist: result.wishlist };
+    return { ok: true, added: !ids.includes(productId), wishlist: result.wishlist, guest: !LumiereAuth.isLoggedIn() };
   }
 
   function bindButtons(root = document) {
@@ -69,20 +76,18 @@ const KwanzouWishlist = (() => {
         e.stopPropagation();
         const result = await toggle(id);
         if (!result.ok) {
-          if (result.error === 'login_required') {
-            window.location.href = result.redirect || 'login.html';
-            return;
-          }
           if (typeof showToast === 'function') showToast(LumiereI18n.t('account_save_failed'));
           return;
         }
         btn.classList.toggle('active', result.added);
         btn.setAttribute('aria-pressed', result.added ? 'true' : 'false');
-        const msg = result.added ? LumiereI18n.t('wishlist_add') : LumiereI18n.t('wishlist_remove');
+        const msg = result.added
+          ? (result.guest ? LumiereI18n.t('wishlist_add_guest') : LumiereI18n.t('wishlist_add'))
+          : LumiereI18n.t('wishlist_remove');
         if (typeof showToast === 'function') showToast(msg);
       };
     });
   }
 
-  return { getIds, has, toggle, sync, bindButtons };
+  return { getIds, has, toggle, sync, mergeLocalOnLogin, bindButtons };
 })();

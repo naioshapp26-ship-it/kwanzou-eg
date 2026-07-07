@@ -920,11 +920,18 @@ function openProductModal(product = null) {
         <div class="form-group"><label>${LumiereI18n.t('admin_name_ar')}</label><input name="nameAr" value="${product?.nameAr || ''}" required></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>${LumiereI18n.t('admin_category')}</label><select name="categorySlug" required>${catOptions}</select></div>
         <div class="form-group"><label>${LumiereI18n.t('admin_price')} (${currencySym()})</label><input name="price" type="number" value="${product?.price || ''}" required></div>
+        <div class="form-group"><label>${LumiereI18n.t('admin_sale_price')}</label><input name="salePrice" type="number" min="0" value="${product?.salePrice || ''}" placeholder="${LumiereI18n.t('admin_sale_price_ph')}"></div>
       </div>
       <div class="form-row">
+        <div class="form-group"><label>${LumiereI18n.t('admin_discount')}</label><input name="discount" type="number" min="0" max="90" value="${product?.discount || ''}" placeholder="%"></div>
+        <div class="form-group form-checks" style="align-self:end"><label><input type="checkbox" name="onSale" ${product?.onSale || product?.salePrice || product?.discount ? 'checked' : ''}> ${LumiereI18n.t('admin_on_sale')}</label></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>${LumiereI18n.t('admin_category')}</label><select name="categorySlug" required>${catOptions}</select></div>
         <div class="form-group"><label>${LumiereI18n.t('admin_stock')}</label><input name="stock" type="number" value="${product?.stock ?? 10}"></div>
+      </div>
+      <div class="form-row">
         <div class="form-group"><label>${LumiereI18n.t('admin_rating')}</label><input name="rating" type="number" min="1" max="5" value="${product?.rating || 5}"></div>
       </div>
       ${imageUploadHTML('image', product?.image, LumiereI18n.t('admin_product_main_image'))}
@@ -955,12 +962,17 @@ function openProductModal(product = null) {
     }
     const extras = AdminMedia.collectGallery(modalBody);
     const images = [...new Set([image, ...extras].filter(Boolean))];
+    const salePriceVal = fd.get('salePrice');
+    const discountVal = fd.get('discount');
     const data = {
       name: fd.get('name'),
       nameAr: fd.get('nameAr'),
       category: cat?.name || '',
       categorySlug: fd.get('categorySlug'),
       price: +fd.get('price'),
+      salePrice: salePriceVal ? +salePriceVal : null,
+      discount: discountVal ? +discountVal : 0,
+      onSale: fd.has('onSale'),
       stock: +fd.get('stock'),
       rating: +fd.get('rating'),
       reviews: product?.reviews || 0,

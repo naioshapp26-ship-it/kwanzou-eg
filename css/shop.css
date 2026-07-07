@@ -1297,41 +1297,38 @@ html[dir="rtl"] .product-card .wishlist-btn { right: auto; left: 12px; }
 .support-fab {
   position: fixed;
   bottom: calc(88px + env(safe-area-inset-bottom, 0px));
-  left: 20px;
+  left: 16px;
+  right: auto;
   z-index: 900;
-  width: 56px;
-  height: 56px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   background: #25d366;
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 20px rgba(37, 211, 102, 0.45);
+  box-shadow: 0 3px 14px rgba(37, 211, 102, 0.4);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .support-fab svg {
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
 }
 
 .support-fab:hover {
   transform: scale(1.06);
-  box-shadow: 0 6px 24px rgba(37, 211, 102, 0.55);
+  box-shadow: 0 5px 18px rgba(37, 211, 102, 0.5);
 }
 
 body:not(.mobile-nav-enabled) .support-fab {
   bottom: calc(24px + env(safe-area-inset-bottom, 0px));
 }
 
-[dir="rtl"] .support-fab {
-  left: auto;
-  right: 20px;
-}
-
 @media (min-width: 769px) {
   .support-fab {
     bottom: 24px;
+    left: 20px;
   }
 }

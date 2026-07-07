@@ -493,7 +493,6 @@ const LumiereLayout = (() => {
               <li><a href="${FOOTER_PHONE_HREF}">${LumiereI18n.t('footer_customer_service')}</a></li>
               <li><a href="${session ? `${base}account.html#wishlist` : `${base}login.html`}">${LumiereI18n.t('footer_wishlist')}</a></li>
               <li><a href="${base}shop.html?sort=bestseller">${LumiereI18n.t('bs_title')}</a></li>
-              <li><a href="${base}contact.html">${LumiereI18n.t('footer_contact_us')}</a></li>
             </ul>
           </details>
           <details class="footer-info__accordion">

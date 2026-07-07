@@ -23,6 +23,7 @@
       <button class="admin-nav__item" data-section="collections"><span>✨</span> <span data-i18n="admin_collections">Collections</span></button>
       <button class="admin-nav__item" data-section="appearance"><span>🎨</span> <span data-i18n="admin_appearance">Brand & Colors</span></button>
       <button class="admin-nav__item" data-section="settings"><span>⚙️</span> <span data-i18n="admin_settings">Site Settings</span></button>
+      <button class="admin-nav__item" data-section="shipping"><span>🚚</span> <span data-i18n="admin_shipping">Shipping & Checkout</span></button>
       <button class="admin-nav__item" data-section="staff"><span>🛡</span> <span data-i18n="admin_staff">Admin Team</span></button>
       <button class="admin-nav__item" data-section="users"><span>👥</span> <span data-i18n="admin_users">Customers</span></button>
       <button class="admin-nav__item" data-section="testimonials"><span>💬</span> <span data-i18n="admin_testimonials">Testimonials</span></button>
@@ -362,6 +363,36 @@
         </form>
       </section>
 
+      <!-- Shipping & checkout -->
+      <section class="admin-section" id="sec-shipping">
+        <div class="admin-section-header">
+          <h2 data-i18n="admin_shipping">Shipping & Checkout</h2>
+          <div class="table-actions__group">
+            <button type="button" class="btn btn-outline btn-sm" id="shippingResetBtn" data-i18n="admin_reset">Reset defaults</button>
+            <button type="button" class="btn btn-primary btn-sm" id="shippingSaveBtn" data-i18n="admin_save">Save</button>
+          </div>
+        </div>
+        <p class="admin-hint" data-i18n="admin_shipping_hint">تحكمي في البلدان والمحافظات وأسعار التوصيل وطرق الدفع — التغييرات تظهر فوراً في صفحة السلة.</p>
+        <div class="admin-card">
+          <h3 data-i18n="admin_shipping_free_threshold">Free shipping threshold</h3>
+          <div class="form-group form-group--inline">
+            <input type="number" id="shipFreeThreshold" min="0" step="50" class="ship-threshold-input">
+            <span class="admin-hint" data-i18n="admin_shipping_free_hint">الطلبات فوق هذا المبلغ توصيل مجاني (ج.م)</span>
+          </div>
+        </div>
+        <div class="admin-card">
+          <h3 data-i18n="admin_shipping_payment">Payment methods</h3>
+          <div id="shipPaymentMethods" class="ship-payment-list"></div>
+        </div>
+        <div class="admin-card">
+          <div class="admin-section-header" style="margin-bottom:12px">
+            <h3 data-i18n="admin_shipping_countries">Countries & delivery zones</h3>
+            <button type="button" class="btn btn-primary btn-sm" id="addShipCountryBtn" data-i18n="admin_shipping_add_country">+ Add country</button>
+          </div>
+          <div id="shipCountriesList" class="ship-countries-list"></div>
+        </div>
+      </section>
+
       <!-- Staff admins -->
       <section class="admin-section" id="sec-staff">
         <div class="admin-section-header">
@@ -432,6 +463,8 @@
   <script src="../js/password-toggle.js"></script>
   <script src="../js/admin-session.js"></script>
   <script src="../js/admin-media.js?v=2"></script>
-  <script src="../js/admin.js?v=9"></script>
+  <script src="../js/checkout-shipping.js?v=1"></script>
+  <script src="../js/admin-shipping.js?v=1"></script>
+  <script src="../js/admin.js?v=10"></script>
 </body>
 </html>

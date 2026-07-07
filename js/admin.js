@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderSettings();
   initAppearanceForm();
   initSettingsForm();
+  AdminShipping.init();
   renderUsers();
   renderStaffAdmins();
   initStaffSection();
@@ -115,7 +116,7 @@ function switchSection(section) {
   const titles = {
     dashboard: 'admin_dashboard', orders: 'admin_orders', products: 'admin_products',
     categories: 'admin_categories', collections: 'admin_collections', appearance: 'admin_appearance',
-    settings: 'admin_settings', staff: 'admin_staff', users: 'admin_users', testimonials: 'admin_testimonials', newsletter: 'admin_newsletter'
+    settings: 'admin_settings', shipping: 'admin_shipping', staff: 'admin_staff', users: 'admin_users', testimonials: 'admin_testimonials', newsletter: 'admin_newsletter'
   };
   document.getElementById('adminPageTitle').textContent = LumiereI18n.t(titles[section] || section);
   document.getElementById('adminSidebar')?.classList.remove('open');
@@ -127,6 +128,7 @@ function switchSection(section) {
     renderSettings();
     AdminMedia.init(document.getElementById('sec-settings'), toast);
   }
+  if (section === 'shipping') AdminShipping.render();
 }
 
 function initNavigation() {

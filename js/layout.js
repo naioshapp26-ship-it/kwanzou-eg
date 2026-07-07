@@ -507,6 +507,70 @@ const LumiereLayout = (() => {
     });
   }
 
+  /** Hidden staff entry — long-press logo (mobile) or 5 taps on footer logo (desktop). */
+  function initStaffAccess() {
+    if (isAdmin) return;
+    const staffUrl = `${base}admin/login.html`;
+    const LONG_PRESS_MS = 750;
+    const TAP_COUNT = 5;
+    const TAP_WINDOW_MS = 2000;
+
+    function bindGate(el, allowTapSequence = false) {
+      if (!el || el.dataset.staffGate) return;
+      el.dataset.staffGate = '1';
+
+      let pressTimer = null;
+      let suppressClick = false;
+      let tapCount = 0;
+      let tapTimer = null;
+
+      const clearPress = () => {
+        if (pressTimer) clearTimeout(pressTimer);
+        pressTimer = null;
+      };
+
+      const goStaff = () => {
+        suppressClick = true;
+        window.location.href = staffUrl;
+      };
+
+      el.addEventListener('mousedown', () => {
+        clearPress();
+        pressTimer = setTimeout(goStaff, LONG_PRESS_MS);
+      });
+      el.addEventListener('mouseup', clearPress);
+      el.addEventListener('mouseleave', clearPress);
+      el.addEventListener('touchstart', () => {
+        clearPress();
+        pressTimer = setTimeout(goStaff, LONG_PRESS_MS);
+      }, { passive: true });
+      el.addEventListener('touchend', clearPress);
+      el.addEventListener('touchmove', clearPress);
+      el.addEventListener('touchcancel', clearPress);
+
+      el.addEventListener('click', e => {
+        if (suppressClick) {
+          e.preventDefault();
+          suppressClick = false;
+          return;
+        }
+        if (!allowTapSequence) return;
+        tapCount += 1;
+        clearTimeout(tapTimer);
+        if (tapCount >= TAP_COUNT) {
+          tapCount = 0;
+          e.preventDefault();
+          goStaff();
+          return;
+        }
+        tapTimer = setTimeout(() => { tapCount = 0; }, TAP_WINDOW_MS);
+      }, true);
+    }
+
+    document.querySelectorAll('.logo-link').forEach(el => bindGate(el, false));
+    document.querySelectorAll('.footer-info__logo').forEach(el => bindGate(el, true));
+  }
+
   function init(active = '') {
     try {
       LumiereTheme.apply(LumiereStore.get().settings);
@@ -539,6 +603,7 @@ const LumiereLayout = (() => {
       initMobileMenuAccordions();
       initCategoriesDropdown();
       initHeaderScroll();
+      initStaffAccess();
     };
 
     renderAll();

@@ -1497,6 +1497,21 @@ button {
   color: var(--text-muted);
 }
 
+.staff-gate {
+  -webkit-touch-callout: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.staff-gate--pressing {
+  touch-action: none;
+  opacity: 0.92;
+}
+
+.staff-gate-tap {
+  -webkit-tap-highlight-color: transparent;
+}
+
 .footer-info__staff {
   margin-top: 8px;
 }

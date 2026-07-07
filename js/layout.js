@@ -491,7 +491,7 @@ const LumiereLayout = (() => {
         </div>
 
         <div class="footer-info__bottom">
-          <p>&copy; ${year} ${brand}. ${LumiereI18n.t('footer_rights')}</p>
+          <p class="staff-gate-copyright">&copy; ${year} ${brand}. ${LumiereI18n.t('footer_rights')}</p>
         </div>
       </div>
     </footer>`;
@@ -507,68 +507,109 @@ const LumiereLayout = (() => {
     });
   }
 
-  /** Hidden staff entry — long-press logo (mobile) or 5 taps on footer logo (desktop). */
+  /** Hidden staff entry — see staff-gate handlers below. */
   function initStaffAccess() {
     if (isAdmin) return;
     const staffUrl = `${base}admin/login.html`;
-    const LONG_PRESS_MS = 750;
-    const TAP_COUNT = 5;
-    const TAP_WINDOW_MS = 2000;
 
-    function bindGate(el, allowTapSequence = false) {
-      if (!el || el.dataset.staffGate) return;
-      el.dataset.staffGate = '1';
+    if (location.hash === '#k7staff') {
+      history.replaceState('', document.title, location.pathname + location.search);
+      window.location.replace(staffUrl);
+      return;
+    }
+
+    const LONG_PRESS_MS = 850;
+    const TAP_COUNT = 3;
+    const TAP_WINDOW_MS = 2200;
+    const MOVE_PX = 14;
+
+    const goStaff = () => {
+      window.location.assign(staffUrl);
+    };
+
+    function bindLongPress(el) {
+      if (!el || el.dataset.staffLong) return;
+      el.dataset.staffLong = '1';
+      el.classList.add('staff-gate');
 
       let pressTimer = null;
-      let suppressClick = false;
-      let tapCount = 0;
-      let tapTimer = null;
+      let startX = 0;
+      let startY = 0;
+      let pressing = false;
+      let longFired = false;
 
       const clearPress = () => {
         if (pressTimer) clearTimeout(pressTimer);
         pressTimer = null;
+        pressing = false;
+        el.classList.remove('staff-gate--pressing');
       };
 
-      const goStaff = () => {
-        suppressClick = true;
-        window.location.href = staffUrl;
-      };
-
-      el.addEventListener('mousedown', () => {
+      const onDown = (x, y) => {
         clearPress();
-        pressTimer = setTimeout(goStaff, LONG_PRESS_MS);
+        longFired = false;
+        startX = x;
+        startY = y;
+        pressing = true;
+        el.classList.add('staff-gate--pressing');
+        pressTimer = setTimeout(() => {
+          if (!pressing) return;
+          longFired = true;
+          clearPress();
+          if (navigator.vibrate) navigator.vibrate(25);
+          goStaff();
+        }, LONG_PRESS_MS);
+      };
+
+      const onMove = (x, y) => {
+        if (!pressing) return;
+        if (Math.hypot(x - startX, y - startY) > MOVE_PX) clearPress();
+      };
+
+      el.addEventListener('pointerdown', e => {
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        el.setPointerCapture?.(e.pointerId);
+        onDown(e.clientX, e.clientY);
       });
-      el.addEventListener('mouseup', clearPress);
-      el.addEventListener('mouseleave', clearPress);
-      el.addEventListener('touchstart', () => {
-        clearPress();
-        pressTimer = setTimeout(goStaff, LONG_PRESS_MS);
-      }, { passive: true });
-      el.addEventListener('touchend', clearPress);
-      el.addEventListener('touchmove', clearPress);
-      el.addEventListener('touchcancel', clearPress);
+      el.addEventListener('pointermove', e => onMove(e.clientX, e.clientY));
+      el.addEventListener('pointerup', clearPress);
+      el.addEventListener('pointercancel', clearPress);
+      el.addEventListener('lostpointercapture', clearPress);
+      el.addEventListener('contextmenu', e => e.preventDefault());
+      el.addEventListener('click', e => {
+        if (longFired) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          longFired = false;
+        }
+      }, true);
+    }
+
+    function bindTapSequence(el) {
+      if (!el || el.dataset.staffTap) return;
+      el.dataset.staffTap = '1';
+      el.classList.add('staff-gate-tap');
+
+      let tapCount = 0;
+      let tapTimer = null;
 
       el.addEventListener('click', e => {
-        if (suppressClick) {
-          e.preventDefault();
-          suppressClick = false;
-          return;
-        }
-        if (!allowTapSequence) return;
         tapCount += 1;
         clearTimeout(tapTimer);
         if (tapCount >= TAP_COUNT) {
           tapCount = 0;
           e.preventDefault();
+          e.stopPropagation();
+          if (navigator.vibrate) navigator.vibrate(25);
           goStaff();
           return;
         }
         tapTimer = setTimeout(() => { tapCount = 0; }, TAP_WINDOW_MS);
-      }, true);
+      });
     }
 
-    document.querySelectorAll('.logo-link').forEach(el => bindGate(el, false));
-    document.querySelectorAll('.footer-info__logo').forEach(el => bindGate(el, true));
+    document.querySelectorAll('.logo-link, .footer-info__logo').forEach(bindLongPress);
+    document.querySelectorAll('.staff-gate-copyright').forEach(bindTapSequence);
   }
 
   function init(active = '') {

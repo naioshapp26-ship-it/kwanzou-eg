@@ -346,6 +346,9 @@ const LumiereLayout = (() => {
     const accountLabel = session ? session.name.split(' ')[0] : LumiereI18n.t('nav_signin');
     const announcement = LumiereI18n.localizedSettings(settings, 'announcement');
     const logo = logoPath(settings);
+    const announcementBar = announcement
+      ? `<div class="announcement-bar" role="region" aria-label="${LumiereI18n.t('announcement_label')}"><span>${announcement}</span></div>`
+      : '';
 
     const mobileSideMenu = renderMobileSideMenu(products, categories);
     const desktopHeaderNav = renderDesktopHeaderNav(active, categories);
@@ -362,6 +365,7 @@ const LumiereLayout = (() => {
           </a>`;
 
     return `
+    ${announcementBar}
     <header class="site-header" id="header">
       <div class="header-main container">
         <div class="header-start">
@@ -485,10 +489,11 @@ const LumiereLayout = (() => {
           <details class="footer-info__accordion">
             <summary>${LumiereI18n.t('footer_about_title')}</summary>
             <ul>
+              <li><a href="${base}contact.html">${LumiereI18n.t('footer_contact_us')}</a></li>
               <li><a href="${FOOTER_PHONE_HREF}">${LumiereI18n.t('footer_customer_service')}</a></li>
               <li><a href="${session ? `${base}account.html#wishlist` : `${base}login.html`}">${LumiereI18n.t('footer_wishlist')}</a></li>
               <li><a href="${base}shop.html?sort=bestseller">${LumiereI18n.t('bs_title')}</a></li>
-              <li><a href="${FOOTER_PHONE_HREF}">${LumiereI18n.t('footer_contact_us')}</a></li>
+              <li><a href="${base}contact.html">${LumiereI18n.t('footer_contact_us')}</a></li>
             </ul>
           </details>
           <details class="footer-info__accordion">
@@ -633,7 +638,6 @@ const LumiereLayout = (() => {
       const footerEl = document.getElementById('site-footer');
       try {
         if (headerEl) headerEl.innerHTML = renderHeader(active);
-        stripTopAnnouncementBar();
       } catch (err) {
         console.error('Header render error:', err);
       }

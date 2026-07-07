@@ -98,6 +98,8 @@ const LumiereStore = (() => {
     users: [],
     staffAdmins: [],
     orders: [],
+    productReviews: [],
+    contactMessages: [],
     newsletter: [],
     cart: {}
   };
@@ -153,6 +155,8 @@ const LumiereStore = (() => {
     merged.staffAdmins = Array.isArray(data.staffAdmins) ? clone(data.staffAdmins) : clone(defaults.staffAdmins);
     merged.newsletter = data.newsletter || [];
     merged.orders = Array.isArray(data.orders) ? data.orders : [];
+    merged.productReviews = Array.isArray(data.productReviews) ? data.productReviews : [];
+    merged.contactMessages = Array.isArray(data.contactMessages) ? data.contactMessages : [];
     merged.cart = data.cart || {};
     merged.catalogVersion = merged.catalogVersion || CATALOG_VERSION;
     if (typeof CategoryTree !== 'undefined' && CategoryTree.migrateCatalog) {
@@ -280,6 +284,11 @@ const LumiereStore = (() => {
       })();
     }
     return _ready;
+  }
+
+  async function reload() {
+    _ready = null;
+    return init();
   }
 
   async function initAdmin() {
@@ -663,7 +672,7 @@ const LumiereStore = (() => {
   }
 
   return {
-    get, update, reset, defaults, init, initAdmin, flush, getLastSyncError,
+    get, update, reset, defaults, init, reload, initAdmin, flush, getLastSyncError,
     isApiMode, isAdminMode, cacheUser, setPrivateUser, getPrivateUser, fetchAccountMe,
     updateUserRemote, changePasswordRemote, updateWishlistRemote,
     findUser, findUserById, addUser, updateUser, deleteUser,

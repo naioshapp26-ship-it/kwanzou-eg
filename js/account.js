@@ -93,6 +93,33 @@ function showOrderDetail(order) {
   const itemsHtml = (order.items || []).map(i =>
     `<li>${i.name} × ${i.qty} — ${formatOrderTotal((i.price || 0) * i.qty)}</li>`
   ).join('');
+  const session = LumiereAuth.getSession();
+  const reviews = (LumiereStore.get().productReviews || []);
+  const reviewBlocks = (order.status === 'Delivered' && session)
+    ? (order.items || []).filter(i => i.productId).map(i => {
+        const done = reviews.some(r =>
+          r.userId === session.id && r.orderId === order.id && r.productId === i.productId
+        );
+        if (done) return `<p class="review-done">✓ ${i.name}</p>`;
+        return `<form class="order-review-form" data-order="${order.id}" data-product="${i.productId}">
+          <p class="order-review-form__title">${LumiereI18n.t('review_write')}: ${i.name}</p>
+          <label>${LumiereI18n.t('review_rating')}
+            <select name="rating" required>
+              <option value="5">★★★★★</option>
+              <option value="4">★★★★☆</option>
+              <option value="3">★★★☆☆</option>
+              <option value="2">★★☆☆☆</option>
+              <option value="1">★☆☆☆☆</option>
+            </select>
+          </label>
+          <label>${LumiereI18n.t('review_text')}
+            <textarea name="text" rows="3" required></textarea>
+          </label>
+          <button type="submit" class="btn btn-primary btn-sm">${LumiereI18n.t('review_submit')}</button>
+        </form>`;
+      }).join('')
+    : (order.status !== 'Delivered' ? `<p class="review-hint">${LumiereI18n.t('review_pending_delivery')}</p>` : '');
+
   const el = document.getElementById('orderDetailModal');
   if (!el) return;
   el.innerHTML = `
@@ -108,10 +135,54 @@ function showOrderDetail(order) {
       <p><strong>${LumiereI18n.t('checkout_payment')}:</strong> ${order.paymentMethodLabel || LumiereI18n.t('checkout_payment_cod')}</p>
       <ul class="order-detail-items">${itemsHtml}</ul>
       <p><strong>${LumiereI18n.t('account_total')}:</strong> ${formatOrderTotal(order.total)}</p>
+      <div class="order-detail-reviews">${reviewBlocks}</div>
     </div>`;
   el.hidden = false;
   el.querySelector('.order-detail-close')?.addEventListener('click', () => { el.hidden = true; });
   el.querySelector('.order-detail-backdrop')?.addEventListener('click', () => { el.hidden = true; });
+  el.querySelectorAll('.order-review-form').forEach(form => {
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn = form.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      try {
+        const fd = new FormData(form);
+        const res = await fetch('/api/reviews', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({
+            orderId: form.dataset.order,
+            productId: form.dataset.product,
+            rating: fd.get('rating'),
+            text: fd.get('text')
+          })
+        });
+        const data = await res.json();
+        if (!data.ok) {
+          showAccountToast(data.error === 'review_exists'
+            ? LumiereI18n.t('review_exists')
+            : LumiereI18n.t('contact_error'));
+          return;
+        }
+        await LumiereStore.reload();
+        showAccountToast(LumiereI18n.t('review_success'));
+        showOrderDetail(order);
+      } catch {
+        showAccountToast(LumiereI18n.t('contact_error'));
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  });
+}
+
+function showAccountToast(msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  document.getElementById('toastMessage').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
 }
 
 function renderWishlist(user) {

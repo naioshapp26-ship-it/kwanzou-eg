@@ -82,19 +82,14 @@ button {
    Announcement Bar
    ============================================ */
 .announcement-bar {
-  display: none !important;
-  visibility: hidden !important;
-  height: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow: hidden !important;
-  border: none !important;
+  display: block;
   background: var(--text-primary);
   color: var(--cream);
   text-align: center;
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  padding: 10px 16px;
+  line-height: 1.4;
 }
 
 .announcement-bar a {
@@ -1802,10 +1797,6 @@ button {
 
   .header {
     top: 0;
-  }
-
-  .announcement-bar {
-    display: none !important;
   }
 
   .hero-content {

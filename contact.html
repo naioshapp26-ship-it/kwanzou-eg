@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>تواصل معنا | Kwanzou EG</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=12">
+  <link rel="stylesheet" href="css/shop.css?v=8">
+</head>
+<body data-page-title="contact_title">
+  <div id="site-header"></div>
+  <main class="contact-page">
+    <div class="container">
+      <div class="contact-page__header">
+        <h1 data-i18n="contact_title">تواصل معنا</h1>
+        <p data-i18n="contact_subtitle">فريق Kwanzou جاهز يساعدك في أي استفسار عن الطلبات أو المنتجات.</p>
+      </div>
+      <div class="contact-page__grid">
+        <div class="contact-page__info">
+          <div class="contact-card">
+            <h3 data-i18n="contact_phone_title">اتصال / واتساب</h3>
+            <a href="tel:+201284371361" class="contact-card__link">01284371361</a>
+            <a href="https://wa.me/201284371361" class="btn btn-outline btn-sm" target="_blank" rel="noopener" data-i18n="contact_whatsapp">راسلينا على واتساب</a>
+          </div>
+          <div class="contact-card">
+            <h3 data-i18n="contact_email_title">البريد الإلكتروني</h3>
+            <a href="mailto:hello@kwanzou-eg.com" class="contact-card__link">hello@kwanzou-eg.com</a>
+          </div>
+          <div class="contact-card">
+            <h3 data-i18n="contact_hours_title">مواعيد الرد</h3>
+            <p data-i18n="contact_hours">يومياً من 10 صباحاً لـ 10 مساءً (بتوقيت القاهرة)</p>
+          </div>
+          <div class="contact-card contact-card--map">
+            <h3 data-i18n="footer_location">القاهرة، مصر</h3>
+            <iframe title="Kwanzou EG location" src="https://maps.google.com/maps?q=Cairo%2C%20Egypt&z=11&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </div>
+        </div>
+        <form class="contact-form" id="contactForm">
+          <h2 data-i18n="contact_form_title">ابعتلنا رسالة</h2>
+          <label>
+            <span data-i18n="contact_name">الاسم</span>
+            <input type="text" name="name" required autocomplete="name">
+          </label>
+          <label>
+            <span data-i18n="contact_email">البريد الإلكتروني</span>
+            <input type="email" name="email" autocomplete="email">
+          </label>
+          <label>
+            <span data-i18n="contact_phone">رقم الموبايل</span>
+            <input type="tel" name="phone" autocomplete="tel">
+          </label>
+          <label>
+            <span data-i18n="contact_subject">الموضوع</span>
+            <select name="subject">
+              <option value="order" data-i18n="contact_subject_order">استفسار عن طلب</option>
+              <option value="product" data-i18n="contact_subject_product">استفسار عن منتج</option>
+              <option value="general" data-i18n="contact_subject_general">استفسار عام</option>
+            </select>
+          </label>
+          <label>
+            <span data-i18n="contact_message">الرسالة</span>
+            <textarea name="message" rows="5" required></textarea>
+          </label>
+          <button type="submit" class="btn btn-primary" data-i18n="contact_send">إرسال</button>
+        </form>
+      </div>
+      <a href="index.html" class="link-arrow" data-i18n="policy_back">← رجوع للمتجر</a>
+    </div>
+  </main>
+  <div id="site-footer"></div>
+  <div class="toast" id="toast"><span id="toastMessage"></span></div>
+  <script src="js/store.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/layout.js?v=20"></script>
+  <script src="js/contact.js?v=1"></script>
+</body>
+</html>

@@ -158,6 +158,34 @@ function renderHomeCategories(categories) {
   }).join('');
 }
 
+function renderCollections(collections) {
+  const grid = document.getElementById('collectionsGrid');
+  if (!grid) return;
+  const list = (collections || []).slice(0, 4);
+  if (!list.length) {
+    grid.innerHTML = '';
+    grid.closest('.collections')?.classList.add('hidden');
+    return;
+  }
+  grid.closest('.collections')?.classList.remove('hidden');
+  const lang = LumiereI18n.getLang();
+  grid.innerHTML = list.map(c => {
+    const label = lang === 'ar' ? (c.labelAr || c.label) : (c.labelEn || c.label);
+    const title = lang === 'ar' ? (c.titleAr || c.title) : (c.titleEn || c.title);
+    const href = c.slug ? `shop.html?cat=${c.slug}` : 'shop.html';
+    const img = c.image || HERO_FALLBACK.a1;
+    return `<a class="collection-banner" href="${href}">
+      <img src="${img}" alt="${label}" loading="lazy" onerror="this.src='${HERO_FALLBACK.a1}'">
+      <div class="collection-banner__overlay"></div>
+      <div class="collection-banner__content">
+        <span class="collection-label">${label}</span>
+        <h3>${String(title).replace(/\n/g, '<br>')}</h3>
+        <span class="link-arrow">${LumiereI18n.t('featured_view_all')}</span>
+      </div>
+    </a>`;
+  }).join('');
+}
+
 function renderProductSections(products) {
   const featuredGrid = document.getElementById('featuredGrid');
   const bestsellersGrid = document.getElementById('bestsellersGrid');
@@ -230,13 +258,14 @@ function renderHomepage() {
     const data = LumiereStore.get();
     if (!data) throw new Error('No store data');
 
-    const { settings, products, testimonials, categories, instagramGallery } = data;
+    const { settings, products, testimonials, categories, instagramGallery, collections } = data;
     const sortedCats = sortedCategories(categories || []);
     const allProducts = products || [];
 
     renderHero(settings, sortedCats);
     renderCategoryTabs(sortedCats);
     renderHomeCategories(sortedCats);
+    renderCollections(collections);
     renderProductSections(allProducts);
     renderTestimonials(testimonials);
     renderInstagram(settings, instagramGallery);

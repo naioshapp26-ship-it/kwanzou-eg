@@ -24,8 +24,10 @@ const {
   subscribeNewsletter,
   updateCustomerProfile,
   changeCustomerPassword,
-  updateCustomerWishlist
+  updateCustomerWishlist,
+  submitProductReview
 } = require('./lib/public-store-api');
+const { submitContactMessage } = require('./lib/contact-api');
 const { listStaffAdmins, getStaffAdminById, addStaffAdmin, updateStaffAdmin, deleteStaffAdmin } = require('./lib/admin-staff-api');
 const { requestPasswordReset, validateResetToken, resetPasswordWithToken } = require('./lib/password-reset');
 const { getSmtpConfig, getResendConfig, isMailConfigured, getMailStatus } = require('./lib/mail');
@@ -346,6 +348,42 @@ app.post('/api/newsletter', async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error('POST /api/newsletter', err);
+    res.status(500).json({ ok: false, error: 'Server error' });
+  }
+});
+
+app.post('/api/contact', async (req, res) => {
+  try {
+    const result = await submitContactMessage(req.body || {});
+    if (!result.ok) {
+      const status = result.error === 'offline' || result.error === 'save_failed' ? 503 : 400;
+      return res.status(status).json(result);
+    }
+    res.json(result);
+  } catch (err) {
+    console.error('POST /api/contact', err);
+    res.status(500).json({ ok: false, error: 'Server error' });
+  }
+});
+
+app.post('/api/reviews', requireCustomer, async (req, res) => {
+  try {
+    const { orderId, productId, rating, text } = req.body || {};
+    const result = await submitProductReview({
+      userId: req.customerSession.userId,
+      orderId,
+      productId,
+      rating,
+      text
+    });
+    if (!result.ok) {
+      const status = result.error === 'offline' || result.error === 'save_failed' ? 503
+        : result.error === 'unauthorized' ? 401 : 400;
+      return res.status(status).json(result);
+    }
+    res.json(result);
+  } catch (err) {
+    console.error('POST /api/reviews', err);
     res.status(500).json({ ok: false, error: 'Server error' });
   }
 });

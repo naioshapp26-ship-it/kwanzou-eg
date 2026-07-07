@@ -24,8 +24,18 @@ function renderProduct() {
   const category = LumiereI18n.productCategory(product);
   const desc = LumiereI18n.getLang() === 'ar' ? (product.descAr || product.descEn) : (product.descEn || product.descAr);
   const images = product.images || [product.image];
-  const stars = '★'.repeat(product.rating) + '☆'.repeat(5 - product.rating);
+  const stars = '★'.repeat(Math.round(product.rating || 0)) + '☆'.repeat(5 - Math.round(product.rating || 0));
   const inStock = product.stock > 0;
+  const productReviews = (LumiereStore.get().productReviews || []).filter(r => r.productId === product.id);
+  const reviewsListHtml = productReviews.length
+    ? productReviews.slice(0, 20).map(r => {
+        const rStars = '★'.repeat(r.rating || 5) + '☆'.repeat(5 - (r.rating || 5));
+        return `<article class="product-review">
+          <div class="product-review__head"><span class="stars">${rStars}</span> <cite>${r.name || '—'}</cite> <time>${r.date || ''}</time></div>
+          <p>${String(r.text || '').replace(/</g, '&lt;')}</p>
+        </article>`;
+      }).join('')
+    : `<p>${LumiereI18n.t('reviews_none')}</p>`;
   document.title = `${name} | Kwanzou EG`;
 
   document.getElementById('breadcrumb').innerHTML = `
@@ -85,8 +95,8 @@ function renderProduct() {
         </ul>
       </div>
       <div class="tab-panel" id="tab-reviews">
-        <div class="review-summary"><span class="stars">${stars}</span> ${product.rating}/5 · ${product.reviews} ${LumiereI18n.t('reviews_count')}</div>
-        <p>${LumiereI18n.t('reviews_verified')}</p>
+        <div class="review-summary"><span class="stars">${stars}</span> ${product.rating || 0}/5 · ${product.reviews || productReviews.length} ${LumiereI18n.t('reviews_count')}</div>
+        <div class="product-reviews-list">${reviewsListHtml}</div>
       </div>
     </div>`;
 

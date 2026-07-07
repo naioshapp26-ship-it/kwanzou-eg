@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   initNavigation();
   renderDashboard();
   renderOrders();
+  renderContactMessages();
   renderProducts();
   renderCategories();
   renderCollections();
@@ -114,7 +115,8 @@ function switchSection(section) {
   document.querySelectorAll('.admin-nav__item').forEach(n => n.classList.toggle('active', n.dataset.section === section));
   document.querySelectorAll('.admin-section').forEach(s => s.classList.toggle('active', s.id === `sec-${section}`));
   const titles = {
-    dashboard: 'admin_dashboard', orders: 'admin_orders', products: 'admin_products',
+    dashboard: 'admin_dashboard', orders: 'admin_orders', contact: 'admin_contact_messages',
+    products: 'admin_products',
     categories: 'admin_categories', collections: 'admin_collections', appearance: 'admin_appearance',
     settings: 'admin_settings', shipping: 'admin_shipping', staff: 'admin_staff', users: 'admin_users', testimonials: 'admin_testimonials', newsletter: 'admin_newsletter'
   };
@@ -122,6 +124,7 @@ function switchSection(section) {
   document.getElementById('adminSidebar')?.classList.remove('open');
   if (section === 'staff') renderStaffAdmins();
   if (section === 'orders') renderOrders();
+  if (section === 'contact') renderContactMessages();
   if (section === 'dashboard') renderDashboard();
   if (section === 'appearance') renderAppearance();
   if (section === 'settings') {
@@ -881,6 +884,75 @@ function renderNewsletter() {
     ? list.map(e => `<li>${e} <button class="btn-icon btn-icon--danger" onclick="deleteNewsletter('${e}')">🗑</button></li>`).join('')
     : `<li class="empty-msg">${LumiereI18n.t('admin_empty')}</li>`;
 }
+
+const CONTACT_SUBJECT_KEYS = {
+  order: 'admin_contact_subject_order',
+  product: 'admin_contact_subject_product',
+  general: 'admin_contact_subject_general'
+};
+
+function formatContactDate(iso) {
+  if (!iso) return '—';
+  try {
+    return new Date(iso).toLocaleString(LumiereI18n.getLang() === 'ar' ? 'ar-EG' : 'en-GB', {
+      dateStyle: 'medium', timeStyle: 'short'
+    });
+  } catch {
+    return iso;
+  }
+}
+
+function renderContactMessages() {
+  const el = document.getElementById('contactMessagesList');
+  if (!el) return;
+  const messages = [...(LumiereStore.get().contactMessages || [])].sort((a, b) =>
+    String(b.createdAt || '').localeCompare(String(a.createdAt || ''))
+  );
+  if (!messages.length) {
+    el.innerHTML = `<p class="empty-msg">${LumiereI18n.t('admin_empty')}</p>`;
+    return;
+  }
+  el.innerHTML = messages.map(m => {
+    const subjectKey = CONTACT_SUBJECT_KEYS[m.subject] || 'admin_contact_subject_general';
+    const phone = m.phone ? `<a href="tel:${m.phone.replace(/\s/g, '')}">${m.phone}</a>` : '—';
+    const email = m.email ? `<a href="mailto:${m.email}">${m.email}</a>` : '—';
+    const wa = m.phone ? `https://wa.me/20${String(m.phone).replace(/\D/g, '').replace(/^0/, '')}` : '';
+    return `<article class="contact-msg-card${m.read ? ' contact-msg-card--read' : ''}" data-id="${m.id}">
+      <div class="contact-msg-card__head">
+        <strong>${m.name}</strong>
+        <span class="contact-msg-card__date">${formatContactDate(m.createdAt)}</span>
+        ${!m.read ? '<span class="contact-msg-card__badge">NEW</span>' : ''}
+      </div>
+      <p class="contact-msg-card__meta"><strong>${LumiereI18n.t('contact_subject')}:</strong> ${LumiereI18n.t(subjectKey)}</p>
+      <p class="contact-msg-card__meta"><strong>${LumiereI18n.t('contact_phone')}:</strong> ${phone} · <strong>${LumiereI18n.t('contact_email')}:</strong> ${email}</p>
+      <p class="contact-msg-card__body">${String(m.message || '').replace(/</g, '&lt;')}</p>
+      <div class="table-actions">
+        ${wa ? `<a class="btn btn-sm btn-primary" href="${wa}" target="_blank" rel="noopener">WhatsApp</a>` : ''}
+        ${m.phone ? `<a class="btn btn-sm btn-outline" href="tel:${String(m.phone).replace(/\s/g, '')}">${LumiereI18n.t('admin_contact_call')}</a>` : ''}
+        ${!m.read ? `<button type="button" class="btn btn-sm btn-outline" onclick="markContactRead('${m.id}')">${LumiereI18n.t('admin_contact_mark_read')}</button>` : ''}
+        <button type="button" class="btn btn-sm btn-outline btn-icon--danger" onclick="deleteContactMessage('${m.id}')">${LumiereI18n.t('admin_delete')}</button>
+      </div>
+    </article>`;
+  }).join('');
+}
+
+window.markContactRead = function(id) {
+  LumiereStore.update(data => {
+    const msg = (data.contactMessages || []).find(m => m.id === id);
+    if (msg) msg.read = true;
+  });
+  renderContactMessages();
+  toast(LumiereI18n.t('admin_saved'));
+};
+
+window.deleteContactMessage = function(id) {
+  if (!confirm(LumiereI18n.t('admin_confirm_delete'))) return;
+  LumiereStore.update(data => {
+    data.contactMessages = (data.contactMessages || []).filter(m => m.id !== id);
+  });
+  renderContactMessages();
+  toast(LumiereI18n.t('admin_deleted'));
+};
 
 window.deleteNewsletter = function(email) {
   if (!confirm(LumiereI18n.t('admin_confirm_delete'))) return;

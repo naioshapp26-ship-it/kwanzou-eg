@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
   LumiereI18n.init();
   await LumiereStore.init();
-  LumiereLayout.init('home');
+  LumiereLayout.init('contact');
   LumiereI18n.applyTranslations();
 
   const form = document.getElementById('contactForm');
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   window.addEventListener('lumiere:langchange', () => {
     LumiereI18n.applyTranslations();
-    LumiereLayout.init('home');
+    LumiereLayout.init('contact');
   });
 });
 

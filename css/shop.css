@@ -1292,3 +1292,46 @@ html[dir="rtl"] .product-card .wishlist-btn { right: auto; left: 12px; }
     grid-template-columns: 1fr;
   }
 }
+
+/* WhatsApp support FAB */
+.support-fab {
+  position: fixed;
+  bottom: calc(88px + env(safe-area-inset-bottom, 0px));
+  left: 20px;
+  z-index: 900;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #25d366;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(37, 211, 102, 0.45);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.support-fab svg {
+  width: 30px;
+  height: 30px;
+}
+
+.support-fab:hover {
+  transform: scale(1.06);
+  box-shadow: 0 6px 24px rgba(37, 211, 102, 0.55);
+}
+
+body:not(.mobile-nav-enabled) .support-fab {
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+}
+
+[dir="rtl"] .support-fab {
+  left: auto;
+  right: 20px;
+}
+
+@media (min-width: 769px) {
+  .support-fab {
+    bottom: 24px;
+  }
+}

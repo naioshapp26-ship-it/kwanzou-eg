@@ -12,6 +12,7 @@ const LumiereLayout = (() => {
   };
   const FOOTER_PHONE = '01284371361';
   const FOOTER_PHONE_HREF = 'tel:+201284371361';
+  const WHATSAPP_HREF = 'https://wa.me/201284371361?text=' + encodeURIComponent('مرحباً، عندي استفسار أو شكوى بخصوص Kwanzou EG');
 
   function logoPath(settings) {
     const logo = settings?.logo || 'assets/logo-brand.svg';
@@ -235,12 +236,14 @@ const LumiereLayout = (() => {
   function getDesktopHeaderNavItems() {
     return [
       { href: `${base}index.html`, i18n: 'nav_home', key: 'home' },
-      ...getStoreNavTabs()
+      ...getStoreNavTabs(),
+      { href: `${base}contact.html`, i18n: 'footer_contact_us', key: 'contact' }
     ];
   }
 
   function isDesktopNavActive(item, active, categories) {
     if (item.key === 'home') return active === 'home';
+    if (item.key === 'contact') return active === 'contact';
     if (item.key === 'sale') return false;
     if (active === item.key) return true;
     if (typeof CategoryTree !== 'undefined') {
@@ -288,9 +291,9 @@ const LumiereLayout = (() => {
         type: 'expandable',
         i18n: 'footer_about_title',
         subs: [
-          { i18n: 'footer_customer_service', href: 'account.html' },
+          { i18n: 'footer_customer_service', href: 'contact.html' },
           { i18n: 'bs_title', href: 'shop.html?sort=bestseller' },
-          { i18n: 'footer_contact_us', href: FOOTER_PHONE_HREF }
+          { i18n: 'footer_contact_us', href: 'contact.html' }
         ]
       }
     ];
@@ -325,6 +328,7 @@ const LumiereLayout = (() => {
     if (file === 'account.html') {
       return window.location.hash === '#wishlist' ? 'wishlist' : 'account';
     }
+    if (file === 'contact.html') return 'contact';
     if (file === 'shop.html' || file === 'product.html' || file === 'cart.html' || active === 'shop' || active === 'product' || inShopCategory) {
       return 'shop';
     }
@@ -347,7 +351,12 @@ const LumiereLayout = (() => {
     const announcement = LumiereI18n.localizedSettings(settings, 'announcement');
     const logo = logoPath(settings);
     const announcementBar = announcement
-      ? `<div class="announcement-bar" role="region" aria-label="${LumiereI18n.t('announcement_label')}"><span>${announcement}</span></div>`
+      ? `<div class="announcement-bar" role="region" aria-label="${LumiereI18n.t('announcement_label')}">
+          <div class="announcement-bar__track">
+            <span class="announcement-bar__text">${announcement}</span>
+            <span class="announcement-bar__text" aria-hidden="true">${announcement}</span>
+          </div>
+        </div>`
       : '';
 
     const mobileSideMenu = renderMobileSideMenu(products, categories);
@@ -400,6 +409,7 @@ const LumiereLayout = (() => {
           ${mobileSideMenu}
         </nav>
         <ul class="mobile-menu__links mobile-menu__links--compact">
+          <li><a href="${base}contact.html">${LumiereI18n.t('footer_contact_us')}</a></li>
           <li><a href="${accountLink}">${session ? LumiereI18n.t('nav_account') : LumiereI18n.t('nav_signin')}</a></li>
           <li><a href="${base}cart.html">${LumiereI18n.t('nav_bag')}</a></li>
           <li><button type="button" class="lang-switch mobile-lang">${LumiereI18n.t('lang_switch')}</button></li>
@@ -438,6 +448,16 @@ const LumiereLayout = (() => {
         <span>${LumiereI18n.t('mobile_nav_shop')}</span>
       </a>
     </nav>`;
+  }
+
+  function mountSupportFab() {
+    document.getElementById('supportFab')?.remove();
+    if (isAdmin) return;
+    document.body.insertAdjacentHTML('beforeend', `
+      <a href="${WHATSAPP_HREF}" class="support-fab" id="supportFab" target="_blank" rel="noopener noreferrer"
+         aria-label="${LumiereI18n.t('support_whatsapp')}" title="${LumiereI18n.t('support_whatsapp')}">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.435 9.884-9.884 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+      </a>`);
   }
 
   function mountMobileBottomNav(active = '') {
@@ -650,6 +670,7 @@ const LumiereLayout = (() => {
       } catch (err) {
         console.error('Footer render error:', err);
       }
+      mountSupportFab();
       document.body.classList.toggle('mobile-nav-enabled', !isAdmin);
       KwanzouCart.updateUI();
       LumiereI18n.bindLangSwitch(headerEl || document);

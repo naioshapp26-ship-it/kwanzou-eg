@@ -29,13 +29,14 @@ async function main() {
 
   const home = await get('/index.html');
   if (home.status !== 200) failures.push(`home status ${home.status}`);
-  if (!home.text.includes('collectionsGrid')) failures.push('homepage missing collections section');
-  console.log('homepage_structure:', home.text.includes('collectionsGrid') ? 'ok' : 'FAIL');
+  if (!home.text.includes('newArrivals')) failures.push('homepage missing product sections');
+  console.log('homepage_structure:', home.text.includes('newArrivals') ? 'ok' : 'FAIL');
 
-  const layout = await get('/js/layout.js?v=20');
-  if (!layout.text.includes('announcement-bar')) failures.push('layout missing announcement bar');
+  const layout = await get('/js/layout.js?v=21');
+  if (!layout.text.includes('announcement-bar__track')) failures.push('layout missing marquee announcement');
+  if (!layout.text.includes('support-fab')) failures.push('layout missing whatsapp support fab');
   if (!layout.text.includes('contact.html')) failures.push('layout missing contact link');
-  console.log('layout_features:', layout.text.includes('announcement-bar') && layout.text.includes('contact.html') ? 'ok' : 'FAIL');
+  console.log('layout_features:', layout.text.includes('announcement-bar__track') && layout.text.includes('support-fab') && layout.text.includes('contact.html') ? 'ok' : 'FAIL');
 
   const contact = await get('/contact.html');
   if (contact.status !== 200) failures.push(`contact status ${contact.status}`);

@@ -301,7 +301,10 @@ function renderOrders() {
     return;
   }
   tbody.innerHTML = orders.map(o => {
-    const itemsText = (o.items || []).map(i => `${i.name} ×${i.qty}`).join('، ');
+    const itemsText = (o.items || []).map(i => {
+      const c = orderItemColorLabel(i.color);
+      return `${i.name}${c ? ` (${c})` : ''} ×${i.qty}`;
+    }).join('، ');
     return `<tr>
       <td><strong>${o.id}</strong></td>
       <td>${o.customerName || '—'}<br><small>${o.customerEmail || ''}</small></td>
@@ -332,6 +335,18 @@ function renderOrders() {
   });
 }
 
+function orderItemColorLabel(color) {
+  if (!color) return '';
+  return LumiereI18n.localized(color, 'name') || color.name || color.nameAr || '';
+}
+
+function orderItemColorHtml(color) {
+  const label = orderItemColorLabel(color);
+  if (!label) return '';
+  const hex = /^#?[0-9a-fA-F]{3,8}$/.test(color.hex || '') ? (color.hex.startsWith('#') ? color.hex : `#${color.hex}`) : '#ccc';
+  return `<span class="order-item-color"><span class="order-item-color__dot" style="background:${hex}"></span>${label}</span>`;
+}
+
 function orderItemImageHtml(item) {
   const products = LumiereStore.get().products || [];
   const product = products.find(p => p.id === item.productId || p.id === item.id);
@@ -348,7 +363,7 @@ window.viewOrder = function(id) {
   const sym = currencySym();
   const rows = (o.items || []).map(i => `
     <tr>
-      <td class="order-item-cell">${orderItemImageHtml(i)}<span>${i.name}</span></td>
+      <td class="order-item-cell">${orderItemImageHtml(i)}<span>${i.name}${orderItemColorHtml(i.color)}</span></td>
       <td>${i.qty}</td>
       <td>${i.price?.toLocaleString()} ${sym}</td>
       <td>${(i.price * i.qty).toLocaleString()} ${sym}</td>
@@ -1062,6 +1077,41 @@ window.deleteProduct = function(id) {
   toast(LumiereI18n.t('admin_deleted'));
 };
 
+function productColorRowHTML(color = {}) {
+  const nameAr = String(color.nameAr || '').replace(/"/g, '&quot;');
+  const name = String(color.name || '').replace(/"/g, '&quot;');
+  const hex = /^#?[0-9a-fA-F]{3,8}$/.test(color.hex || '') ? (color.hex.startsWith('#') ? color.hex : `#${color.hex}`) : '#000000';
+  return `<div class="product-color-row">
+    <input type="color" class="pc-hex" value="${hex}" title="${LumiereI18n.t('admin_product_color_hex')}">
+    <input type="text" class="pc-name-ar" value="${nameAr}" placeholder="${LumiereI18n.t('admin_product_color_ar')}">
+    <input type="text" class="pc-name-en" value="${name}" placeholder="${LumiereI18n.t('admin_product_color_en')}">
+    <button type="button" class="btn-icon btn-icon--danger pc-remove" title="${LumiereI18n.t('admin_delete')}">🗑</button>
+  </div>`;
+}
+
+function renderProductColors(colors) {
+  const wrap = document.getElementById('productColorsWrap');
+  if (!wrap) return;
+  wrap.innerHTML = (colors || []).map(c => productColorRowHTML(c)).join('');
+  bindProductColorControls();
+}
+
+function bindProductColorControls() {
+  document.querySelectorAll('#productColorsWrap .pc-remove').forEach(btn => {
+    btn.onclick = () => btn.closest('.product-color-row')?.remove();
+  });
+}
+
+function collectProductColors(root) {
+  const wrap = (root || document).querySelector('#productColorsWrap');
+  if (!wrap) return [];
+  return [...wrap.querySelectorAll('.product-color-row')].map(row => ({
+    hex: row.querySelector('.pc-hex')?.value || '#000000',
+    nameAr: row.querySelector('.pc-name-ar')?.value?.trim() || '',
+    name: row.querySelector('.pc-name-en')?.value?.trim() || ''
+  })).filter(c => c.nameAr || c.name);
+}
+
 function openProductModal(product = null) {
   const isEdit = !!product;
   const cats = LumiereStore.get().categories;
@@ -1094,6 +1144,12 @@ function openProductModal(product = null) {
       </div>
       ${imageUploadHTML('image', product?.image, LumiereI18n.t('admin_product_main_image'))}
       <div class="form-group"><label>${LumiereI18n.t('admin_product_images')}</label>${AdminMedia.galleryHTML(product?.images?.length > 1 ? product.images.slice(1) : [])}</div>
+      <div class="form-group product-colors-field">
+        <label>${LumiereI18n.t('admin_product_colors')}</label>
+        <p class="field-hint">${LumiereI18n.t('admin_product_colors_hint')}</p>
+        <div id="productColorsWrap" class="product-colors-wrap"></div>
+        <button type="button" class="btn btn-sm btn-outline" id="addProductColor">+ ${LumiereI18n.t('admin_product_color_add')}</button>
+      </div>
       <div class="form-group"><label>${LumiereI18n.t('admin_badge')}</label><input name="badge" value="${product?.badge || ''}"></div>
       <div class="form-group"><label>${LumiereI18n.t('admin_desc_ar')}</label><textarea name="descAr" rows="2">${product?.descAr || ''}</textarea></div>
       <div class="form-group"><label>${LumiereI18n.t('admin_desc_en')}</label><textarea name="descEn" rows="2">${product?.descEn || ''}</textarea></div>
@@ -1106,6 +1162,13 @@ function openProductModal(product = null) {
   `);
   bindModalImageUploads();
   AdminMedia.bindGallery(document.getElementById('modalBody'), toast);
+  renderProductColors(product?.colors || []);
+  document.getElementById('addProductColor')?.addEventListener('click', () => {
+    const wrap = document.getElementById('productColorsWrap');
+    if (!wrap) return;
+    wrap.insertAdjacentHTML('beforeend', productColorRowHTML({ nameAr: '', name: '', hex: '#000000' }));
+    bindProductColorControls();
+  });
 
   document.getElementById('productForm').onsubmit = async e => {
     e.preventDefault();
@@ -1136,6 +1199,7 @@ function openProductModal(product = null) {
       reviews: product?.reviews || 0,
       image,
       images,
+      colors: collectProductColors(modalBody),
       badge: fd.get('badge'),
       descAr: fd.get('descAr'),
       descEn: fd.get('descEn'),

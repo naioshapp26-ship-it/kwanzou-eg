@@ -186,7 +186,8 @@
           name: LumiereI18n.localized(p, 'name') || p?.name,
           qty: item.qty,
           price: unit,
-          image: p?.image || ''
+          image: p?.image || '',
+          color: item.color || null
         };
       }).filter(i => i.name);
 
@@ -220,7 +221,7 @@
         userId: session?.id || null
       });
 
-      items.forEach(i => KwanzouCart.remove(i.id));
+      items.forEach(i => KwanzouCart.remove(KwanzouCart.lineKey(i)));
       KwanzouCart.updateUI();
       if (session) await LumiereAuth.refreshCurrentUser();
       showOrderConfirmation(order, orderItems);
@@ -231,9 +232,11 @@
     const el = document.getElementById('cartContent');
     const session = LumiereAuth.getSession();
     const addr = order.shippingAddress || {};
-    const itemsHtml = orderItems.map(i =>
-      `<li>${i.name} × ${i.qty} — ${formatMoney(i.price * i.qty)}</li>`
-    ).join('');
+    const itemsHtml = orderItems.map(i => {
+      const colorLabel = ProductUI.colorLabel(i.color);
+      const colorText = colorLabel ? ` — ${LumiereI18n.t('color_label')}: ${colorLabel}` : '';
+      return `<li>${i.name} × ${i.qty}${colorText} — ${formatMoney(i.price * i.qty)}</li>`;
+    }).join('');
 
     el.innerHTML = `
       <div class="order-success">
@@ -279,7 +282,7 @@
     }
 
     cartSubtotal = 0;
-    const rows = items.map(item => {
+    const rows = items.map((item, idx) => {
       const p = products.find(x => x.id === item.id);
       if (!p) return '';
       const unit = ProductUI.effectivePrice(p);
@@ -290,16 +293,20 @@
         ? `<span class="cart-item__price-sale">${KwanzouCart.formatPrice(unit)} <del>${KwanzouCart.formatPrice(p.price)}</del></span>`
         : `<span>${KwanzouCart.formatPrice(unit)}</span>`;
       const max = p.stock != null ? p.stock : 99;
+      const colorLabel = ProductUI.colorLabel(item.color);
+      const colorHtml = colorLabel
+        ? `<span class="cart-item__color"><span class="cart-item__swatch" style="background:${ProductUI.colorSwatchStyle(item.color)}"></span>${LumiereI18n.t('color_label')}: ${colorLabel}</span>`
+        : '';
       return `<div class="cart-item">
         <a href="product.html?id=${p.id}"><img src="${p.image}" alt=""></a>
-        <div class="cart-item__info"><a href="product.html?id=${p.id}"><strong>${name}</strong></a>${priceLabel}
+        <div class="cart-item__info"><a href="product.html?id=${p.id}"><strong>${name}</strong></a>${priceLabel}${colorHtml}
         <div class="cart-qty">
-          <button type="button" class="cart-qty__btn" onclick="window.changeCartQty('${p.id}',-1)" aria-label="-">−</button>
+          <button type="button" class="cart-qty__btn" data-idx="${idx}" data-delta="-1" aria-label="-">−</button>
           <span class="cart-qty__num">${item.qty}</span>
-          <button type="button" class="cart-qty__btn" onclick="window.changeCartQty('${p.id}',1)" ${item.qty >= max ? 'disabled' : ''} aria-label="+">+</button>
+          <button type="button" class="cart-qty__btn" data-idx="${idx}" data-delta="1" ${item.qty >= max ? 'disabled' : ''} aria-label="+">+</button>
         </div></div>
         <div class="cart-item__total">${KwanzouCart.formatPrice(sub)}</div>
-        <button class="cart-item__remove" onclick="KwanzouCart.remove('${p.id}');renderCart()" type="button">✕</button>
+        <button class="cart-item__remove" data-idx="${idx}" type="button" aria-label="remove">✕</button>
       </div>`;
     }).join('');
 
@@ -391,12 +398,30 @@
         </div>
       </div>`;
 
+    bindCartRowControls();
     bindCheckoutForm(document.getElementById('checkoutForm'), profile);
   }
 
+  function bindCartRowControls() {
+    const el = document.getElementById('cartContent');
+    if (!el) return;
+    el.querySelectorAll('.cart-qty__btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = KwanzouCart.get()[+btn.dataset.idx];
+        if (!item) return;
+        KwanzouCart.changeQty(KwanzouCart.lineKey(item), +btn.dataset.delta);
+        renderCart();
+      });
+    });
+    el.querySelectorAll('.cart-item__remove').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = KwanzouCart.get()[+btn.dataset.idx];
+        if (!item) return;
+        KwanzouCart.remove(KwanzouCart.lineKey(item));
+        renderCart();
+      });
+    });
+  }
+
   window.renderCart = renderCart;
-  window.changeCartQty = (id, delta) => {
-    KwanzouCart.changeQty(id, delta);
-    renderCart();
-  };
 })();

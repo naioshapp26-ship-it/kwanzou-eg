@@ -59,6 +59,7 @@ function renderProduct() {
         <div class="pd-delivery__item">ℹ ${LumiereI18n.t('delivery_returns')}</div>
         <div class="pd-delivery__item">✓ ${LumiereI18n.t('delivery_authentic')}</div>
       </div>
+      ${colorPickerHTML(product)}
       <div class="pd-qty">
         <label>${LumiereI18n.t('quantity')}</label>
         <div class="qty-control">
@@ -111,7 +112,27 @@ function renderProduct() {
   LumiereI18n.applyTranslations();
 }
 
+function colorPickerHTML(product) {
+  if (!ProductUI.hasColors(product)) return '';
+  const swatches = product.colors.map((c, i) => {
+    const label = ProductUI.colorLabel(c);
+    const bg = ProductUI.colorSwatchStyle(c);
+    return `<button type="button" class="pd-color" data-idx="${i}" title="${label}" aria-label="${label}" aria-pressed="false">
+      <span class="pd-color__dot" style="background:${bg}"></span>
+      <span class="pd-color__name">${label}</span>
+    </button>`;
+  }).join('');
+  return `<div class="pd-colors" id="pdColors">
+    <label class="pd-colors__label">${LumiereI18n.t('color_label')}: <span class="pd-colors__selected" id="pdColorSelected">${LumiereI18n.t('color_choose')}</span></label>
+    <div class="pd-colors__swatches">${swatches}</div>
+  </div>`;
+}
+
+// Currently selected color for the product being viewed (null = none / no colors).
+let _selectedColor = null;
+
 function bindProductEvents(product) {
+  _selectedColor = null;
   document.querySelectorAll('.pd-thumb').forEach(btn => {
     btn.onclick = () => {
       document.getElementById('pdMainImg').src = btn.dataset.src;
@@ -120,21 +141,49 @@ function bindProductEvents(product) {
     };
   });
 
+  const hasColors = ProductUI.hasColors(product);
+  document.querySelectorAll('.pd-color').forEach(btn => {
+    btn.onclick = () => {
+      const idx = +btn.dataset.idx;
+      _selectedColor = product.colors[idx] || null;
+      document.querySelectorAll('.pd-color').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-pressed', 'false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
+      const sel = document.getElementById('pdColorSelected');
+      if (sel) sel.textContent = ProductUI.colorLabel(_selectedColor);
+    };
+  });
+
   const qtyInput = document.getElementById('qtyInput');
   document.getElementById('qtyMinus').onclick = () => { if (+qtyInput.value > 1) qtyInput.value = +qtyInput.value - 1; };
   document.getElementById('qtyPlus').onclick = () => { if (+qtyInput.value < product.stock) qtyInput.value = +qtyInput.value + 1; };
 
+  const requireColor = () => {
+    if (hasColors && !_selectedColor) {
+      showToast(LumiereI18n.t('color_required'));
+      document.getElementById('pdColors')?.classList.add('pd-colors--error');
+      return false;
+    }
+    return true;
+  };
+
   document.getElementById('btnAddCart').onclick = () => {
-    const result = KwanzouCart.add(product.id, +qtyInput.value);
+    if (!requireColor()) return;
+    const result = KwanzouCart.add(product.id, +qtyInput.value, _selectedColor);
     if (result?.ok === false) {
       showToast(LumiereI18n.t('stock_limit'));
       return;
     }
-    showToast(`${LumiereI18n.localized(product, 'name')} — ${LumiereI18n.t('added_bag')}`);
+    const colorText = _selectedColor ? ` (${ProductUI.colorLabel(_selectedColor)})` : '';
+    showToast(`${LumiereI18n.localized(product, 'name')}${colorText} — ${LumiereI18n.t('added_bag')}`);
   };
 
   document.getElementById('btnBuyNow').onclick = () => {
-    KwanzouCart.add(product.id, +qtyInput.value);
+    if (!requireColor()) return;
+    KwanzouCart.add(product.id, +qtyInput.value, _selectedColor);
     window.location.href = 'cart.html';
   };
 

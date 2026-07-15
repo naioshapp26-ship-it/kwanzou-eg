@@ -17,44 +17,60 @@ const KwanzouCart = (() => {
     return get().reduce((s, i) => s + i.qty, 0);
   }
 
-  function add(productId, qty = 1) {
+  // Normalized identifier for a chosen color (used to separate cart lines).
+  function colorKey(color) {
+    if (!color) return '';
+    return String(color.name || color.nameAr || color.hex || '').trim().toLowerCase();
+  }
+
+  // Unique key per cart line: same product with different colors = different lines.
+  function lineKey(item) {
+    const ck = colorKey(item.color);
+    return ck ? `${item.id}::${ck}` : String(item.id);
+  }
+
+  function findByKey(items, key) {
+    return items.find(i => lineKey(i) === key);
+  }
+
+  function add(productId, qty = 1, color = null) {
     const p = LumiereStore.get().products.find(x => x.id === productId);
     const max = p?.stock != null ? p.stock : 999;
     const items = get();
-    const existing = items.find(i => i.id === productId);
+    const ck = colorKey(color);
+    const existing = items.find(i => i.id === productId && colorKey(i.color) === ck);
     const current = existing?.qty || 0;
     const next = Math.min(current + qty, max);
     if (next <= current) return { ok: false, error: 'stock_limit' };
     if (existing) existing.qty = next;
-    else items.push({ id: productId, qty: next });
+    else items.push({ id: productId, qty: next, color: color || null });
     save(items);
     return { ok: true };
   }
 
-  function setQty(productId, qty) {
+  function setQty(key, qty) {
     if (qty <= 0) {
-      remove(productId);
+      remove(key);
       return { ok: true };
     }
-    const p = LumiereStore.get().products.find(x => x.id === productId);
-    const max = p?.stock != null ? p.stock : 999;
-    const q = Math.min(qty, max);
     const items = get();
-    const existing = items.find(i => i.id === productId);
-    if (existing) existing.qty = q;
-    else items.push({ id: productId, qty: q });
+    const item = findByKey(items, key);
+    if (!item) return { ok: false, error: 'not_found' };
+    const p = LumiereStore.get().products.find(x => x.id === item.id);
+    const max = p?.stock != null ? p.stock : 999;
+    item.qty = Math.min(qty, max);
     save(items);
     return { ok: true };
   }
 
-  function changeQty(productId, delta) {
-    const item = get().find(i => i.id === productId);
+  function changeQty(key, delta) {
+    const item = findByKey(get(), key);
     const current = item?.qty || 0;
-    return setQty(productId, current + delta);
+    return setQty(key, current + delta);
   }
 
-  function remove(productId) {
-    save(get().filter(i => i.id !== productId));
+  function remove(key) {
+    save(get().filter(i => lineKey(i) !== key));
   }
 
   function updateUI() {
@@ -68,7 +84,7 @@ const KwanzouCart = (() => {
     return `${price.toLocaleString()} ${sym}`;
   }
 
-  return { get, add, remove, setQty, changeQty, count, updateUI, formatPrice };
+  return { get, add, remove, setQty, changeQty, count, updateUI, formatPrice, lineKey, colorKey };
 })();
 
 /**
@@ -84,6 +100,20 @@ const ProductUI = {
 
   sku(p) {
     return p.sku || String(p.id).replace(/^p/i, 'P').toUpperCase();
+  },
+
+  hasColors(p) {
+    return Array.isArray(p?.colors) && p.colors.length > 0;
+  },
+
+  colorLabel(color) {
+    if (!color) return '';
+    return LumiereI18n.localized(color, 'name') || color.name || color.nameAr || '';
+  },
+
+  colorSwatchStyle(color) {
+    const hex = color?.hex && /^#?[0-9a-fA-F]{3,8}$/.test(color.hex) ? color.hex : '#cccccc';
+    return hex.startsWith('#') ? hex : `#${hex}`;
   },
 
   salePrice(p) {
@@ -173,9 +203,15 @@ const ProductUI = {
       btn.onclick = e => {
         e.preventDefault();
         e.stopPropagation();
-        const result = KwanzouCart.add(btn.dataset.id);
         const p = LumiereStore.get().products.find(x => x.id === btn.dataset.id);
         const name = LumiereI18n.localized(p, 'name') || p?.name;
+        // Products with colors must be configured on the product page first.
+        if (this.hasColors(p)) {
+          if (typeof showToast === 'function') showToast(LumiereI18n.t('color_choose_on_product'));
+          window.location.href = this.url(p.id);
+          return;
+        }
+        const result = KwanzouCart.add(btn.dataset.id);
         if (result?.ok === false && result.error === 'stock_limit') {
           if (typeof showToast === 'function') showToast(LumiereI18n.t('stock_limit'));
           return;

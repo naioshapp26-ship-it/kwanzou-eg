@@ -90,9 +90,11 @@ function renderOrders(user) {
 function showOrderDetail(order) {
   if (!order) return;
   const addr = order.shippingAddress || {};
-  const itemsHtml = (order.items || []).map(i =>
-    `<li>${i.name} × ${i.qty} — ${formatOrderTotal((i.price || 0) * i.qty)}</li>`
-  ).join('');
+  const itemsHtml = (order.items || []).map(i => {
+    const colorLabel = i.color ? (LumiereI18n.localized(i.color, 'name') || i.color.name || i.color.nameAr || '') : '';
+    const colorText = colorLabel ? ` — ${LumiereI18n.t('color_label')}: ${colorLabel}` : '';
+    return `<li>${i.name} × ${i.qty}${colorText} — ${formatOrderTotal((i.price || 0) * i.qty)}</li>`;
+  }).join('');
   const session = LumiereAuth.getSession();
   const reviews = (LumiereStore.get().productReviews || []);
   const reviewBlocks = (order.status === 'Delivered' && session)

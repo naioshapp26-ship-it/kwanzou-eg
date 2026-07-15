@@ -661,6 +661,47 @@ html[dir="rtl"] .admin-nav__item { flex-direction: row-reverse; text-align: righ
   font-size: 0.85rem;
 }
 
+.order-item-cell span { display: flex; flex-direction: column; gap: 3px; }
+.order-item-color {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: #8a7b70;
+}
+.order-item-color__dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.15);
+  display: inline-block;
+}
+
+/* Product color manager (product modal) */
+.product-colors-field .field-hint {
+  font-size: 0.78rem;
+  color: #8a7b70;
+  margin: 2px 0 10px;
+}
+.product-colors-wrap { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.product-color-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.product-color-row .pc-hex {
+  width: 44px;
+  height: 38px;
+  padding: 2px;
+  border: 1px solid rgba(0,0,0,0.12);
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.product-color-row .pc-name-ar,
+.product-color-row .pc-name-en { flex: 1; min-width: 0; }
+.product-color-row .pc-remove { flex-shrink: 0; }
+
 .order-items-table tfoot td {
   background: var(--cream);
   font-weight: 600;

@@ -2,9 +2,11 @@
  * Admin image helpers — compress, preview, upload binding
  */
 const AdminMedia = (() => {
-  const MAX_BYTES = 900000;
+  // Upper bound only as a safety net (server accepts up to 50MB bodies).
+  // Full-quality uploads are kept; we only downscale extremely large images.
+  const MAX_BYTES = 12000000;
 
-  function compressDataUrl(dataUrl, maxW = 1400, quality = 0.85) {
+  function compressDataUrl(dataUrl, maxW = 2600, quality = 0.92) {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => {
@@ -21,8 +23,10 @@ const AdminMedia = (() => {
         ctx.drawImage(img, 0, 0, w, h);
         let q = quality;
         let out = canvas.toDataURL('image/jpeg', q);
-        while (out.length > MAX_BYTES && q > 0.45) {
-          q -= 0.08;
+        // Only step quality down if the file is truly huge, and never below 0.7
+        // so the uploaded image stays visually close to the original.
+        while (out.length > MAX_BYTES && q > 0.7) {
+          q -= 0.05;
           out = canvas.toDataURL('image/jpeg', q);
         }
         resolve(out);

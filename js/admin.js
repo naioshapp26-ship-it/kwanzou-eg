@@ -1283,7 +1283,10 @@ function openCategoryModal(cat = null) {
       toast(LumiereI18n.t('admin_slug_invalid'));
       return;
     }
-    const dup = cats.some(c => c.slug === slug && c.id !== cat?.id);
+    // Only check for duplicates when the slug actually changes — legacy data
+    // contains shared slugs, and editing (e.g. the image) must never be blocked.
+    const slugChanged = !cat || slug !== cat.slug;
+    const dup = slugChanged && cats.some(c => c.slug === slug && c.id !== cat?.id);
     if (dup) {
       toast(LumiereI18n.t('admin_slug_duplicate'));
       return;
@@ -1293,7 +1296,7 @@ function openCategoryModal(cat = null) {
       nameAr: fd.get('nameAr'),
       slug,
       sort: +fd.get('sort'),
-      image: fd.get('image') || cat?.image,
+      image: (fd.get('image') || '').toString().trim(),
       featured: fd.has('featured'),
       parentId
     };

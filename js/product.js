@@ -295,17 +295,17 @@ async function tryNativeShareWithImage(product) {
 
 async function prepareStoryShare(product) {
   const caption = productShareCaption(product);
-  await copyShareLink(caption);
+  const copied = await copyShareLink(caption);
 
   const native = await tryNativeShareWithImage(product);
-  if (native.shared) return { mode: 'native', file: native.file };
+  if (native.shared) return { mode: 'native', file: native.file, copied };
 
   let file = native.file;
   if (!file) {
     try { file = await getProductImageFile(product); } catch (_) {}
   }
   if (file) downloadImageFile(file);
-  return { mode: file ? 'download' : 'link', file };
+  return { mode: file ? 'download' : 'link', file, copied };
 }
 
 async function handleProductShare(platform, product) {
@@ -335,9 +335,7 @@ async function handleProductShare(platform, product) {
     const result = await tryNativeShareWithImage(product);
     if (!result.shared) {
       const prepared = await prepareStoryShare(product);
-      showToast(prepared.mode === 'download'
-        ? LumiereI18n.t('share_image_ready')
-        : LumiereI18n.t('share_copy_failed'));
+      showToast(storyShareToast(prepared, 'generic'));
     }
     return;
   }
@@ -348,9 +346,19 @@ async function handleProductShare(platform, product) {
     showToast(platform === 'instagram' ? LumiereI18n.t('share_instagram_ok') : LumiereI18n.t('share_tiktok_ok'));
     return;
   }
-  showToast(prepared.mode === 'download'
-    ? (platform === 'instagram' ? LumiereI18n.t('share_instagram_hint') : LumiereI18n.t('share_tiktok_hint'))
-    : LumiereI18n.t('share_copy_failed'));
+  showToast(storyShareToast(prepared, platform));
+}
+
+function storyShareToast(prepared, platform) {
+  if (prepared.mode === 'download' && prepared.copied) {
+    if (platform === 'instagram') return LumiereI18n.t('share_instagram_hint');
+    if (platform === 'tiktok') return LumiereI18n.t('share_tiktok_hint');
+    return LumiereI18n.t('share_image_ready');
+  }
+  if (prepared.mode === 'download' && !prepared.copied) {
+    return LumiereI18n.t('share_image_ready_no_copy');
+  }
+  return LumiereI18n.t('share_copy_failed');
 }
 
 function bindProductShare(product) {

@@ -135,7 +135,7 @@ const LumiereI18n = (() => {
       featured_title: 'حاجات مميزة',
       featured_view_all: 'شوف الكل ←',
       na_eyebrow: 'وصل حديثاً',
-      na_title: 'جديد عندنا',
+      na_title: 'New arrivals',
       na_view_all: 'شوف الجديد ←',
       promo_eyebrow: 'عرض حصري',
       promo_title: 'مجموعة الربيع',

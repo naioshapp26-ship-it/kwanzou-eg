@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const { initDb, getStore, saveStore, isDbReady, getDbStatus, getPool } = require('./lib/db');
-const { getMedia } = require('./lib/media-store');
+const { getMedia, upsertMedia, isDataUrl } = require('./lib/media-store');
 const { sanitizeStoreForPublic } = require('./lib/store-sanitize');
 const {
   verifyAdminCredentials,
@@ -80,6 +80,22 @@ app.get('/api/media/:id', async (req, res) => {
   } catch (err) {
     console.error('GET /api/media', err);
     res.status(500).end();
+  }
+});
+
+// Upload a single image immediately (instead of embedding it in the store
+// JSON) so saving the store stays a small, fast request.
+app.post('/api/admin/media', requireAdmin, async (req, res) => {
+  try {
+    const pool = getPool();
+    if (!pool || !isDbReady()) return res.status(503).json({ ok: false, error: 'Database not connected' });
+    const dataUrl = req.body?.dataUrl;
+    if (!isDataUrl(dataUrl)) return res.status(400).json({ ok: false, error: 'Invalid image' });
+    const url = await upsertMedia(pool, dataUrl);
+    res.json({ ok: true, url });
+  } catch (err) {
+    console.error('POST /api/admin/media', err);
+    res.status(500).json({ ok: false, error: 'Server error' });
   }
 });
 

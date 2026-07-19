@@ -489,9 +489,10 @@ function initAppearanceForm() {
     e.target.value = '';
     if (!file) return;
     try {
-      const dataUrl = await AdminMedia.readFile(file);
-      document.getElementById('logoPreview').src = dataUrl;
-      document.getElementById('setLogoUrl').value = dataUrl;
+      toast(LumiereI18n.t('admin_image_uploading'));
+      const url = await AdminMedia.readFile(file);
+      document.getElementById('logoPreview').src = url;
+      document.getElementById('setLogoUrl').value = url;
     } catch (_) {
       toast(LumiereI18n.t('admin_image_upload_failed'));
     }

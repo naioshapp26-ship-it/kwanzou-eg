@@ -2,11 +2,12 @@
  * Admin image helpers — compress, preview, upload binding
  */
 const AdminMedia = (() => {
-  // Upper bound only as a safety net (server accepts up to 50MB bodies).
-  // Full-quality uploads are kept; we only downscale extremely large images.
-  const MAX_BYTES = 12000000;
+  // Soft ceiling for the compressed data-URL string (~3MB binary). High-res
+  // photos at 2600px / q0.9 usually land well under this; we only nudge
+  // quality if something is truly enormous.
+  const MAX_BYTES = 4000000;
 
-  function compressDataUrl(dataUrl, maxW = 2600, quality = 0.92) {
+  function compressDataUrl(dataUrl, maxW = 2600, quality = 0.9) {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => {
@@ -23,9 +24,7 @@ const AdminMedia = (() => {
         ctx.drawImage(img, 0, 0, w, h);
         let q = quality;
         let out = canvas.toDataURL('image/jpeg', q);
-        // Only step quality down if the file is truly huge, and never below 0.7
-        // so the uploaded image stays visually close to the original.
-        while (out.length > MAX_BYTES && q > 0.7) {
+        while (out.length > MAX_BYTES && q > 0.72) {
           q -= 0.05;
           out = canvas.toDataURL('image/jpeg', q);
         }
@@ -36,6 +35,18 @@ const AdminMedia = (() => {
     });
   }
 
+  async function uploadToServer(dataUrl) {
+    const res = await fetch('/api/admin/media', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ dataUrl })
+    });
+    const body = await res.json().catch(() => null);
+    if (!res.ok || !body?.ok || !body.url) throw new Error(body?.error || `upload failed (${res.status})`);
+    return body.url;
+  }
+
   async function readFile(file) {
     const raw = await new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -43,7 +54,9 @@ const AdminMedia = (() => {
       reader.onerror = reject;
       reader.readAsDataURL(file);
     });
-    return compressDataUrl(raw);
+    const compressed = await compressDataUrl(raw);
+    // Always upload immediately — never embed large base64 into the store JSON.
+    return uploadToServer(compressed);
   }
 
   function setPreview(previewEl, src) {
@@ -83,8 +96,9 @@ const AdminMedia = (() => {
         return;
       }
       try {
-        const dataUrl = await readFile(file);
-        apply(dataUrl);
+        toastMsg?.(LumiereI18n.t('admin_image_uploading'));
+        const url = await readFile(file);
+        apply(url);
       } catch (_) {
         toastMsg?.(LumiereI18n.t('admin_image_upload_failed'));
       }
@@ -123,9 +137,10 @@ const AdminMedia = (() => {
         e.target.value = '';
         if (!file) return;
         try {
-          const dataUrl = await readFile(file);
-          urlInput.value = dataUrl;
-          setPreview(previewEl, dataUrl);
+          toastFn?.(LumiereI18n.t('admin_image_uploading'));
+          const url = await readFile(file);
+          urlInput.value = url;
+          setPreview(previewEl, url);
         } catch (_) {
           toastFn?.(LumiereI18n.t('admin_image_upload_failed'));
         }
@@ -193,9 +208,10 @@ const AdminMedia = (() => {
         e.target.value = '';
         if (!file) return;
         try {
-          const dataUrl = await readFile(file);
-          urlInput.value = dataUrl;
-          setPreview(preview, dataUrl);
+          toastFn?.(LumiereI18n.t('admin_image_uploading'));
+          const url = await readFile(file);
+          urlInput.value = url;
+          setPreview(preview, url);
         } catch (_) {
           toastFn?.(LumiereI18n.t('admin_image_upload_failed'));
         }

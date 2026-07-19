@@ -635,6 +635,70 @@ html[dir="rtl"] .product-card .wishlist-btn { right: auto; left: 12px; }
 
 .pd-actions { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
 
+.pd-share {
+  margin: 0 0 24px;
+  padding: 18px 0 0;
+  border-top: 1px solid rgba(212,196,176,0.35);
+}
+
+.pd-share__label {
+  margin: 0 0 4px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.pd-share__hint {
+  margin: 0 0 14px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.pd-share__btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pd-share__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid rgba(26, 18, 8, 0.12);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.pd-share__btn svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.pd-share__btn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 107, 0, 0.45);
+}
+
+.pd-share__btn--facebook:hover { color: #1877f2; border-color: #1877f2; }
+.pd-share__btn--instagram:hover { color: #e1306c; border-color: #e1306c; }
+.pd-share__btn--tiktok:hover { color: #111; border-color: #111; }
+.pd-share__btn--copy:hover,
+.pd-share__btn--native:hover { color: var(--accent, #FF6B00); }
+
+@media (max-width: 560px) {
+  .pd-share__btn span { font-size: 0.78rem; }
+  .pd-share__btn { padding: 9px 12px; }
+}
+
 .pd-meta {
   display: flex;
   flex-direction: column;

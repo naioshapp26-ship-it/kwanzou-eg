@@ -689,6 +689,7 @@ html[dir="rtl"] .product-card .wishlist-btn { right: auto; left: 12px; }
 }
 
 .pd-share__btn--facebook:hover { color: #1877f2; border-color: #1877f2; }
+.pd-share__btn--whatsapp:hover { color: #128c7e; border-color: #25d366; background: #f3fff8; }
 .pd-share__btn--instagram:hover { color: #e1306c; border-color: #e1306c; }
 .pd-share__btn--tiktok:hover { color: #111; border-color: #111; }
 .pd-share__btn--copy:hover,

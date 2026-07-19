@@ -136,6 +136,10 @@ function productShareHTML() {
     <p class="pd-share__label">${LumiereI18n.t('share_product')}</p>
     <p class="pd-share__hint">${LumiereI18n.t('share_product_hint')}</p>
     <div class="pd-share__btns">
+      <button type="button" class="pd-share__btn pd-share__btn--whatsapp" data-share="whatsapp" aria-label="WhatsApp">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.15 6.4 2.15 11.84c0 1.98.58 3.82 1.58 5.38L2 22l4.94-1.64a9.86 9.86 0 0 0 5.1 1.4h.01c5.46 0 9.89-4.4 9.89-9.84C21.94 6.4 17.5 2 12.04 2zm5.75 13.99c-.24.68-1.4 1.25-1.94 1.33-.5.07-1.13.1-1.82-.11-.42-.13-.96-.31-1.65-.61-2.9-1.26-4.79-4.19-4.93-4.39-.14-.2-1.17-1.56-1.17-2.97 0-1.42.74-2.11 1-2.4.27-.28.58-.35.78-.35h.56c.18 0 .42-.07.65.5.24.58.8 2 .87 2.14.07.14.12.3.02.49-.1.18-.14.3-.28.46-.14.16-.29.35-.42.47-.14.14-.28.29-.12.56.16.28.7 1.15 1.5 1.86 1.03.92 1.9 1.2 2.17 1.34.27.14.43.12.59-.07.16-.18.68-.79.86-1.06.18-.28.36-.23.61-.14.24.1 1.54.73 1.8.86.27.14.44.2.51.31.07.12.07.68-.17 1.36z"/></svg>
+        <span>WhatsApp</span>
+      </button>
       <button type="button" class="pd-share__btn pd-share__btn--facebook" data-share="facebook" aria-label="Facebook">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14 9h3V6h-3c-2.2 0-4 1.8-4 4v2H7v3h3v7h3v-7h2.6l.4-3H13v-2c0-.6.4-1 1-1z"/></svg>
         <span>Facebook</span>
@@ -162,8 +166,8 @@ function productShareHTML() {
 
 function productShareUrl(product) {
   try {
-    const url = new URL(window.location.href);
-    if (product?.id && !url.searchParams.get('id')) url.searchParams.set('id', product.id);
+    const url = new URL(`${location.origin}/product.html`);
+    if (product?.id) url.searchParams.set('id', product.id);
     return url.toString();
   } catch (_) {
     return window.location.href;
@@ -175,16 +179,31 @@ function productShareText(product) {
   return `${name} — Kwanzou EG`;
 }
 
-async function copyShareLink(url) {
+function productShareCaption(product) {
+  return `${productShareText(product)}\n${productShareUrl(product)}`;
+}
+
+function productImageSrc(product) {
+  const main = document.getElementById('pdMainImg')?.src;
+  if (main) return main;
+  const raw = product.image || product.images?.[0] || '';
+  try {
+    return new URL(raw, location.origin).href;
+  } catch (_) {
+    return raw;
+  }
+}
+
+async function copyShareLink(text) {
   try {
     if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(text);
       return true;
     }
   } catch (_) {}
   try {
     const ta = document.createElement('textarea');
-    ta.value = url;
+    ta.value = text;
     ta.setAttribute('readonly', '');
     ta.style.position = 'fixed';
     ta.style.opacity = '0';
@@ -202,38 +221,136 @@ function openShareWindow(url) {
   window.open(url, '_blank', 'noopener,noreferrer,width=640,height=720');
 }
 
+function safeFileName(product) {
+  const base = (product.nameAr || product.name || 'kwanzou-product')
+    .replace(/[^\w\u0600-\u06FF-]+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 40);
+  return base || 'kwanzou-product';
+}
+
+async function getProductImageFile(product) {
+  const src = productImageSrc(product);
+  if (!src || src.startsWith('data:')) {
+    if (src?.startsWith('data:')) {
+      const res = await fetch(src);
+      const blob = await res.blob();
+      const ext = (blob.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg');
+      return new File([blob], `${safeFileName(product)}.${ext}`, { type: blob.type || 'image/jpeg' });
+    }
+    return null;
+  }
+  const res = await fetch(src, { mode: 'cors' });
+  if (!res.ok) throw new Error('image fetch failed');
+  const blob = await res.blob();
+  const ext = (blob.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg');
+  return new File([blob], `${safeFileName(product)}.${ext}`, { type: blob.type || 'image/jpeg' });
+}
+
+function downloadImageFile(file) {
+  const href = URL.createObjectURL(file);
+  const a = document.createElement('a');
+  a.href = href;
+  a.download = file.name;
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(href), 2500);
+}
+
+async function tryNativeShareWithImage(product) {
+  const caption = productShareCaption(product);
+  const url = productShareUrl(product);
+  let file = null;
+  try {
+    file = await getProductImageFile(product);
+  } catch (_) {}
+
+  if (file && navigator.canShare?.({ files: [file] })) {
+    try {
+      await navigator.share({
+        title: productShareText(product),
+        text: caption,
+        url,
+        files: [file]
+      });
+      return { ok: true, shared: true, file };
+    } catch (err) {
+      if (err?.name === 'AbortError') return { ok: true, shared: true, file };
+    }
+  }
+
+  if (navigator.share && !file) {
+    try {
+      await navigator.share({ title: productShareText(product), text: caption, url });
+      return { ok: true, shared: true, file: null };
+    } catch (err) {
+      if (err?.name === 'AbortError') return { ok: true, shared: true, file: null };
+    }
+  }
+
+  return { ok: false, shared: false, file };
+}
+
+async function prepareStoryShare(product) {
+  const caption = productShareCaption(product);
+  await copyShareLink(caption);
+
+  const native = await tryNativeShareWithImage(product);
+  if (native.shared) return { mode: 'native', file: native.file };
+
+  let file = native.file;
+  if (!file) {
+    try { file = await getProductImageFile(product); } catch (_) {}
+  }
+  if (file) downloadImageFile(file);
+  return { mode: file ? 'download' : 'link', file };
+}
+
 async function handleProductShare(platform, product) {
   const url = productShareUrl(product);
   const text = productShareText(product);
+  const caption = productShareCaption(product);
+
+  if (platform === 'whatsapp') {
+    openShareWindow(`https://wa.me/?text=${encodeURIComponent(caption)}`);
+    showToast(LumiereI18n.t('share_whatsapp_hint'));
+    return;
+  }
 
   if (platform === 'facebook') {
     openShareWindow(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`);
+    showToast(LumiereI18n.t('share_facebook_hint'));
     return;
   }
 
   if (platform === 'copy') {
-    const ok = await copyShareLink(url);
+    const ok = await copyShareLink(caption);
     showToast(ok ? LumiereI18n.t('share_copied') : LumiereI18n.t('share_copy_failed'));
     return;
   }
 
   if (platform === 'native') {
-    try {
-      await navigator.share({ title: text, text, url });
-    } catch (_) {}
+    const result = await tryNativeShareWithImage(product);
+    if (!result.shared) {
+      const prepared = await prepareStoryShare(product);
+      showToast(prepared.mode === 'download'
+        ? LumiereI18n.t('share_image_ready')
+        : LumiereI18n.t('share_copy_failed'));
+    }
     return;
   }
 
-  // Instagram / TikTok: no web story API — copy link then open the app/site
-  const ok = await copyShareLink(url);
-  showToast(ok
+  // Instagram / TikTok: share image + caption (native sheet) or download image + copy link
+  const prepared = await prepareStoryShare(product);
+  if (prepared.mode === 'native') {
+    showToast(platform === 'instagram' ? LumiereI18n.t('share_instagram_ok') : LumiereI18n.t('share_tiktok_ok'));
+    return;
+  }
+  showToast(prepared.mode === 'download'
     ? (platform === 'instagram' ? LumiereI18n.t('share_instagram_hint') : LumiereI18n.t('share_tiktok_hint'))
     : LumiereI18n.t('share_copy_failed'));
-
-  const web = platform === 'instagram'
-    ? 'https://www.instagram.com/'
-    : 'https://www.tiktok.com/upload';
-  window.open(web, '_blank', 'noopener,noreferrer');
 }
 
 function bindProductShare(product) {

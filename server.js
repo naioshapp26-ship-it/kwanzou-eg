@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const { initDb, getStore, saveStore, isDbReady, getDbStatus, getPool } = require('./lib/db');
 const { getMedia, upsertMedia, isDataUrl } = require('./lib/media-store');
 const { sanitizeStoreForPublic } = require('./lib/store-sanitize');
@@ -500,6 +501,68 @@ app.patch('/api/admin/notifications/:id/read', requireAdmin, async (req, res) =>
 });
 
 app.use(protectAdminStatic);
+
+function requestOrigin(req) {
+  const host = req.get('x-forwarded-host') || req.get('host') || 'localhost';
+  const proto = req.get('x-forwarded-proto') || (req.secure ? 'https' : 'http') || 'https';
+  return `${proto}://${host}`;
+}
+
+function toAbsoluteUrl(req, value) {
+  if (!value) return '';
+  const s = String(value);
+  if (/^https?:\/\//i.test(s) || s.startsWith('data:')) return s;
+  const path = s.startsWith('/') ? s : `/${s}`;
+  return `${requestOrigin(req)}${path}`;
+}
+
+function escapeHtmlAttr(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+// Inject Open Graph tags so WhatsApp / Facebook show the product image preview.
+app.get('/product.html', async (req, res, next) => {
+  try {
+    const filePath = path.join(ROOT, 'product.html');
+    let html = await fs.promises.readFile(filePath, 'utf8');
+    const id = typeof req.query.id === 'string' ? req.query.id.trim() : '';
+    if (id) {
+      const store = await getStore();
+      const product = (store?.products || []).find(p => p.id === id);
+      if (product) {
+        const name = product.nameAr || product.name || 'Kwanzou EG';
+        const desc = (product.descAr || product.descEn || name).slice(0, 180);
+        const image = toAbsoluteUrl(req, product.image || product.images?.[0] || '');
+        const url = `${requestOrigin(req)}/product.html?id=${encodeURIComponent(id)}`;
+        const meta = `
+  <title>${escapeHtmlAttr(name)} | Kwanzou EG</title>
+  <meta name="description" content="${escapeHtmlAttr(desc)}">
+  <meta property="og:type" content="product">
+  <meta property="og:site_name" content="Kwanzou EG">
+  <meta property="og:title" content="${escapeHtmlAttr(name)}">
+  <meta property="og:description" content="${escapeHtmlAttr(desc)}">
+  <meta property="og:url" content="${escapeHtmlAttr(url)}">
+  ${image ? `<meta property="og:image" content="${escapeHtmlAttr(image)}">` : ''}
+  ${image ? `<meta property="og:image:alt" content="${escapeHtmlAttr(name)}">` : ''}
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${escapeHtmlAttr(name)}">
+  <meta name="twitter:description" content="${escapeHtmlAttr(desc)}">
+  ${image ? `<meta name="twitter:image" content="${escapeHtmlAttr(image)}">` : ''}
+`;
+        html = html.replace(/<title>[^<]*<\/title>/i, '');
+        html = html.replace(/<\/head>/i, `${meta}</head>`);
+      }
+    }
+    res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+    res.type('html').send(html);
+  } catch (err) {
+    next(err);
+  }
+});
 
 app.use(express.static(ROOT, {
   maxAge: '1d',

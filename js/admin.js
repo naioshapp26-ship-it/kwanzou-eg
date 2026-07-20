@@ -1281,11 +1281,15 @@ function openCategoryModal(cat = null) {
   showModal(cat ? LumiereI18n.t('admin_edit_category') : LumiereI18n.t('admin_add_category'), `
     <form id="catForm" class="admin-form">
       <div class="form-row">
-        <div class="form-group"><label>${LumiereI18n.t('admin_name_en')}</label><input name="name" value="${cat?.name || ''}" required></div>
-        <div class="form-group"><label>${LumiereI18n.t('admin_name_ar')}</label><input name="nameAr" value="${cat?.nameAr || ''}" required></div>
+        <div class="form-group"><label>${LumiereI18n.t('admin_name_en')}</label><input name="name" id="catNameEn" value="${cat?.name || ''}" required placeholder="Piercing"></div>
+        <div class="form-group"><label>${LumiereI18n.t('admin_name_ar')}</label><input name="nameAr" value="${cat?.nameAr || ''}" required placeholder="بيرسينج"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Slug</label><input name="slug" value="${cat?.slug || ''}" required pattern="[a-z0-9-]+"></div>
+        <div class="form-group">
+          <label>Slug (English)</label>
+          <input name="slug" id="catSlug" value="${cat?.slug || ''}" required pattern="[a-z0-9-]+" placeholder="piercing">
+          <small>${LumiereI18n.t('admin_slug_hint')}</small>
+        </div>
         <div class="form-group"><label>${LumiereI18n.t('admin_sort')}</label><input name="sort" type="number" value="${cat?.sort ?? 99}"></div>
       </div>
       <div class="form-group">
@@ -1300,11 +1304,23 @@ function openCategoryModal(cat = null) {
     </form>
   `);
   bindModalImageUploads();
+
+  // Auto-fill English slug from the English name while creating/editing.
+  const nameEn = document.getElementById('catNameEn');
+  const slugInput = document.getElementById('catSlug');
+  let slugTouched = !!(cat?.slug);
+  slugInput?.addEventListener('input', () => { slugTouched = true; });
+  nameEn?.addEventListener('input', () => {
+    if (slugTouched && slugInput.value.trim()) return;
+    const auto = slugifyCategory(nameEn.value);
+    if (auto && slugInput) slugInput.value = auto;
+  });
+
   document.getElementById('catForm').onsubmit = async e => {
     e.preventDefault();
     const fd = new FormData(e.target);
     const parentId = (fd.get('parentId') || '').toString() || null;
-    const slug = slugifyCategory(fd.get('slug') || fd.get('name'));
+    const slug = slugifyCategory(fd.get('slug') || fd.get('name') || fd.get('nameAr'));
     if (!slug) {
       toast(LumiereI18n.t('admin_slug_invalid'));
       return;
@@ -1349,6 +1365,11 @@ function openCategoryModal(cat = null) {
       }
     } else {
       LumiereStore.addCategory(data);
+    }
+    if (typeof CategoryTree !== 'undefined' && CategoryTree.repairProductCategoryLinks) {
+      LumiereStore.update(store => {
+        CategoryTree.repairProductCategoryLinks(store.products, store.categories);
+      });
     }
     closeModal();
     renderCategories();

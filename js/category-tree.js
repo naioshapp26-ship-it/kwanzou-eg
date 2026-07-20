@@ -452,6 +452,8 @@ const CategoryTree = (() => {
       'بروش': 'brooch',
       'بيرسينج': 'piercing',
       'خلخال': 'anklet',
+      'ساعات': 'watches',
+      'حلقان': 'earrings',
       eeee: 'piercing',
       'bracelets-hand chain': 'bracelets-hand-chain'
     };

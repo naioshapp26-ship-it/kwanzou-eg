@@ -191,9 +191,13 @@ const CategoryTree = (() => {
   function getBySlug(categories, slug) {
     if (!slug) return null;
     const list = categories || [];
-    return list.find(c => c.slug === slug)
-      || list.find(c => c.nameAr === slug || c.name === slug)
-      || null;
+    const exact = list.filter(c => c.slug === slug);
+    if (exact.length === 1) return exact[0];
+    if (exact.length > 1) {
+      // Prefer the top-level category when legacy children reuse the parent slug.
+      return exact.find(c => !c.parentId) || exact[0];
+    }
+    return list.find(c => c.nameAr === slug || c.name === slug) || null;
   }
 
   function getById(categories, id) {
@@ -223,6 +227,18 @@ const CategoryTree = (() => {
     return set;
   }
 
+  function collectFilterSlugsById(categories, catId, seen = new Set()) {
+    if (!catId || seen.has(catId)) return new Set();
+    seen.add(catId);
+    const cat = getById(categories, catId);
+    if (!cat) return new Set();
+    const slugs = categoryAliases(cat);
+    getChildren(categories, cat.id).forEach(child => {
+      collectFilterSlugsById(categories, child.id, seen).forEach(s => slugs.add(s));
+    });
+    return slugs;
+  }
+
   function getFilterSlugs(categories, slug) {
     const cat = getBySlug(categories, slug);
     if (!cat) {
@@ -232,20 +248,20 @@ const CategoryTree = (() => {
       });
       return slugs;
     }
-    const slugs = categoryAliases(cat);
-    getChildren(categories, cat.id).forEach(child => {
-      getFilterSlugs(categories, child.slug).forEach(s => slugs.add(s));
-    });
-    return slugs;
+    // Walk by id so duplicate child slugs cannot recurse forever.
+    return collectFilterSlugsById(categories, cat.id);
   }
 
   function isDescendantOf(categories, slug, ancestorSlug) {
-    if (!slug || !ancestorSlug || slug === ancestorSlug) return slug === ancestorSlug;
+    if (!slug || !ancestorSlug) return false;
+    if (slug === ancestorSlug) return true;
     let cat = getBySlug(categories, slug);
-    while (cat?.parentId) {
+    const seen = new Set();
+    while (cat?.parentId && !seen.has(cat.id)) {
+      seen.add(cat.id);
       const parent = getById(categories, cat.parentId);
       if (!parent) break;
-      if (parent.slug === ancestorSlug) return true;
+      if (parent.slug === ancestorSlug || parent.nameAr === ancestorSlug || parent.name === ancestorSlug) return true;
       cat = parent;
     }
     return false;

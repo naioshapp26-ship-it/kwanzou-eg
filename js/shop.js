@@ -3,7 +3,11 @@
  */
 const LEGACY_CAT_REDIRECT = {
   jewelry: 'necklaces',
-  earrings: 'accessories'
+  earrings: 'accessories',
+  eeee: 'piercing',
+  'بيرسينج': 'piercing',
+  'بروش': 'brooch',
+  'خلخال': 'anklet'
 };
 const REMOVED_CAT_SLUGS = ['watches', 'scarves', 'sunglasses'];
 
@@ -31,7 +35,10 @@ function isFilterActive(item, catSlug, query) {
 function getShopTitle(catSlug, query, params) {
   if (query === 'sale') return LumiereI18n.getLang() === 'ar' ? 'UP TO 50%' : 'UP TO 50%';
   if (catSlug) {
-    const cat = LumiereStore.get().categories.find(c => c.slug === catSlug);
+    const cats = LumiereStore.get().categories || [];
+    const cat = typeof CategoryTree !== 'undefined'
+      ? CategoryTree.getBySlug(cats, catSlug)
+      : cats.find(c => c.slug === catSlug);
     if (cat) return LumiereI18n.translateCategory(cat);
   }
   if (query) return `"${params.get('q')}"`;

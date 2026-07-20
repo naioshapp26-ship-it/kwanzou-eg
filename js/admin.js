@@ -1174,7 +1174,10 @@ function openProductModal(product = null) {
   document.getElementById('productForm').onsubmit = async e => {
     e.preventDefault();
     const fd = new FormData(e.target);
-    const cat = cats.find(c => c.slug === fd.get('categorySlug'));
+    const catSlugRaw = (fd.get('categorySlug') || '').toString();
+    const cat = typeof CategoryTree !== 'undefined'
+      ? CategoryTree.getBySlug(cats, catSlugRaw)
+      : cats.find(c => c.slug === catSlugRaw);
     const modalBody = document.getElementById('modalBody');
     const gallery = AdminMedia.collectGallery(modalBody);
     const image = (fd.get('image') || product?.image || '').toString().trim();
@@ -1189,8 +1192,8 @@ function openProductModal(product = null) {
     const data = {
       name: fd.get('name'),
       nameAr: fd.get('nameAr'),
-      category: cat?.name || '',
-      categorySlug: fd.get('categorySlug'),
+      category: cat?.name || cat?.nameAr || '',
+      categorySlug: cat?.slug || catSlugRaw,
       price: +fd.get('price'),
       salePrice: salePriceVal ? +salePriceVal : null,
       discount: discountVal ? +discountVal : 0,
@@ -1241,6 +1244,7 @@ function slugifyCategory(value) {
   const raw = String(value || '').trim();
   const AR_SLUG_MAP = {
     'بيرسينج': 'piercing',
+    'بروش': 'brooch',
     'سلاسل': 'necklaces',
     'أساور': 'bracelets',
     'اساور': 'bracelets',

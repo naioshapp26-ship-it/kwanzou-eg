@@ -189,7 +189,11 @@ const CategoryTree = (() => {
   }
 
   function getBySlug(categories, slug) {
-    return (categories || []).find(c => c.slug === slug) || null;
+    if (!slug) return null;
+    const list = categories || [];
+    return list.find(c => c.slug === slug)
+      || list.find(c => c.nameAr === slug || c.name === slug)
+      || null;
   }
 
   function getById(categories, id) {
@@ -210,6 +214,15 @@ const CategoryTree = (() => {
     return getById(categories, category.parentId);
   }
 
+  function categoryAliases(cat) {
+    const set = new Set();
+    if (!cat) return set;
+    if (cat.slug) set.add(cat.slug);
+    if (cat.nameAr) set.add(cat.nameAr);
+    if (cat.name) set.add(cat.name);
+    return set;
+  }
+
   function getFilterSlugs(categories, slug) {
     const cat = getBySlug(categories, slug);
     if (!cat) {
@@ -219,7 +232,7 @@ const CategoryTree = (() => {
       });
       return slugs;
     }
-    const slugs = new Set([slug]);
+    const slugs = categoryAliases(cat);
     getChildren(categories, cat.id).forEach(child => {
       getFilterSlugs(categories, child.slug).forEach(s => slugs.add(s));
     });
@@ -254,6 +267,7 @@ const CategoryTree = (() => {
   }
 
   function buildProductSelectOptions(categories, selectedSlug = '') {
+    const selected = getBySlug(categories, selectedSlug);
     const parts = [];
     getTopLevel(categories).forEach(parent => {
       const children = getChildren(categories, parent.id);
@@ -262,12 +276,12 @@ const CategoryTree = (() => {
         parts.push(`<optgroup label="${parentLabel}">`);
         children.forEach(child => {
           const label = child.nameAr || child.name;
-          const sel = selectedSlug === child.slug ? ' selected' : '';
+          const sel = selected?.id === child.id ? ' selected' : '';
           parts.push(`<option value="${child.slug}"${sel}>${label}</option>`);
         });
         parts.push('</optgroup>');
       }
-      const sel = selectedSlug === parent.slug ? ' selected' : '';
+      const sel = selected?.id === parent.id ? ' selected' : '';
       parts.push(`<option value="${parent.slug}"${sel}>${parentLabel}</option>`);
     });
     return parts.join('');
@@ -408,10 +422,43 @@ const CategoryTree = (() => {
     });
   }
 
+  /** Relink products saved with Arabic/legacy names onto the real category slug. */
+  function repairProductCategoryLinks(products, categories) {
+    const bySlug = new Map();
+    const byNameAr = new Map();
+    const byName = new Map();
+    (categories || []).forEach(c => {
+      if (c.slug) bySlug.set(c.slug, c);
+      if (c.nameAr) byNameAr.set(c.nameAr, c);
+      if (c.name) byName.set(c.name, c);
+    });
+    const EXTRA = {
+      'بروش': 'brooch',
+      'بيرسينج': 'piercing',
+      'خلخال': 'anklet',
+      eeee: 'piercing',
+      'bracelets-hand chain': 'bracelets-hand-chain'
+    };
+    let changed = false;
+    (products || []).forEach(p => {
+      const slug = p.categorySlug || '';
+      let cat = bySlug.get(slug);
+      if (!cat && EXTRA[slug]) cat = bySlug.get(EXTRA[slug]);
+      if (!cat) cat = byNameAr.get(slug) || byName.get(slug);
+      if (!cat && p.category) {
+        cat = byNameAr.get(p.category) || byName.get(p.category) || bySlug.get(p.category);
+      }
+      if (!cat) return;
+      if (p.categorySlug === cat.slug && (p.category === cat.name || p.category === cat.nameAr)) return;
+      p.categorySlug = cat.slug;
+      p.category = cat.name || cat.nameAr;
+      changed = true;
+    });
+    return changed;
+  }
+
   function migrateCatalog(data) {
     const version = data?.catalogVersion || 0;
-    if (version >= CATALOG_SUBCATEGORY_VERSION) return data;
-
     const merged = JSON.parse(JSON.stringify(data || {}));
     merged.products = merged.products || [];
     merged.categories = (merged.categories || []).map(c => ({
@@ -419,23 +466,28 @@ const CategoryTree = (() => {
       parentId: c.parentId || null
     }));
 
-    if (version < 5) {
-      ensureDefaultParents(merged.categories);
-      ensureSubcategories(merged.categories);
+    if (version < CATALOG_SUBCATEGORY_VERSION) {
+      if (version < 5) {
+        ensureDefaultParents(merged.categories);
+        ensureSubcategories(merged.categories);
+      }
+
+      if (version < 6) {
+        ensureStarterProducts(merged);
+        assignProductsToSubcategories(merged.products, merged.categories);
+      }
+
+      if (version < 7) {
+        ensureDefaultParents(merged.categories);
+        ensureSubcategories(merged.categories);
+        assignProductsToSubcategories(merged.products, merged.categories);
+      }
+
+      merged.catalogVersion = CATALOG_SUBCATEGORY_VERSION;
     }
 
-    if (version < 6) {
-      ensureStarterProducts(merged);
-      assignProductsToSubcategories(merged.products, merged.categories);
-    }
-
-    if (version < 7) {
-      ensureDefaultParents(merged.categories);
-      ensureSubcategories(merged.categories);
-      assignProductsToSubcategories(merged.products, merged.categories);
-    }
-
-    merged.catalogVersion = CATALOG_SUBCATEGORY_VERSION;
+    // Always safe / idempotent — fixes Arabic-name categorySlug orphans.
+    repairProductCategoryLinks(merged.products, merged.categories);
     return merged;
   }
 
@@ -455,6 +507,7 @@ const CategoryTree = (() => {
     buildParentSelectOptions,
     ensureStarterProducts,
     assignProductsToSubcategories,
+    repairProductCategoryLinks,
     migrateCatalog
   };
 })();

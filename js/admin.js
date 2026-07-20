@@ -1238,13 +1238,34 @@ window.deleteCategory = function(id) {
 };
 
 function slugifyCategory(value) {
-  return String(value || '')
-    .trim()
+  const raw = String(value || '').trim();
+  const AR_SLUG_MAP = {
+    'بيرسينج': 'piercing',
+    'سلاسل': 'necklaces',
+    'أساور': 'bracelets',
+    'اساور': 'bracelets',
+    'حلقان': 'earrings',
+    'خواتم': 'rings',
+    'خلخال': 'anklet',
+    'بروش': 'brooch',
+    'ساعات': 'watches',
+    'ميداليه': 'medallion',
+    'مديليه': 'medallion',
+    'منتجات اخرى': 'other',
+    'منتجات أخرى': 'other'
+  };
+  if (AR_SLUG_MAP[raw]) return AR_SLUG_MAP[raw];
+
+  const slug = raw
     .toLowerCase()
     .replace(/[\s_]+/g, '-')
     .replace(/[^a-z0-9-]/g, '')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '');
+
+  // Reject empty or nonsense slugs like "eeee" (Arabic names strip to empty / junk).
+  if (!slug || /^(.)\1{2,}$/.test(slug)) return '';
+  return slug;
 }
 
 function openCategoryModal(cat = null) {
@@ -1301,8 +1322,30 @@ function openCategoryModal(cat = null) {
       featured: fd.has('featured'),
       parentId
     };
-    if (cat) LumiereStore.updateCategory(cat.id, data);
-    else LumiereStore.addCategory(data);
+    if (cat) {
+      const oldSlug = cat.slug;
+      const oldNameAr = cat.nameAr;
+      const oldName = cat.name;
+      LumiereStore.updateCategory(cat.id, data);
+      // Keep products linked when the category slug/name changes.
+      if (oldSlug !== slug || oldNameAr !== data.nameAr) {
+        LumiereStore.update(store => {
+          store.products.forEach(p => {
+            if (
+              p.categorySlug === oldSlug ||
+              p.categorySlug === oldNameAr ||
+              p.category === oldNameAr ||
+              p.category === oldName
+            ) {
+              p.categorySlug = slug;
+              p.category = data.name || data.nameAr;
+            }
+          });
+        });
+      }
+    } else {
+      LumiereStore.addCategory(data);
+    }
     closeModal();
     renderCategories();
     renderDashboard();

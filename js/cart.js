@@ -191,8 +191,13 @@ const ProductUI = {
     const allowed = typeof CategoryTree !== 'undefined'
       ? CategoryTree.getFilterSlugs(categories, slug)
       : new Set([slug]);
+    const cat = categories.find(c => c.slug === slug);
+    // Legacy products sometimes stored Arabic name as categorySlug instead of the real slug.
+    if (cat?.nameAr) allowed.add(cat.nameAr);
+    if (cat?.name) allowed.add(cat.name);
     return products.filter(p => {
       if (allowed.has(p.categorySlug)) return true;
+      if (cat && (p.category === cat.nameAr || p.category === cat.name)) return true;
       if (!categories.some(c => c.slug === slug) && p.categorySlug?.startsWith(`${slug}-`)) return true;
       return false;
     });

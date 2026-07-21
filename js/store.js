@@ -87,9 +87,10 @@ const LumiereStore = (() => {
       { id: 'col-4', label: 'Collection 04', labelAr: 'برفانات', labelEn: 'Perfumes', title: 'Signature\nScents', titleAr: 'برفانات\nمميزة', titleEn: 'Signature\nScents', slug: 'perfumes', image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=1200&q=80' }
     ],
     testimonials: [
-      { id: 't1', name: 'Nour Hassan', location: 'Cairo, Egypt', text: 'The stainless accessories are amazing quality.', textAr: 'إكسسوارات الاستالس عندهم جامدة جداً وما بتصديش.', textEn: 'The stainless accessories are amazing quality.', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80', featured: false },
-      { id: 't2', name: 'Mariam Ali', location: 'Alexandria, Egypt', text: 'Best bags and perfumes in one shop.', textAr: 'أحلى شنط وبرفانات في مكان واحد.', textEn: 'Best bags and perfumes in one shop.', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80', featured: true },
-      { id: 't3', name: 'Yasmin Farid', location: 'Giza, Egypt', text: 'Fast delivery and great makeup selection.', textAr: 'التوصيل سريع والميكب عندهم حلو أوي.', textEn: 'Fast delivery and great makeup selection.', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&q=80', featured: false }
+      { id: 't1', name: 'نور حسن', location: 'القاهرة', text: 'الاستالس عندهم جامد وما بيصدّيش.', textAr: 'الاستالس عندهم جامد وما بيصدّيش — لابساه كل يوم.', textEn: 'Their stainless pieces are solid and never rust.', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&q=80', featured: false },
+      { id: 't2', name: 'مريم علي', location: 'الإسكندرية', text: 'السلسلة وصلت زي الصور والتغليف فخم.', textAr: 'السلسلة وصلت زي الصور والتغليف فخم أوي.', textEn: 'The necklace matched the photos and packaging was lovely.', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&q=80', featured: true },
+      { id: 't3', name: 'ياسمين فريد', location: 'الجيزة', text: 'التوصيل سريع والساعة تحفة.', textAr: 'التوصيل سريع والساعة تحفة — هطلب تاني أكيد.', textEn: 'Fast delivery and the watch is gorgeous.', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&q=80', featured: false },
+      { id: 't4', name: 'سلمى أحمد', location: 'المنصورة', text: 'الخاتم شكله شيك والجودة عالية.', textAr: 'الخاتم شكله شيك والجودة عالية — موقع ثقة.', textEn: 'The ring looks chic and the quality is high.', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80', featured: false }
     ],
     instagramGallery: [
       { id: 'ig-1', image: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=600&q=80' },
@@ -99,7 +100,12 @@ const LumiereStore = (() => {
       { id: 'ig-5', image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c42?w=600&q=80' },
       { id: 'ig-6', image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&q=80' }
     ],
-    reviewScreenshots: [],
+    reviewScreenshots: [
+      { id: 'rs-1', image: 'assets/reviews/shot-1.svg' },
+      { id: 'rs-2', image: 'assets/reviews/shot-2.svg' },
+      { id: 'rs-3', image: 'assets/reviews/shot-3.svg' },
+      { id: 'rs-4', image: 'assets/reviews/shot-4.svg' }
+    ],
     users: [],
     staffAdmins: [],
     orders: [],
@@ -163,7 +169,7 @@ const LumiereStore = (() => {
     merged.collections = data.collections?.length ? data.collections : clone(defaults.collections);
     merged.testimonials = data.testimonials?.length ? data.testimonials : clone(defaults.testimonials);
     merged.instagramGallery = data.instagramGallery?.length ? clone(data.instagramGallery) : clone(defaults.instagramGallery);
-    merged.reviewScreenshots = Array.isArray(data.reviewScreenshots) ? clone(data.reviewScreenshots) : clone(defaults.reviewScreenshots);
+    merged.reviewScreenshots = data.reviewScreenshots?.length ? clone(data.reviewScreenshots) : clone(defaults.reviewScreenshots);
     merged.users = data.users?.length ? data.users : clone(defaults.users);
     merged.staffAdmins = Array.isArray(data.staffAdmins) ? clone(data.staffAdmins) : clone(defaults.staffAdmins);
     merged.newsletter = data.newsletter || [];

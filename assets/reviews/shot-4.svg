@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="640" viewBox="0 0 420 640">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#efe6d8"/>
+      <stop offset="100%" stop-color="#e8dcc8"/>
+    </linearGradient>
+  </defs>
+  <rect width="420" height="640" fill="url(#bg)"/>
+  <rect x="0" y="0" width="420" height="64" fill="#2b2118"/>
+  <circle cx="42" cy="32" r="18" fill="#c9a962"/>
+  <text x="72" y="28" fill="#fff" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="600">Kwanzou EG</text>
+  <text x="72" y="46" fill="#d4c4b0" font-family="Segoe UI, Arial, sans-serif" font-size="11">online</text>
+
+  <rect x="55" y="100" width="333" height="140" rx="18" fill="#fff" stroke="#e5d9c8"/>
+  <text x="372" y="132" text-anchor="end" fill="#2b2118" font-family="Cairo, Segoe UI, Arial, sans-serif" font-size="16">'D3'9) H5D* 2J 'D5H1</text>
+  <text x="372" y="156" text-anchor="end" fill="#2b2118" font-family="Cairo, Segoe UI, Arial, sans-serif" font-size="16">('D8(7 H'DDHF *-A)</text>
+  <text x="372" y="180" text-anchor="end" fill="#2b2118" font-family="Cairo, Segoe UI, Arial, sans-serif" font-size="16">'DEHB9 +B) H1(F' JHABCE</text>
+  <text x="372" y="204" text-anchor="end" fill="#2b2118" font-family="Cairo, Segoe UI, Arial, sans-serif" font-size="16">GH5QJ 5-'(J (JCH =•</text>
+  <text x="75" y="226" fill="#9a8b78" font-family="Segoe UI, Arial, sans-serif" font-size="11">8:33</text>
+
+  <rect x="32" y="268" width="290" height="92" rx="18" fill="#f3e7d4"/>
+  <text x="52" y="300" fill="#2b2118" font-family="Cairo, Segoe UI, Arial, sans-serif" font-size="15">4C1'K D0HBC 'D,EJD ></text>
+  <text x="52" y="324" fill="#2b2118" font-family="Cairo, Segoe UI, Arial, sans-serif" font-size="15">H-J'CJ AJ Kwanzou /'JE'K</text>
+  <text x="280" y="346" text-anchor="end" fill="#9a8b78" font-family="Segoe UI, Arial, sans-serif" font-size="11">8:35</text>
+
+  <text x="210" y="600" text-anchor="middle" fill="#b09a7a" font-family="Segoe UI, Arial, sans-serif" font-size="12">*,1() 916  "1'! 9ED'! Kwanzou</text>
+</svg>

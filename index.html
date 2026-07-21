@@ -9,7 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css?v=13">
   <link rel="stylesheet" href="css/shop.css?v=10">
-  <link rel="stylesheet" href="css/home.css?v=31">
+  <link rel="stylesheet" href="css/home.css?v=32">
   <link rel="stylesheet" href="css/catalog.css">
 </head>
 <body data-page-title="meta_title">
@@ -120,9 +120,17 @@
           <span class="section-eyebrow reveal" data-i18n="reviews_eyebrow">آراء الناس</span>
           <h2 class="section-title reveal" data-i18n="reviews_title">عملاءنا قالوا إيه</h2>
         </div>
+        <div class="reviews-shots" id="reviewShotsGrid"></div>
         <div class="testimonials-grid" id="testimonialsGrid"></div>
       </div>
     </section>
+
+    <div class="review-lightbox" id="reviewLightbox" hidden>
+      <button class="review-lightbox__close" id="reviewLightboxClose" aria-label="close">✕</button>
+      <button class="review-lightbox__nav review-lightbox__nav--prev" id="reviewLightboxPrev" aria-label="prev">‹</button>
+      <img class="review-lightbox__img" id="reviewLightboxImg" src="" alt="">
+      <button class="review-lightbox__nav review-lightbox__nav--next" id="reviewLightboxNext" aria-label="next">›</button>
+    </div>
 
     <section class="instagram section home-section section--cream" id="instagram">
       <div class="container">
@@ -155,14 +163,14 @@
   <div class="toast" id="toast"><span id="toastMessage"></span></div>
 
   <script src="js/category-tree.js?v=3"></script>
-  <script src="js/store.js?v=16"></script>
+  <script src="js/store.js?v=17"></script>
   <script src="js/i18n.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/wishlist.js?v=2"></script>
   <script src="js/cart.js"></script>
   <script src="js/theme.js"></script>
   <script src="js/layout.js?v=22"></script>
-  <script src="js/home.js?v=5"></script>
+  <script src="js/home.js?v=6"></script>
 </body>
 </html>
 

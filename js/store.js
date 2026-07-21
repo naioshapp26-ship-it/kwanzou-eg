@@ -99,6 +99,7 @@ const LumiereStore = (() => {
       { id: 'ig-5', image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c42?w=600&q=80' },
       { id: 'ig-6', image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&q=80' }
     ],
+    reviewScreenshots: [],
     users: [],
     staffAdmins: [],
     orders: [],
@@ -162,6 +163,7 @@ const LumiereStore = (() => {
     merged.collections = data.collections?.length ? data.collections : clone(defaults.collections);
     merged.testimonials = data.testimonials?.length ? data.testimonials : clone(defaults.testimonials);
     merged.instagramGallery = data.instagramGallery?.length ? clone(data.instagramGallery) : clone(defaults.instagramGallery);
+    merged.reviewScreenshots = Array.isArray(data.reviewScreenshots) ? clone(data.reviewScreenshots) : clone(defaults.reviewScreenshots);
     merged.users = data.users?.length ? data.users : clone(defaults.users);
     merged.staffAdmins = Array.isArray(data.staffAdmins) ? clone(data.staffAdmins) : clone(defaults.staffAdmins);
     merged.newsletter = data.newsletter || [];

@@ -40,6 +40,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderStaffAdmins();
   initStaffSection();
   renderTestimonials();
+  renderReviewShotsAdmin();
+  initReviewShots();
   renderNewsletter();
   initModals();
   initLogout();
@@ -71,6 +73,36 @@ function renderInstagramGalleryAdmin() {
   wrap.querySelectorAll('.gallery-preview').forEach((preview, i) => {
     const src = images[i];
     if (src) AdminMedia.setPreview(preview, imgSrc(src));
+  });
+}
+
+const REVIEW_SHOTS_OPTS = { galleryId: 'reviewShots', addBtnId: 'addReviewShot' };
+
+function renderReviewShotsAdmin() {
+  const wrap = document.getElementById('reviewShotsWrap');
+  if (!wrap) return;
+  const data = LumiereStore.get();
+  const images = (data.reviewScreenshots || []).map(item => (typeof item === 'string' ? item : item.image)).filter(Boolean);
+  wrap.innerHTML = AdminMedia.galleryHTML(images, REVIEW_SHOTS_OPTS);
+  AdminMedia.bindGallery(wrap, toast, REVIEW_SHOTS_OPTS);
+  wrap.querySelectorAll('.gallery-preview').forEach((preview, i) => {
+    const src = images[i];
+    if (src) AdminMedia.setPreview(preview, imgSrc(src));
+  });
+}
+
+function initReviewShots() {
+  const btn = document.getElementById('saveReviewShotsBtn');
+  if (!btn) return;
+  btn.addEventListener('click', async () => {
+    const wrap = document.getElementById('reviewShotsWrap');
+    const images = wrap ? AdminMedia.collectGallery(wrap, 'reviewShots') : [];
+    LumiereStore.update(data => {
+      data.reviewScreenshots = images.map((image, i) => ({ id: `rs-${i + 1}`, image }));
+    });
+    await persistAfterSave();
+    renderReviewShotsAdmin();
+    toast(LumiereI18n.t('admin_saved'));
   });
 }
 

@@ -178,6 +178,70 @@ function renderProductSections(products) {
   }
 }
 
+function renderReviewScreenshots(shots) {
+  const grid = document.getElementById('reviewShotsGrid');
+  const section = document.getElementById('testimonials');
+  if (!grid) return;
+
+  const items = (shots || [])
+    .map(item => (typeof item === 'string' ? { image: item } : item))
+    .filter(item => item && item.image);
+
+  if (!items.length) {
+    grid.innerHTML = '';
+    grid.hidden = true;
+    return;
+  }
+
+  grid.hidden = false;
+  section?.classList.add('testimonials--shots');
+  grid.innerHTML = items.map((item, i) => {
+    const src = mediaSrc(item.image);
+    return `<button type="button" class="review-shot reveal" data-shot-index="${i}" aria-label="review ${i + 1}">
+      <img src="${src}" alt="" loading="lazy">
+    </button>`;
+  }).join('');
+
+  const sources = items.map(item => mediaSrc(item.image));
+  bindReviewLightbox(grid, sources);
+}
+
+function bindReviewLightbox(grid, sources) {
+  const box = document.getElementById('reviewLightbox');
+  const imgEl = document.getElementById('reviewLightboxImg');
+  if (!box || !imgEl) return;
+
+  let current = 0;
+  const show = i => {
+    current = (i + sources.length) % sources.length;
+    imgEl.src = sources[current];
+    box.hidden = false;
+    document.body.style.overflow = 'hidden';
+  };
+  const close = () => {
+    box.hidden = true;
+    imgEl.src = '';
+    document.body.style.overflow = '';
+  };
+
+  grid.querySelectorAll('.review-shot').forEach(btn => {
+    btn.addEventListener('click', () => show(Number(btn.dataset.shotIndex) || 0));
+  });
+
+  if (box.dataset.bound) return;
+  box.dataset.bound = '1';
+  document.getElementById('reviewLightboxClose')?.addEventListener('click', close);
+  document.getElementById('reviewLightboxNext')?.addEventListener('click', () => show(current + 1));
+  document.getElementById('reviewLightboxPrev')?.addEventListener('click', () => show(current - 1));
+  box.addEventListener('click', e => { if (e.target === box) close(); });
+  document.addEventListener('keydown', e => {
+    if (box.hidden) return;
+    if (e.key === 'Escape') close();
+    else if (e.key === 'ArrowRight') show(current + 1);
+    else if (e.key === 'ArrowLeft') show(current - 1);
+  });
+}
+
 function renderTestimonials(testimonials) {
   const testimonialsGrid = document.getElementById('testimonialsGrid');
   if (!testimonialsGrid) return;
@@ -230,7 +294,7 @@ function renderHomepage() {
     const data = LumiereStore.get();
     if (!data) throw new Error('No store data');
 
-    const { settings, products, testimonials, categories, instagramGallery } = data;
+    const { settings, products, testimonials, categories, instagramGallery, reviewScreenshots } = data;
     const sortedCats = sortedCategories(categories || []);
     const allProducts = products || [];
 
@@ -238,6 +302,7 @@ function renderHomepage() {
     renderCategoryTabs(sortedCats);
     renderHomeCategories(sortedCats);
     renderProductSections(allProducts);
+    renderReviewScreenshots(reviewScreenshots);
     renderTestimonials(testimonials);
     renderInstagram(settings, instagramGallery);
 

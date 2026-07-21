@@ -101,10 +101,10 @@ const LumiereStore = (() => {
       { id: 'ig-6', image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&q=80' }
     ],
     reviewScreenshots: [
-      { id: 'rs-1', image: 'assets/reviews/shot-1.svg' },
-      { id: 'rs-2', image: 'assets/reviews/shot-2.svg' },
-      { id: 'rs-3', image: 'assets/reviews/shot-3.svg' },
-      { id: 'rs-4', image: 'assets/reviews/shot-4.svg' }
+      { id: 'rs-1', image: 'assets/reviews/shot-1.svg?v=2' },
+      { id: 'rs-2', image: 'assets/reviews/shot-2.svg?v=2' },
+      { id: 'rs-3', image: 'assets/reviews/shot-3.svg?v=2' },
+      { id: 'rs-4', image: 'assets/reviews/shot-4.svg?v=2' }
     ],
     users: [],
     staffAdmins: [],
@@ -170,6 +170,14 @@ const LumiereStore = (() => {
     merged.testimonials = data.testimonials?.length ? data.testimonials : clone(defaults.testimonials);
     merged.instagramGallery = data.instagramGallery?.length ? clone(data.instagramGallery) : clone(defaults.instagramGallery);
     merged.reviewScreenshots = data.reviewScreenshots?.length ? clone(data.reviewScreenshots) : clone(defaults.reviewScreenshots);
+    // Refresh broken/outdated demo screenshot asset URLs (v1 had corrupted Arabic SVG bytes).
+    if (Array.isArray(merged.reviewScreenshots) && merged.reviewScreenshots.length) {
+      const onlyOldDemo = merged.reviewScreenshots.every(item => {
+        const src = typeof item === 'string' ? item : item?.image;
+        return typeof src === 'string' && /assets\/reviews\/shot-\d+\.svg(?!\?v=2)/.test(src);
+      });
+      if (onlyOldDemo) merged.reviewScreenshots = clone(defaults.reviewScreenshots);
+    }
     merged.users = data.users?.length ? data.users : clone(defaults.users);
     merged.staffAdmins = Array.isArray(data.staffAdmins) ? clone(data.staffAdmins) : clone(defaults.staffAdmins);
     merged.newsletter = data.newsletter || [];

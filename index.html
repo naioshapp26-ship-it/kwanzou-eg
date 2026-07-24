@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="description" content="Kwanzou EG ó ?????????? ???? ??????? ????? ?? ???.">
+  <meta name="description" content="Kwanzou EG ù ?????????? ???? ??????? ????? ?? ???.">
   <title>Kwanzou EG | ???? ?????????</title>
   <link rel="icon" href="assets/logo-brand.svg?v=6" type="image/svg+xml">
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@400;500;600&display=swap" rel="stylesheet">
@@ -42,16 +42,18 @@
       </div>
     </section>
 
-    <section class="home-tabs-wrap" id="homeTabs">
+    <!-- Category pills under hero removed from homepage to avoid confusion ù categories stay in side menu / nav -->
+    <section class="home-tabs-wrap" id="homeTabs" hidden aria-hidden="true">
       <div class="container">
         <nav class="home-tabs-scroller" id="categoryTabs" aria-label="Shop categories"></nav>
       </div>
     </section>
 
-    <section class="home-categories section home-section section--ivory" id="homeCategories">
+    <!-- Homepage category cards hidden ó categories remain in side menu / header nav only -->
+    <section class="home-categories section home-section section--ivory" id="homeCategories" hidden aria-hidden="true">
       <div class="container">
         <div class="section-header section-header--center">
-          <span class="section-eyebrow reveal" data-i18n="cat_eyebrow">????? ??? ?????</span>
+          <span class="section-eyebrow reveal" data-i18n="cat_eyebrow">Shop by category</span>
           <h2 class="section-title reveal" data-i18n="cat_title">???????</h2>
         </div>
         <div class="home-categories__grid" id="homeCategoriesGrid"></div>
@@ -127,9 +129,9 @@
 
     <div class="review-lightbox" id="reviewLightbox" hidden>
       <button class="review-lightbox__close" id="reviewLightboxClose" aria-label="close">?</button>
-      <button class="review-lightbox__nav review-lightbox__nav--prev" id="reviewLightboxPrev" aria-label="prev">ã</button>
+      <button class="review-lightbox__nav review-lightbox__nav--prev" id="reviewLightboxPrev" aria-label="prev">ù</button>
       <img class="review-lightbox__img" id="reviewLightboxImg" src="" alt="">
-      <button class="review-lightbox__nav review-lightbox__nav--next" id="reviewLightboxNext" aria-label="next">õ</button>
+      <button class="review-lightbox__nav review-lightbox__nav--next" id="reviewLightboxNext" aria-label="next">ù</button>
     </div>
 
     <section class="instagram section home-section section--cream" id="instagram">
@@ -169,8 +171,8 @@
   <script src="js/wishlist.js?v=2"></script>
   <script src="js/cart.js?v=2"></script>
   <script src="js/theme.js"></script>
-  <script src="js/layout.js?v=22"></script>
-  <script src="js/home.js?v=6"></script>
+  <script src="js/layout.js?v=23"></script>
+  <script src="js/home.js?v=7"></script>
 </body>
 </html>
 

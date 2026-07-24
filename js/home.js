@@ -124,7 +124,8 @@ function renderHero(settings, categories) {
 
 function renderCategoryTabs(categories) {
   const tabs = document.getElementById('categoryTabs');
-  if (!tabs) return;
+  const wrap = document.getElementById('homeTabs');
+  if (!tabs || wrap?.hidden) return;
   const saleTab = { href: 'shop.html?q=sale', ar: 'UP TO 50%', en: 'UP TO 50%' };
   const catItems = sortedCategories(categories || LumiereStore.get().categories || []).map(c => ({
     href: `shop.html?cat=${c.slug}`,
@@ -142,7 +143,8 @@ function renderCategoryTabs(categories) {
 
 function renderHomeCategories(categories) {
   const grid = document.getElementById('homeCategoriesGrid');
-  if (!grid) return;
+  const wrap = document.getElementById('homeCategories');
+  if (!grid || wrap?.hidden) return;
   const list = sortedCategories(categories || []).slice(0, 8);
   if (!list.length) {
     grid.innerHTML = '';

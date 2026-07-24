@@ -435,7 +435,7 @@ const LumiereLayout = (() => {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V21h13V9.5"/></svg>
         <span>${LumiereI18n.t('mobile_nav_home')}</span>
       </a>
-      <a href="${base}index.html#homeTabs" class="mobile-bottom-nav__item${bottomActive === 'categories' ? ' active' : ''}">
+      <a href="${base}shop.html" class="mobile-bottom-nav__item${bottomActive === 'categories' ? ' active' : ''}" id="mobileBottomCategories" data-open-menu="1">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="4" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         <span>${LumiereI18n.t('mobile_nav_categories')}</span>
       </a>
@@ -749,6 +749,15 @@ const LumiereLayout = (() => {
     });
   }
 
+  function openMobileMenu() {
+    const toggle = document.getElementById('navToggle');
+    const menu = document.getElementById('mobileMenu');
+    if (!menu) return;
+    toggle?.classList.add('active');
+    menu.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
   function initMobileMenu() {
     const toggle = document.getElementById('navToggle');
     const menu = document.getElementById('mobileMenu');
@@ -762,6 +771,10 @@ const LumiereLayout = (() => {
       menu?.classList.remove('active');
       document.body.style.overflow = '';
     }));
+    document.getElementById('mobileBottomCategories')?.addEventListener('click', e => {
+      e.preventDefault();
+      openMobileMenu();
+    });
   }
 
   function initMobileMenuAccordions() {

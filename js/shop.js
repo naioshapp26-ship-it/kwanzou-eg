@@ -73,7 +73,7 @@ function renderSubcategoryFilters(catSlug, categories) {
   const el = document.getElementById('shopSubFilters');
   if (!el || typeof CategoryTree === 'undefined') return;
 
-  const cat = catSlug ? categories.find(c => c.slug === catSlug) : null;
+  const cat = catSlug ? CategoryTree.getBySlug(categories, catSlug) : null;
   if (!cat) {
     el.innerHTML = '';
     el.hidden = true;
@@ -92,13 +92,14 @@ function renderSubcategoryFilters(catSlug, categories) {
     return;
   }
 
+  const catHref = slug => `shop.html?cat=${encodeURIComponent(slug)}`;
   const allActive = catSlug === parent.slug ? ' active' : '';
   const allLabel = `${LumiereI18n.translateCategory(parent)} — ${LumiereI18n.t('shop_all')}`;
   const chips = [
-    `<a href="shop.html?cat=${parent.slug}" class="filter-chip filter-chip--sub${allActive}">${allLabel}</a>`,
+    `<a href="${catHref(parent.slug)}" class="filter-chip filter-chip--sub${allActive}">${allLabel}</a>`,
     ...children.map(child => {
       const active = catSlug === child.slug ? ' active' : '';
-      return `<a href="shop.html?cat=${child.slug}" class="filter-chip filter-chip--sub${active}">${LumiereI18n.translateCategory(child)}</a>`;
+      return `<a href="${catHref(child.slug)}" class="filter-chip filter-chip--sub${active}">${LumiereI18n.translateCategory(child)}</a>`;
     })
   ];
 

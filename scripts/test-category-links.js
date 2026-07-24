@@ -113,4 +113,27 @@ assert(slugifyLatin('Free Size') === 'free-size', 'slugify latin');
   assert(data.products.find(p => p.id === 'p3').categorySlug === 'necklaces-statement', 'statement product linked');
 }
 
+// Case: bracelet children with spaced / Arabic / numeric slugs
+{
+  const data = {
+    categories: [
+      { id: 'cat-bracelets', slug: 'bracelets', name: 'أساور', nameAr: 'أساور', parentId: null },
+      { id: 'c1', slug: 'bracelets summer', name: 'انسيالات صيفي', nameAr: 'انسيالات صيفي', parentId: 'cat-bracelets' },
+      { id: 'c2', slug: 'اساور', name: 'اساور', nameAr: 'اساور', parentId: 'cat-bracelets' },
+      { id: 'c3', slug: '40', name: 'انسيالات ب 40', nameAr: 'انسيالات ب 40', parentId: 'cat-bracelets' }
+    ],
+    products: [
+      { id: 'p1', categorySlug: 'اساور', category: 'اساور' },
+      { id: 'p2', categorySlug: '40', category: 'انسيالات ب 40' }
+    ]
+  };
+  const { changed } = repairCategoryProductLinks(data);
+  assert(changed, 'bracelet junk slugs should change');
+  assert(data.categories.find(c => c.id === 'c1').slug === 'bracelets-summer', 'summer slug fixed');
+  assert(data.categories.find(c => c.id === 'c2').slug === 'bracelets-asawer', 'asawer slug fixed');
+  assert(data.categories.find(c => c.id === 'c3').slug === 'bracelets-40', '40 slug fixed');
+  assert(data.products.find(p => p.id === 'p1').categorySlug === 'bracelets-asawer', 'asawer products relinked');
+  assert(data.products.find(p => p.id === 'p2').categorySlug === 'bracelets-40', '40 products relinked');
+}
+
 console.log('CATEGORY_LINKS_TEST_OK');

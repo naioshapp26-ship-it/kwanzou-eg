@@ -279,12 +279,20 @@ const LumiereLayout = (() => {
           slug: parent.slug,
           ar: parent.nameAr || parent.name,
           en: parent.name || parent.nameAr,
-          subs: children.map(child => ({
-            ar: child.nameAr || child.name,
-            en: child.name || child.nameAr,
-            slug: child.slug,
-            cat: child.slug
-          }))
+          subs: [
+            {
+              ar: `${parent.nameAr || parent.name} — الكل`,
+              en: `${parent.name || parent.nameAr} — All`,
+              slug: parent.slug,
+              cat: parent.slug
+            },
+            ...children.map(child => ({
+              ar: child.nameAr || child.name,
+              en: child.name || child.nameAr,
+              slug: child.slug,
+              cat: child.slug
+            }))
+          ]
         };
       }),
       {

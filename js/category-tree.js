@@ -311,23 +311,31 @@ const CategoryTree = (() => {
     return rows;
   }
 
-  function buildProductSelectOptions(categories, selectedSlug = '') {
-    const selected = getBySlug(categories, selectedSlug);
+  function buildProductSelectOptions(categories, selectedSlugOrId = '') {
+    const selected =
+      getById(categories, selectedSlugOrId) ||
+      getBySlug(categories, selectedSlugOrId);
     const parts = [];
     getTopLevel(categories).forEach(parent => {
       const children = getChildren(categories, parent.id);
       const parentLabel = parent.nameAr || parent.name;
       if (children.length) {
         parts.push(`<optgroup label="${parentLabel}">`);
+        // Parent "all" option first inside group.
+        {
+          const sel = selected?.id === parent.id ? ' selected' : '';
+          parts.push(`<option value="${parent.id}"${sel}>${parentLabel} — الكل</option>`);
+        }
         children.forEach(child => {
           const label = child.nameAr || child.name;
           const sel = selected?.id === child.id ? ' selected' : '';
-          parts.push(`<option value="${child.slug}"${sel}>${label}</option>`);
+          parts.push(`<option value="${child.id}"${sel}>${label}</option>`);
         });
         parts.push('</optgroup>');
+      } else {
+        const sel = selected?.id === parent.id ? ' selected' : '';
+        parts.push(`<option value="${parent.id}"${sel}>${parentLabel}</option>`);
       }
-      const sel = selected?.id === parent.id ? ' selected' : '';
-      parts.push(`<option value="${parent.slug}"${sel}>${parentLabel}</option>`);
     });
     return parts.join('');
   }
@@ -485,12 +493,17 @@ const CategoryTree = (() => {
       'حلقان': 'earrings',
       accessories: 'earrings',
       eeee: 'piercing',
-      'bracelets-hand chain': 'bracelets-hand-chain'
+      'bracelets-hand chain': 'bracelets-hand-chain',
+      'necklaces-trendy': 'necklaces-queen',
+      'necklaces-pendant': 'necklaces-letters'
     };
     let changed = false;
     (products || []).forEach(p => {
+      const catName = String(p.category || '').trim();
+      let cat = null;
+      if (catName) cat = byNameAr.get(catName) || byName.get(catName);
       const slug = p.categorySlug || '';
-      let cat = bySlug.get(slug);
+      if (!cat) cat = bySlug.get(slug);
       if (!cat && EXTRA[slug]) cat = bySlug.get(EXTRA[slug]);
       if (!cat) cat = byNameAr.get(slug) || byName.get(slug);
       if (!cat && p.category) {

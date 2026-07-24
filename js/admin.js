@@ -1149,9 +1149,9 @@ function openProductModal(product = null) {
   const isEdit = !!product;
   const cats = LumiereStore.get().categories;
   const catOptions = typeof CategoryTree !== 'undefined'
-    ? CategoryTree.buildProductSelectOptions(cats, product?.categorySlug || '')
+    ? CategoryTree.buildProductSelectOptions(cats, product?.categoryId || product?.categorySlug || '')
     : cats.map(c =>
-      `<option value="${c.slug}" ${product?.categorySlug === c.slug ? 'selected' : ''}>${c.nameAr || c.name}</option>`
+      `<option value="${c.id || c.slug}" ${(product?.categoryId === c.id || product?.categorySlug === c.slug) ? 'selected' : ''}>${c.nameAr || c.name}</option>`
     ).join('');
 
   showModal(isEdit ? LumiereI18n.t('admin_edit_product') : LumiereI18n.t('admin_add_product'), `
@@ -1208,8 +1208,8 @@ function openProductModal(product = null) {
     const fd = new FormData(e.target);
     const catSlugRaw = (fd.get('categorySlug') || '').toString();
     const cat = typeof CategoryTree !== 'undefined'
-      ? CategoryTree.getBySlug(cats, catSlugRaw)
-      : cats.find(c => c.slug === catSlugRaw);
+      ? (CategoryTree.getById(cats, catSlugRaw) || CategoryTree.getBySlug(cats, catSlugRaw))
+      : (cats.find(c => c.id === catSlugRaw) || cats.find(c => c.slug === catSlugRaw));
     const modalBody = document.getElementById('modalBody');
     const gallery = AdminMedia.collectGallery(modalBody);
     const image = (fd.get('image') || product?.image || '').toString().trim();
@@ -1226,6 +1226,7 @@ function openProductModal(product = null) {
       nameAr: fd.get('nameAr'),
       category: cat?.name || cat?.nameAr || '',
       categorySlug: cat?.slug || catSlugRaw,
+      categoryId: cat?.id || product?.categoryId || null,
       price: +fd.get('price'),
       salePrice: salePriceVal ? +salePriceVal : null,
       discount: discountVal ? +discountVal : 0,

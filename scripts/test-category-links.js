@@ -87,4 +87,30 @@ assert(slugifyLatin('Free Size') === 'free-size', 'slugify latin');
   assert(changed && cats[0].slug === 'watches', 'watches normalized');
 }
 
+// Case: necklace children wrongly sharing parent slug "necklaces"
+{
+  const data = {
+    categories: [
+      { id: 'cat-necklaces', slug: 'necklaces', name: 'سلاسل', nameAr: 'سلاسل', parentId: null },
+      { id: 'cat-queen', slug: 'necklaces', name: 'سلاسل كوين', nameAr: 'سلاسل كوين', parentId: 'cat-necklaces' },
+      { id: 'cat-phar', slug: 'necklaces', name: 'سلاسل فرعوني و اسلامي', nameAr: 'سلاسل فرعوني و اسلامي', parentId: 'cat-necklaces' }
+    ],
+    products: [
+      { id: 'p1', categorySlug: 'necklaces', category: 'سلاسل فرعوني و اسلامي' },
+      { id: 'p2', categorySlug: 'necklaces', category: 'سلاسل' },
+      { id: 'p3', categorySlug: 'necklaces-statement', category: 'Statement Necklaces' }
+    ]
+  };
+  const { changed } = repairCategoryProductLinks(data);
+  assert(changed, 'duplicate necklace slugs should be fixed');
+  const queen = data.categories.find(c => c.id === 'cat-queen');
+  const phar = data.categories.find(c => c.id === 'cat-phar');
+  assert(queen.slug === 'necklaces-queen', 'queen slug unique');
+  assert(phar.slug === 'necklaces-pharaonic', 'pharaonic slug unique');
+  assert(data.products.find(p => p.id === 'p1').categorySlug === 'necklaces-pharaonic', 'pharaonic product relinked by name');
+  assert(data.products.find(p => p.id === 'p2').categorySlug === 'necklaces', 'parent product stays on necklaces');
+  assert(data.categories.some(c => c.slug === 'necklaces-statement'), 'statement category created');
+  assert(data.products.find(p => p.id === 'p3').categorySlug === 'necklaces-statement', 'statement product linked');
+}
+
 console.log('CATEGORY_LINKS_TEST_OK');

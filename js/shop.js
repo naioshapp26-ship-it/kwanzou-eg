@@ -3,7 +3,8 @@
  */
 const LEGACY_CAT_REDIRECT = {
   jewelry: 'necklaces',
-  earrings: 'accessories',
+  // Old earrings category slug was "accessories" — keep old links working.
+  accessories: 'earrings',
   eeee: 'piercing',
   'بيرسينج': 'piercing',
   'بروش': 'brooch',

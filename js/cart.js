@@ -188,17 +188,24 @@ const ProductUI = {
     if (!slug || slug === 'all') return products;
     if (slug === 'new-arrivals') return products.filter(p => p.badge === 'New' || p.badge === 'جديد');
     const categories = typeof LumiereStore !== 'undefined' ? (LumiereStore.get().categories || []) : [];
+    const cat = typeof CategoryTree !== 'undefined'
+      ? CategoryTree.getBySlug(categories, slug)
+      : categories.find(c => c.slug === slug);
+    const resolveSlug = cat?.slug || slug;
     const allowed = typeof CategoryTree !== 'undefined'
-      ? CategoryTree.getFilterSlugs(categories, slug)
-      : new Set([slug]);
-    const cat = categories.find(c => c.slug === slug);
-    // Legacy products sometimes stored Arabic name as categorySlug instead of the real slug.
+      ? CategoryTree.getFilterSlugs(categories, resolveSlug)
+      : new Set([resolveSlug]);
+    // Legacy products sometimes stored Arabic name / old slug as categorySlug.
     if (cat?.nameAr) allowed.add(cat.nameAr);
     if (cat?.name) allowed.add(cat.name);
+    if (slug === 'accessories' || resolveSlug === 'earrings') {
+      allowed.add('accessories');
+      allowed.add('earrings');
+    }
     return products.filter(p => {
       if (allowed.has(p.categorySlug)) return true;
       if (cat && (p.category === cat.nameAr || p.category === cat.name)) return true;
-      if (!categories.some(c => c.slug === slug) && p.categorySlug?.startsWith(`${slug}-`)) return true;
+      if (!categories.some(c => c.slug === resolveSlug) && p.categorySlug?.startsWith(`${resolveSlug}-`)) return true;
       return false;
     });
   },

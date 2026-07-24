@@ -123,6 +123,14 @@ const CategoryTree = (() => {
       { slug: 'earrings-evening', keys: ['سواريه', 'evening', 'drop'] },
       { slug: 'earrings-set', keys: ['طقم', 'set', 'مجموعة'] }
     ],
+    earrings: [
+      { slug: 'earrings-hoop', keys: ['هوب', 'hoop'] },
+      { slug: 'earrings-zircon', keys: ['zircon', 'zircon', 'زيركون'] },
+      { slug: 'earrings-summer', keys: ['صيف', 'summer'] },
+      { slug: 'earrings-korean', keys: ['كوري', 'korean'] },
+      { slug: 'earrings-evening', keys: ['سواريه', 'evening', 'drop'] },
+      { slug: 'earrings-set', keys: ['طقم', 'set', 'مجموعة'] }
+    ],
     rings: [
       { slug: 'rings-statement', keys: ['statement', 'استرس', 'بارز'] },
       { slug: 'rings-stack', keys: ['stack', 'stacking', 'staak', 'ستاك', 'crystal'] },
@@ -141,7 +149,7 @@ const CategoryTree = (() => {
     ]
   };
 
-  const PARENT_SLUGS = ['necklaces', 'bracelets', 'accessories', 'rings', 'perfumes', 'handbags'];
+  const PARENT_SLUGS = ['necklaces', 'bracelets', 'earrings', 'accessories', 'rings', 'perfumes', 'handbags'];
 
   const SUBCATEGORY_TEMPLATES = {
     necklaces: [
@@ -159,6 +167,14 @@ const CategoryTree = (() => {
       { slug: 'bracelets-pearl', name: 'Pearl Bracelets', nameAr: 'أساور لؤلؤ', sort: 4 }
     ],
     accessories: [
+      { slug: 'earrings-set', name: 'Earring Sets', nameAr: 'حلقان مجموعة', sort: 1 },
+      { slug: 'earrings-zircon', name: 'Zircon Earrings', nameAr: 'حلقان زircon', sort: 2 },
+      { slug: 'earrings-summer', name: 'Summer Earrings', nameAr: 'حلقان صيفي', sort: 3 },
+      { slug: 'earrings-korean', name: 'Korean Earrings', nameAr: 'حلقان كوري', sort: 4 },
+      { slug: 'earrings-evening', name: 'Evening Earrings', nameAr: 'حلقان سواريه', sort: 5 },
+      { slug: 'earrings-hoop', name: 'Hoop Earrings', nameAr: 'حلق هوب', sort: 6 }
+    ],
+    earrings: [
       { slug: 'earrings-set', name: 'Earring Sets', nameAr: 'حلقان مجموعة', sort: 1 },
       { slug: 'earrings-zircon', name: 'Zircon Earrings', nameAr: 'حلقان زircon', sort: 2 },
       { slug: 'earrings-summer', name: 'Summer Earrings', nameAr: 'حلقان صيفي', sort: 3 },
@@ -188,16 +204,26 @@ const CategoryTree = (() => {
     return [...categories].sort((a, b) => (a.sort ?? 99) - (b.sort ?? 99));
   }
 
+  const SLUG_ALIASES = {
+    accessories: 'earrings',
+    حلقان: 'earrings',
+    بيرسينج: 'piercing',
+    بروش: 'brooch',
+    خلخال: 'anklet',
+    eeee: 'piercing'
+  };
+
   function getBySlug(categories, slug) {
     if (!slug) return null;
     const list = categories || [];
-    const exact = list.filter(c => c.slug === slug);
+    const resolve = SLUG_ALIASES[slug] || slug;
+    const exact = list.filter(c => c.slug === resolve || c.slug === slug);
     if (exact.length === 1) return exact[0];
     if (exact.length > 1) {
       // Prefer the top-level category when legacy children reuse the parent slug.
       return exact.find(c => !c.parentId) || exact[0];
     }
-    return list.find(c => c.nameAr === slug || c.name === slug) || null;
+    return list.find(c => c.nameAr === slug || c.name === slug || c.nameAr === resolve || c.name === resolve) || null;
   }
 
   function getById(categories, id) {
@@ -224,6 +250,9 @@ const CategoryTree = (() => {
     if (cat.slug) set.add(cat.slug);
     if (cat.nameAr) set.add(cat.nameAr);
     if (cat.name) set.add(cat.name);
+    // Old earrings parent slug used across bookmarks / cached links.
+    if (cat.slug === 'earrings') set.add('accessories');
+    if (cat.slug === 'accessories') set.add('earrings');
     return set;
   }
 
@@ -454,6 +483,7 @@ const CategoryTree = (() => {
       'خلخال': 'anklet',
       'ساعات': 'watches',
       'حلقان': 'earrings',
+      accessories: 'earrings',
       eeee: 'piercing',
       'bracelets-hand chain': 'bracelets-hand-chain'
     };

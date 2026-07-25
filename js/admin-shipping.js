@@ -7,10 +7,13 @@ const AdminShipping = (() => {
   function cloneConfig() {
     const s = LumiereStore.get().settings || {};
     const base = typeof CheckoutShipping !== 'undefined' ? CheckoutShipping.DEFAULT_CONFIG : { freeThreshold: 1500, countries: [], paymentMethods: [] };
+    const mergedPayments = typeof CheckoutShipping !== 'undefined'
+      ? CheckoutShipping.getConfig().paymentMethods
+      : (s.paymentMethods?.length ? s.paymentMethods : base.paymentMethods);
     return {
       freeThreshold: s.freeShippingThreshold ?? base.freeThreshold ?? 1500,
       countries: JSON.parse(JSON.stringify(s.shippingCountries?.length ? s.shippingCountries : base.countries)),
-      paymentMethods: JSON.parse(JSON.stringify(s.paymentMethods?.length ? s.paymentMethods : base.paymentMethods))
+      paymentMethods: JSON.parse(JSON.stringify(mergedPayments))
     };
   }
 

@@ -70,17 +70,49 @@ const CheckoutShipping = (() => {
     ],
     paymentMethods: [
       { id: 'cod', nameAr: 'الدفع عند الاستلام', nameEn: 'Cash on Delivery', enabled: true },
-      { id: 'card', nameAr: 'بطاقة ائتمان (قريباً)', nameEn: 'Credit Card (coming soon)', enabled: false },
-      { id: 'wallet', nameAr: 'محفظة إلكترونية (قريباً)', nameEn: 'E-Wallet (coming soon)', enabled: false }
+      {
+        id: 'instapay',
+        nameAr: 'Instapay / إنستا باي',
+        nameEn: 'Instapay',
+        enabled: true,
+        phone: '01284371361',
+        whatsapp: '201284371361',
+        instructionsAr: 'يرجى تحويل المبلغ عبر إنستا باي على الرقم: 01284371361 لعملية التحويل، يرجى إرسال لقطة شاشة للتأكيد على نفس الرقم بعد الإرسال 🤍',
+        instructionsEn: 'Please transfer the amount via Instapay to: 01284371361. After transferring, please send a screenshot for confirmation to the same number 🤍'
+      }
     ]
   };
+
+  function mergePaymentMethods(saved) {
+    const defaults = DEFAULT_CONFIG.paymentMethods.map(m => ({ ...m }));
+    if (!Array.isArray(saved) || !saved.length) return defaults;
+    const byId = new Map(saved.map(m => [m.id, m]));
+    const merged = defaults.map(d => {
+      const prev = byId.get(d.id);
+      if (!prev) return d;
+      // Keep enable flag from admin, but always use latest Instapay copy/phone from code.
+      if (d.id === 'instapay') {
+        return {
+          ...d,
+          enabled: prev.enabled !== false
+        };
+      }
+      return { ...d, ...prev, id: d.id };
+    });
+    saved.forEach(m => {
+      if (m?.id && !merged.some(x => x.id === m.id) && m.id !== 'card' && m.id !== 'wallet') {
+        merged.push(m);
+      }
+    });
+    return merged;
+  }
 
   function getConfig() {
     const s = LumiereStore?.get?.()?.settings || {};
     return {
       freeThreshold: s.freeShippingThreshold ?? DEFAULT_CONFIG.freeThreshold,
       countries: s.shippingCountries?.length ? s.shippingCountries : DEFAULT_CONFIG.countries,
-      paymentMethods: s.paymentMethods?.length ? s.paymentMethods : DEFAULT_CONFIG.paymentMethods
+      paymentMethods: mergePaymentMethods(s.paymentMethods)
     };
   }
 
@@ -94,6 +126,13 @@ const CheckoutShipping = (() => {
 
   function paymentLabel(method) {
     return LumiereI18n.getLang() === 'ar' ? method.nameAr : method.nameEn;
+  }
+
+  function paymentInstructions(method) {
+    if (!method) return '';
+    return LumiereI18n.getLang() === 'ar'
+      ? (method.instructionsAr || '')
+      : (method.instructionsEn || method.instructionsAr || '');
   }
 
   function findCountry(code) {
@@ -123,6 +162,7 @@ const CheckoutShipping = (() => {
     zoneLabel,
     countryLabel,
     paymentLabel,
+    paymentInstructions,
     findCountry,
     findZone,
     calcShipping,

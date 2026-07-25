@@ -1066,6 +1066,12 @@ html[dir="rtl"] .product-card .wishlist-btn { right: auto; left: 12px; }
   margin-bottom: 8px;
 }
 
+.checkout-payment-secure {
+  margin: -4px 0 12px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
 .payment-option {
   display: flex;
   align-items: flex-start;
@@ -1107,6 +1113,65 @@ html[dir="rtl"] .product-card .wishlist-btn { right: auto; left: 12px; }
 .payment-option__desc {
   font-size: 0.78rem;
   color: var(--text-muted);
+}
+
+.payment-option__details {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(212,196,176,0.45);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.payment-option__details[hidden] {
+  display: none;
+}
+
+.payment-option__instructions {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+.payment-option__wa,
+.payment-option__wa-btn {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--champagne-dark, #8a6d2f);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.payment-option__note {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.order-success__instapay {
+  margin: 0 0 18px;
+  padding: 14px 16px;
+  border: 1.5px solid rgba(212,196,176,0.55);
+  border-radius: var(--radius-sm);
+  background: rgba(201,169,98,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: start;
+}
+
+.order-success__instapay > p {
+  margin: 0;
+}
+
+.order-pay-hint {
+  font-size: 0.85em;
+  color: var(--text-muted);
+  font-weight: 500;
 }
 
 @media (max-width: 640px) {

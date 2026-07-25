@@ -96,15 +96,40 @@
   }
 
   function paymentOptionsHTML() {
-    return CheckoutShipping.enabledPaymentMethods().map(m => `
-      <label class="payment-option">
-        <input type="radio" name="payment" value="${m.id}" ${m.id === 'cod' ? 'checked' : ''}>
+    const methods = CheckoutShipping.enabledPaymentMethods();
+    return methods.map((m, idx) => {
+      const isInsta = m.id === 'instapay';
+      const desc = isInsta
+        ? LumiereI18n.t('checkout_instapay_desc')
+        : LumiereI18n.t('checkout_cod_desc');
+      const details = isInsta
+        ? `<div class="payment-option__details" hidden>
+            <p class="payment-option__instructions">${CheckoutShipping.paymentInstructions(m)}</p>
+            <a class="payment-option__wa" href="https://wa.me/${m.whatsapp || '201284371361'}" target="_blank" rel="noopener">
+              ${LumiereI18n.t('checkout_instapay_whatsapp')} ${m.phone || '01284371361'}
+            </a>
+            <p class="payment-option__note">${LumiereI18n.t('checkout_instapay_note')}</p>
+          </div>`
+        : '';
+      return `
+      <label class="payment-option${isInsta ? ' payment-option--instapay' : ''}">
+        <input type="radio" name="payment" value="${m.id}" ${idx === 0 ? 'checked' : ''}>
         <span class="payment-option__box">
           <span class="payment-option__title">${CheckoutShipping.paymentLabel(m)}</span>
-          <span class="payment-option__desc">${LumiereI18n.t('checkout_cod_desc')}</span>
+          <span class="payment-option__desc">${desc}</span>
+          ${details}
         </span>
-      </label>
-    `).join('');
+      </label>`;
+    }).join('');
+  }
+
+  function syncPaymentDetails(form) {
+    form.querySelectorAll('.payment-option').forEach(opt => {
+      const input = opt.querySelector('input[name="payment"]');
+      const details = opt.querySelector('.payment-option__details');
+      if (!details) return;
+      details.hidden = !input?.checked;
+    });
   }
 
   function updateTotals(form) {
@@ -152,6 +177,10 @@
 
     countrySelect?.addEventListener('change', refreshGovernorates);
     govSelect?.addEventListener('change', () => updateTotals(form));
+    form.querySelectorAll('input[name="payment"]').forEach(r => {
+      r.addEventListener('change', () => syncPaymentDetails(form));
+    });
+    syncPaymentDetails(form);
 
     form.querySelectorAll('input, select, textarea').forEach(input => {
       input.addEventListener('input', () => {
@@ -177,6 +206,7 @@
       const { fee, grand } = updateTotals(form);
       const paymentId = fd.get('payment');
       const paymentMethod = CheckoutShipping.getConfig().paymentMethods.find(m => m.id === paymentId);
+      const isInstapay = paymentId === 'instapay';
 
       const orderItems = items.map(item => {
         const p = products.find(x => x.id === item.id);
@@ -214,6 +244,8 @@
         },
         paymentMethod: paymentId,
         paymentMethodLabel: paymentMethod ? CheckoutShipping.paymentLabel(paymentMethod) : '',
+        paymentStatus: isInstapay ? 'awaiting_confirmation' : 'cod',
+        status: isInstapay ? 'Awaiting Payment' : 'Pending',
         subtotal: cartSubtotal,
         shippingFee: fee,
         total: grand,
@@ -232,17 +264,29 @@
     const el = document.getElementById('cartContent');
     const session = LumiereAuth.getSession();
     const addr = order.shippingAddress || {};
+    const isInstapay = order.paymentMethod === 'instapay' || order.paymentStatus === 'awaiting_confirmation';
     const itemsHtml = orderItems.map(i => {
       const colorLabel = ProductUI.colorLabel(i.color);
       const colorText = colorLabel ? ` — ${LumiereI18n.t('color_label')}: ${colorLabel}` : '';
       return `<li>${i.name} × ${i.qty}${colorText} — ${formatMoney(i.price * i.qty)}</li>`;
     }).join('');
 
+    const instapayMethod = CheckoutShipping.getConfig().paymentMethods.find(m => m.id === 'instapay');
+    const instapayBlock = isInstapay ? `
+      <div class="order-success__instapay">
+        <p>${LumiereI18n.t('checkout_success_instapay')}</p>
+        <p class="payment-option__instructions">${CheckoutShipping.paymentInstructions(instapayMethod)}</p>
+        <a class="btn btn-outline payment-option__wa-btn" href="https://wa.me/${instapayMethod?.whatsapp || '201284371361'}" target="_blank" rel="noopener">
+          ${LumiereI18n.t('checkout_instapay_whatsapp')} ${instapayMethod?.phone || '01284371361'}
+        </a>
+      </div>` : '';
+
     el.innerHTML = `
       <div class="order-success">
         <div class="order-success__icon">✓</div>
-        <h2>${LumiereI18n.t('checkout_success_title')}</h2>
-        <p>${LumiereI18n.t('checkout_success_desc')}</p>
+        <h2>${LumiereI18n.t(isInstapay ? 'checkout_success_title_instapay' : 'checkout_success_title')}</h2>
+        <p>${LumiereI18n.t(isInstapay ? 'checkout_success_desc_instapay' : 'checkout_success_desc')}</p>
+        ${instapayBlock}
         <div class="order-success__card">
           <p><strong>${LumiereI18n.t('checkout_order_id')}:</strong> ${order.id}</p>
           <p><strong>${LumiereI18n.t('checkout_name')}:</strong> ${order.customerName}</p>
@@ -391,6 +435,7 @@
             </div>
 
             <h3 class="checkout-form__section">${LumiereI18n.t('checkout_payment_section')}</h3>
+            <p class="checkout-payment-secure">${LumiereI18n.t('checkout_payment_secure')}</p>
             <div class="payment-options">${paymentOptionsHTML()}</div>
 
             <button type="submit" class="btn btn-primary btn-full">${LumiereI18n.t('checkout_submit')}</button>

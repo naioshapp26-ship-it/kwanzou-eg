@@ -199,7 +199,9 @@ function renderDashboard() {
   const data = LumiereStore.get();
   const orders = LumiereStore.getAllOrders();
   document.getElementById('dashOrders').textContent = orders.length;
-  document.getElementById('dashPending').textContent = orders.filter(o => o.status === 'Pending').length;
+  document.getElementById('dashPending').textContent = orders.filter(o =>
+    o.status === 'Pending' || o.status === 'Awaiting Payment'
+  ).length;
   document.getElementById('dashProducts').textContent = data.products.length;
   document.getElementById('dashCustomers').textContent = data.users.filter(u => u.role === 'customer').length;
   document.getElementById('dashRecentProducts').innerHTML = data.products.slice(-3).reverse().map(p =>
@@ -346,6 +348,7 @@ function renderOrders() {
       <td>${o.total?.toLocaleString()} ${currencySym()}</td>
       <td>
         <select class="order-status-select" data-id="${o.id}">
+          <option value="Awaiting Payment" ${o.status === 'Awaiting Payment' ? 'selected' : ''}>${LumiereI18n.t('status_awaiting_payment')}</option>
           <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>${LumiereI18n.t('status_pending')}</option>
           <option value="Shipped" ${o.status === 'Shipped' ? 'selected' : ''}>${LumiereI18n.t('status_shipped')}</option>
           <option value="Delivered" ${o.status === 'Delivered' ? 'selected' : ''}>${LumiereI18n.t('status_delivered')}</option>
@@ -413,7 +416,11 @@ window.viewOrder = function(id) {
         <p><strong>${LumiereI18n.t('checkout_address')}:</strong> ${o.shippingAddress.address || '—'}</p>
         ${o.shippingAddress.notes ? `<p><strong>${LumiereI18n.t('checkout_notes')}:</strong> ${o.shippingAddress.notes}</p>` : ''}
       ` : ''}
-      <p><strong>${LumiereI18n.t('checkout_payment')}:</strong> ${o.paymentMethodLabel || o.paymentMethod || '—'}</p>
+      <p><strong>${LumiereI18n.t('checkout_payment')}:</strong> ${o.paymentMethodLabel || o.paymentMethod || '—'}
+        ${o.paymentMethod === 'instapay' || o.paymentStatus === 'awaiting_confirmation'
+          ? ` <span class="order-pay-hint">(${LumiereI18n.t('status_awaiting_payment')} — ${LumiereI18n.t('admin_instapay_hint')})</span>`
+          : ''}
+      </p>
       <p><strong>${LumiereI18n.t('account_date')}:</strong> ${o.date}</p>
       <p><strong>${LumiereI18n.t('account_status')}:</strong> ${LumiereI18n.translateStatus(o.status)}</p>
       <table class="admin-table order-items-table">

@@ -541,12 +541,15 @@ const LumiereStore = (() => {
     shippingAddress,
     paymentMethod,
     paymentMethodLabel,
+    paymentStatus,
+    status,
     subtotal,
     shippingFee,
     items,
     total,
     userId
   }) {
+    const isInstapay = paymentMethod === 'instapay';
     const payload = {
       customerName,
       customerEmail: customerEmail || '',
@@ -555,6 +558,8 @@ const LumiereStore = (() => {
       shippingAddress: shippingAddress || {},
       paymentMethod: paymentMethod || 'cod',
       paymentMethodLabel: paymentMethodLabel || '',
+      paymentStatus: paymentStatus || (isInstapay ? 'awaiting_confirmation' : 'cod'),
+      status: status || (isInstapay ? 'Awaiting Payment' : 'Pending'),
       subtotal: subtotal ?? total,
       shippingFee: shippingFee ?? 0,
       total,
@@ -595,7 +600,8 @@ const LumiereStore = (() => {
       subtotal: payload.subtotal,
       shippingFee: payload.shippingFee,
       total: payload.total,
-      status: 'Pending',
+      status: payload.status || 'Pending',
+      paymentStatus: payload.paymentStatus || 'cod',
       customerName: payload.customerName,
       customerEmail: payload.customerEmail,
       customerPhone: payload.customerPhone,
@@ -633,7 +639,12 @@ const LumiereStore = (() => {
   function updateOrderStatus(orderId, status) {
     return update(data => {
       const order = data.orders.find(o => o.id === orderId);
-      if (order) order.status = status;
+      if (order) {
+        order.status = status;
+        if (status === 'Pending' && order.paymentStatus === 'awaiting_confirmation') {
+          order.paymentStatus = 'confirmed';
+        }
+      }
       if (order?.userId) {
         const user = data.users.find(u => u.id === order.userId);
         const userOrder = user?.orders?.find(o => o.id === orderId);

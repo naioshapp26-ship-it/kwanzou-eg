@@ -136,4 +136,24 @@ assert(slugifyLatin('Free Size') === 'free-size', 'slugify latin');
   assert(data.products.find(p => p.id === 'p2').categorySlug === 'bracelets-40', '40 products relinked');
 }
 
+// Case: drop necklace products misfiled under pharaonic after slug uniquify
+{
+  const data = {
+    categories: [
+      { id: 'cat-necklaces', slug: 'necklaces', name: 'سلاسل', nameAr: 'سلاسل', parentId: null },
+      { id: 'cat-phar', slug: 'necklaces-pharaonic', name: 'سلاسل فرعوني و اسلامي', nameAr: 'سلاسل فرعوني و اسلامي', parentId: 'cat-necklaces' },
+      { id: 'cat-drop', slug: 'necklaces-drop', name: 'drop necklace', nameAr: 'drop necklace', parentId: 'cat-necklaces' }
+    ],
+    products: [
+      { id: 'p1', categorySlug: 'necklaces-pharaonic', category: 'سلاسل فرعوني و اسلامي', name: 'drop necklace stainless steel' },
+      { id: 'p2', categorySlug: 'necklaces-pharaonic', category: 'سلاسل فرعوني و اسلامي', name: 'star drop necklace' },
+      { id: 'p3', categorySlug: 'necklaces-pharaonic', category: 'سلاسل فرعوني و اسلامي', name: 'Islamic pendant chain' }
+    ]
+  };
+  repairCategoryProductLinks(data);
+  assert(data.products[0].categorySlug === 'necklaces-drop', 'drop product 1 recovered');
+  assert(data.products[1].categorySlug === 'necklaces-drop', 'drop product 2 recovered');
+  assert(data.products[2].categorySlug === 'necklaces-pharaonic', 'non-drop stays pharaonic');
+}
+
 console.log('CATEGORY_LINKS_TEST_OK');

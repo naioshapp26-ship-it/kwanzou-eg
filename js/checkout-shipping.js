@@ -75,10 +75,10 @@ const CheckoutShipping = (() => {
         nameAr: 'Instapay / إنستا باي',
         nameEn: 'Instapay',
         enabled: true,
-        phone: '01284371361',
-        whatsapp: '201284371361',
-        instructionsAr: 'يرجى تحويل المبلغ عبر إنستا باي على الرقم: 01284371361 لعملية التحويل، يرجى إرسال لقطة شاشة للتأكيد على نفس الرقم بعد الإرسال 🤍',
-        instructionsEn: 'Please transfer the amount via Instapay to: 01284371361. After transferring, please send a screenshot for confirmation to the same number 🤍'
+        phone: '01016164273',
+        whatsapp: '201016164273',
+        instructionsAr: 'يرجى تحويل المبلغ عبر إنستا باي على الرقم: 01016164273 لعملية التحويل، يرجى إرسال لقطة شاشة للتأكيد على نفس الرقم بعد الإرسال 🤍',
+        instructionsEn: 'Please transfer the amount via Instapay to: 01016164273. After transferring, please send a screenshot for confirmation to the same number 🤍'
       }
     ]
   };

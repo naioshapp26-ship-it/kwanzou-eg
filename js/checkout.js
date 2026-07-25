@@ -105,8 +105,8 @@
       const details = isInsta
         ? `<div class="payment-option__details" hidden>
             <p class="payment-option__instructions">${CheckoutShipping.paymentInstructions(m)}</p>
-            <a class="payment-option__wa" href="https://wa.me/${m.whatsapp || '201284371361'}" target="_blank" rel="noopener">
-              ${LumiereI18n.t('checkout_instapay_whatsapp')} ${m.phone || '01284371361'}
+            <a class="payment-option__wa" href="https://wa.me/${m.whatsapp || '201016164273'}" target="_blank" rel="noopener">
+              ${LumiereI18n.t('checkout_instapay_whatsapp')} ${m.phone || '01016164273'}
             </a>
             <p class="payment-option__note">${LumiereI18n.t('checkout_instapay_note')}</p>
           </div>`
@@ -276,8 +276,8 @@
       <div class="order-success__instapay">
         <p>${LumiereI18n.t('checkout_success_instapay')}</p>
         <p class="payment-option__instructions">${CheckoutShipping.paymentInstructions(instapayMethod)}</p>
-        <a class="btn btn-outline payment-option__wa-btn" href="https://wa.me/${instapayMethod?.whatsapp || '201284371361'}" target="_blank" rel="noopener">
-          ${LumiereI18n.t('checkout_instapay_whatsapp')} ${instapayMethod?.phone || '01284371361'}
+        <a class="btn btn-outline payment-option__wa-btn" href="https://wa.me/${instapayMethod?.whatsapp || '201016164273'}" target="_blank" rel="noopener">
+          ${LumiereI18n.t('checkout_instapay_whatsapp')} ${instapayMethod?.phone || '01016164273'}
         </a>
       </div>` : '';
 

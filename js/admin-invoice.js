@@ -385,6 +385,74 @@ const AdminInvoice = (() => {
     bindEditor(order, confirmStatus);
   }
 
+  function invoiceCaptureStyles() {
+    return `
+      .inv-doc{font-family:Cairo,Tahoma,Arial,sans-serif;color:#111;background:#fff;padding:8px;direction:rtl;text-align:right;width:600px;box-sizing:border-box}
+      .inv-doc__brand{text-align:center;font-size:1.45rem;font-weight:700;margin-bottom:14px}
+      .inv-doc__head{display:flex;justify-content:space-between;gap:12px;margin-bottom:16px;font-weight:600;flex-wrap:wrap}
+      .inv-doc__section{margin:16px 0}
+      .inv-doc__section p{margin:4px 0;line-height:1.6}
+      .inv-doc__section-title{display:flex;align-items:center;gap:8px;font-size:1rem;margin:0 0 10px;font-weight:700}
+      .inv-doc__bar{display:inline-block;width:4px;height:1.1em;background:#111}
+      .inv-doc__table{width:100%;border-collapse:collapse;font-size:0.9rem}
+      .inv-doc__table th,.inv-doc__table td{border:1px solid #ccc;padding:8px;text-align:center}
+      .inv-doc__table th:first-child,.inv-doc__table td:first-child{text-align:right}
+      .inv-doc__summary{text-align:center;line-height:1.95}
+      .inv-doc__remain strong{color:#e53935;font-size:1.08rem}
+    `;
+  }
+
+  function loadHtml2Canvas() {
+    if (window.html2canvas) return Promise.resolve(window.html2canvas);
+    return new Promise((resolve, reject) => {
+      const existing = document.querySelector('script[data-html2canvas]');
+      if (existing) {
+        existing.addEventListener('load', () => resolve(window.html2canvas));
+        existing.addEventListener('error', reject);
+        return;
+      }
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+      s.async = true;
+      s.dataset.html2canvas = '1';
+      s.onload = () => resolve(window.html2canvas);
+      s.onerror = () => reject(new Error('html2canvas_load_failed'));
+      document.head.appendChild(s);
+    });
+  }
+
+  async function downloadInvoicePng(data) {
+    const payload = data || readFormIntoDraft() || _draft;
+    if (!payload) throw new Error('no_invoice');
+
+    const host = document.createElement('div');
+    host.setAttribute('aria-hidden', 'true');
+    host.style.cssText = 'position:fixed;left:-10000px;top:0;width:640px;background:#fff;z-index:-1;pointer-events:none;';
+    host.innerHTML = `<style>${invoiceCaptureStyles()}</style>${printDocumentHTML(payload)}`;
+    document.body.appendChild(host);
+
+    try {
+      const h2c = await loadHtml2Canvas();
+      const node = host.querySelector('.inv-doc');
+      const canvas = await h2c(node, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        useCORS: true,
+        logging: false
+      });
+      const fileName = `فاتورة-${payload.orderNum || 'طلب'}.png`;
+      const link = document.createElement('a');
+      link.download = fileName;
+      link.href = canvas.toDataURL('image/png');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      return true;
+    } finally {
+      host.remove();
+    }
+  }
+
   async function persist(order, confirmStatus, sendWhatsApp) {
     const data = readFormIntoDraft();
     if (!data) return;
@@ -395,8 +463,8 @@ const AdminInvoice = (() => {
 
     const btn = document.getElementById('invoiceSaveSendBtn');
     const btn2 = document.getElementById('invoiceSaveOnlyBtn');
-    if (btn) btn.disabled = true;
-    if (btn2) btn2.disabled = true;
+    const btn3 = document.getElementById('invoicePrintBtn');
+    [btn, btn2, btn3].forEach(b => { if (b) b.disabled = true; });
 
     const payload = {
       brand: data.brand,
@@ -430,6 +498,12 @@ const AdminInvoice = (() => {
         return;
       }
 
+      try {
+        await downloadInvoicePng(data);
+      } catch (_) {
+        toast(LumiereI18n.t('admin_invoice_download_failed'));
+      }
+
       toast(LumiereI18n.t('admin_invoice_saved'));
 
       if (sendWhatsApp) {
@@ -447,34 +521,14 @@ const AdminInvoice = (() => {
     } catch (err) {
       toast(LumiereI18n.t('admin_save_failed'));
     } finally {
-      if (btn) btn.disabled = false;
-      if (btn2) btn2.disabled = false;
+      [btn, btn2, btn3].forEach(b => { if (b) b.disabled = false; });
     }
   }
 
   function printInvoice(data) {
-    const html = printDocumentHTML(data || _draft);
-    const win = window.open('', '_blank', 'noopener,width=720,height=900');
-    if (!win) {
-      toast(LumiereI18n.t('admin_invoice_popup_blocked'));
-      return;
-    }
-    win.document.write(`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>${escapeHtml((data || _draft).brand)} — Invoice</title>
-      <style>
-        body{font-family:Cairo,Tahoma,sans-serif;padding:24px;color:#111;background:#fff}
-        .inv-doc__brand{text-align:center;font-size:1.4rem;font-weight:700;margin-bottom:12px}
-        .inv-doc__head{display:flex;justify-content:space-between;gap:12px;margin-bottom:18px;font-weight:600}
-        .inv-doc__section{margin:18px 0}
-        .inv-doc__section-title{display:flex;align-items:center;gap:8px;font-size:1rem;margin:0 0 10px}
-        .inv-doc__bar{display:inline-block;width:4px;height:1.1em;background:#111}
-        .inv-doc__table{width:100%;border-collapse:collapse;font-size:0.92rem}
-        .inv-doc__table th,.inv-doc__table td{border:1px solid #ddd;padding:8px;text-align:center}
-        .inv-doc__table th:first-child,.inv-doc__table td:first-child{text-align:right}
-        .inv-doc__summary{text-align:center;line-height:1.9}
-        .inv-doc__remain strong{color:#e53935}
-        @media print{body{padding:0}}
-      </style></head><body>${html}<script>window.onload=()=>{window.print()}<\/script></body></html>`);
-    win.document.close();
+    downloadInvoicePng(data || readFormIntoDraft() || _draft)
+      .then(() => toast(LumiereI18n.t('admin_invoice_downloaded')))
+      .catch(() => toast(LumiereI18n.t('admin_invoice_download_failed')));
   }
 
   function open(orderId, opts = {}) {

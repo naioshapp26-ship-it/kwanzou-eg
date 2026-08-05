@@ -1195,6 +1195,46 @@ html[dir="rtl"] .product-card .wishlist-btn { right: auto; left: 12px; }
   margin-top: 8px;
 }
 
+.order-sheet__social {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin: 0 0 16px;
+  padding: 4px 0 2px;
+}
+
+.order-sheet__social-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  text-decoration: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.order-sheet__social-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.16);
+}
+
+.order-sheet__social-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.order-sheet__social-btn--facebook { background: #1877f2; }
+.order-sheet__social-btn--instagram {
+  background: linear-gradient(45deg, #f09433, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888);
+}
+.order-sheet__social-btn--tiktok { background: #111; }
+.order-sheet__social-btn--whatsapp { background: #25d366; }
+.order-sheet__social-btn--phone { background: #2b6cb0; }
+
 .order-sheet__alert {
   border: 1.5px solid #e53935;
   color: #c62828;

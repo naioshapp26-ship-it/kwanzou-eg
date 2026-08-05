@@ -42,6 +42,32 @@
     return `${Number(n).toLocaleString()} ${sym()}`;
   }
 
+  function checkoutSocialBarHTML() {
+    const ig = 'https://www.instagram.com/kwanzou.eg?igsh=MTJ3MW5pMmhoYnl6MQ%3D%3D&utm_source=qr';
+    const tt = 'https://www.tiktok.com/@kwanzou11?_r=1&_t=ZS-97GmAtM3DrM';
+    const fb = 'https://www.facebook.com/share/14kxCwPToLH/?mibextid=wwXIfr';
+    const wa = 'https://wa.me/201284371361?text=' + encodeURIComponent('مرحباً، عندي استفسار بخصوص طلب Kwanzou EG');
+    const tel = 'tel:+201284371361';
+    return `
+      <div class="order-sheet__social" aria-label="Social">
+        <a class="order-sheet__social-btn order-sheet__social-btn--facebook" href="${fb}" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14 9h3V6h-3c-2.2 0-4 1.8-4 4v2H7v3h3v7h3v-7h2.6l.4-3H13v-2c0-.6.4-1 1-1z"/></svg>
+        </a>
+        <a class="order-sheet__social-btn order-sheet__social-btn--instagram" href="${ig}" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg>
+        </a>
+        <a class="order-sheet__social-btn order-sheet__social-btn--tiktok" href="${tt}" target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.77 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/></svg>
+        </a>
+        <a class="order-sheet__social-btn order-sheet__social-btn--whatsapp" href="${wa}" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.435 9.884-9.884 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+        </a>
+        <a class="order-sheet__social-btn order-sheet__social-btn--phone" href="${tel}" aria-label="Phone">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1.1-.2 1.2.4 2.5.6 3.8.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.6.6 3.8.1.4 0 .8-.3 1.1L6.6 10.8z"/></svg>
+        </a>
+      </div>`;
+  }
+
   function paymentLabel() {
     return LumiereI18n.getLang() === 'ar' ? DEPOSIT_PAYMENT.labelAr : DEPOSIT_PAYMENT.labelEn;
   }
@@ -441,6 +467,7 @@
       <div class="cart-layout cart-layout--order-sheet">
         <div class="cart-items">${rows}</div>
         <form class="checkout-form order-sheet" id="checkoutForm" novalidate>
+          ${checkoutSocialBarHTML()}
           <div class="order-sheet__alert">${LumiereI18n.t('checkout_phones_alert')}</div>
 
           <h2 class="order-sheet__title">${LumiereI18n.t('checkout_billing_title')}</h2>

@@ -654,10 +654,13 @@ const LumiereStore = (() => {
   }
 
   function saveOrderInvoice(orderId, invoice, { confirm = true } = {}) {
-    return update(data => {
+    update(data => {
       const order = data.orders.find(o => o.id === orderId);
       if (!order) return;
       order.invoice = { ...(order.invoice || {}), ...invoice };
+      if (invoice.customerName != null) order.customerName = invoice.customerName;
+      if (invoice.phone != null) order.customerPhone = invoice.phone;
+      if (invoice.phone2 != null) order.customerPhone2 = invoice.phone2;
       if (confirm) {
         order.status = 'Pending';
         order.paymentStatus = 'confirmed';
@@ -671,6 +674,8 @@ const LumiereStore = (() => {
         }
       }
     });
+    if (_adminMode && _apiMode) return flush();
+    return Promise.resolve(true);
   }
 
   async function changePasswordRemote(userId, email, currentPassword, newPassword) {

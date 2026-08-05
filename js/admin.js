@@ -342,7 +342,7 @@ function renderOrders() {
     return `<tr>
       <td><strong>${o.id}</strong></td>
       <td>${o.customerName || '—'}<br><small>${o.customerEmail || ''}</small></td>
-      <td>${o.customerPhone || '—'}</td>
+      <td>${o.customerPhone || '—'}${o.customerPhone2 ? `<br><small>${o.customerPhone2}</small>` : ''}</td>
       <td>${o.date}</td>
       <td>${itemsText}</td>
       <td>${o.total?.toLocaleString()} ${currencySym()}</td>

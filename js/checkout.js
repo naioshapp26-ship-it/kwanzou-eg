@@ -12,7 +12,7 @@
     labelEn: 'Deposit transfer + balance on delivery'
   };
 
-  const WA_NUMBER = '201016164273';
+  const WA_NUMBER = '201284371361';
 
   document.addEventListener('DOMContentLoaded', async () => {
     LumiereI18n.init();

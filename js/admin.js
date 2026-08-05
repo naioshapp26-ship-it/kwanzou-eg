@@ -417,7 +417,7 @@ window.viewOrder = function(id) {
         ${o.shippingAddress.notes ? `<p><strong>${LumiereI18n.t('checkout_notes')}:</strong> ${o.shippingAddress.notes}</p>` : ''}
       ` : ''}
       <p><strong>${LumiereI18n.t('checkout_payment')}:</strong> ${o.paymentMethodLabel || o.paymentMethod || '—'}
-        ${o.paymentMethod === 'instapay' || o.paymentStatus === 'awaiting_confirmation'
+        ${o.paymentMethod === 'instapay' || o.paymentMethod === 'deposit_cod' || o.paymentStatus === 'awaiting_confirmation'
           ? ` <span class="order-pay-hint">(${LumiereI18n.t('status_awaiting_payment')} — ${LumiereI18n.t('admin_instapay_hint')})</span>`
           : ''}
       </p>

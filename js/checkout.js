@@ -1,8 +1,18 @@
 /**
- * Checkout page logic
+ * Checkout — Care Natural–style order form + WhatsApp confirmation
+ * Scoped to cart page only.
  */
 (function () {
   let cartSubtotal = 0;
+  let waOpenTimer = null;
+
+  const DEPOSIT_PAYMENT = {
+    id: 'deposit_cod',
+    labelAr: 'تحويل ديبوزيت + الباقي عند الاستلام',
+    labelEn: 'Deposit transfer + balance on delivery'
+  };
+
+  const WA_NUMBER = '201016164273';
 
   document.addEventListener('DOMContentLoaded', async () => {
     LumiereI18n.init();
@@ -32,6 +42,10 @@
     return `${Number(n).toLocaleString()} ${sym()}`;
   }
 
+  function paymentLabel() {
+    return LumiereI18n.getLang() === 'ar' ? DEPOSIT_PAYMENT.labelAr : DEPOSIT_PAYMENT.labelEn;
+  }
+
   function markFieldError(input, msgKey) {
     const group = input.closest('.form-group');
     if (!group) return;
@@ -50,10 +64,11 @@
     clearFieldErrors(form);
     const required = [
       ['name', 'checkout_name_required'],
-      ['phone', 'checkout_phone_required'],
+      ['phone', 'checkout_phone_primary_required'],
+      ['phone2', 'checkout_phone2_required'],
       ['country', 'checkout_country_required'],
       ['governorate', 'checkout_governorate_required'],
-      ['city', 'checkout_city_required'],
+      ['city', 'checkout_area_required'],
       ['address', 'checkout_address_required']
     ];
     let valid = true;
@@ -68,15 +83,14 @@
       }
     });
 
-    const payment = form.querySelector('[name="payment"]:checked');
-    if (!payment) {
+    if (!form.querySelector('[name="payment"]')) {
       showToast(LumiereI18n.t('checkout_payment_required'));
       valid = false;
     }
 
     if (!valid) {
       firstInvalid?.focus();
-      showToast(LumiereI18n.t('checkout_error'));
+      showToast(LumiereI18n.t('checkout_phones_alert'));
     }
     return valid;
   }
@@ -95,72 +109,64 @@
     ).join('');
   }
 
-  function paymentOptionsHTML() {
-    const methods = CheckoutShipping.enabledPaymentMethods();
-    return methods.map((m, idx) => {
-      const isInsta = m.id === 'instapay';
-      const desc = isInsta
-        ? LumiereI18n.t('checkout_instapay_desc')
-        : LumiereI18n.t('checkout_cod_desc');
-      const details = isInsta
-        ? `<div class="payment-option__details" hidden>
-            <p class="payment-option__instructions">${CheckoutShipping.paymentInstructions(m)}</p>
-            <a class="payment-option__wa" href="https://wa.me/${m.whatsapp || '201016164273'}" target="_blank" rel="noopener">
-              ${LumiereI18n.t('checkout_instapay_whatsapp')} ${m.phone || '01016164273'}
-            </a>
-            <p class="payment-option__note">${LumiereI18n.t('checkout_instapay_note')}</p>
-          </div>`
-        : '';
-      return `
-      <label class="payment-option${isInsta ? ' payment-option--instapay' : ''}">
-        <input type="radio" name="payment" value="${m.id}" ${idx === 0 ? 'checked' : ''}>
-        <span class="payment-option__box">
-          <span class="payment-option__title">${CheckoutShipping.paymentLabel(m)}</span>
-          <span class="payment-option__desc">${desc}</span>
-          ${details}
-        </span>
-      </label>`;
-    }).join('');
-  }
-
-  function syncPaymentDetails(form) {
-    form.querySelectorAll('.payment-option').forEach(opt => {
-      const input = opt.querySelector('input[name="payment"]');
-      const details = opt.querySelector('.payment-option__details');
-      if (!details) return;
-      details.hidden = !input?.checked;
-    });
-  }
-
   function updateTotals(form) {
     const country = form.querySelector('[name="country"]')?.value || 'EG';
     const zoneId = form.querySelector('[name="governorate"]')?.value;
     const { fee, free } = CheckoutShipping.calcShipping(cartSubtotal, country, zoneId);
     const grand = cartSubtotal + fee;
 
-    const subEl = document.getElementById('checkoutSubtotal');
-    const shipEl = document.getElementById('checkoutShipping');
-    const totalEl = document.getElementById('checkoutGrandTotal');
-    const freeNote = document.getElementById('checkoutFreeNote');
-
-    if (subEl) subEl.textContent = formatMoney(cartSubtotal);
-    if (shipEl) {
-      shipEl.textContent = free ? LumiereI18n.t('checkout_shipping_free') : formatMoney(fee);
-      shipEl.classList.toggle('checkout-summary__free', free);
-    }
-    if (totalEl) totalEl.textContent = formatMoney(grand);
-    if (freeNote) {
-      const threshold = CheckoutShipping.getConfig().freeThreshold;
-      freeNote.hidden = free || !threshold;
-      if (!free && threshold) {
-        freeNote.textContent = LumiereI18n.t('checkout_free_hint').replace('{amount}', formatMoney(threshold));
-      }
-    }
+    form.querySelectorAll('[data-checkout-subtotal]').forEach(el => {
+      el.textContent = formatMoney(cartSubtotal);
+    });
+    form.querySelectorAll('[data-checkout-shipping]').forEach(el => {
+      el.textContent = free ? LumiereI18n.t('checkout_shipping_free') : formatMoney(fee);
+    });
+    form.querySelectorAll('[data-checkout-total]').forEach(el => {
+      el.textContent = formatMoney(grand);
+    });
     return { fee, grand, free };
   }
 
-  function bindCheckoutForm(form, profile = {}) {
-    if (profile.governorate) form.dataset.defaultGov = profile.governorate;
+  function buildWhatsAppUrl(order, orderItems) {
+    const lines = [
+      `طلب جديد — ${order.id}`,
+      `الاسم: ${order.customerName || ''}`,
+      `موبايل: ${order.customerPhone || ''}`,
+      order.customerPhone2 ? `موبايل احتياطي: ${order.customerPhone2}` : '',
+      `المحافظة: ${order.shippingAddress?.governorateName || ''}`,
+      `المنطقة: ${order.shippingAddress?.city || ''}`,
+      `العنوان: ${order.shippingAddress?.address || ''}`,
+      '',
+      'المنتجات:'
+    ];
+    (orderItems || order.items || []).forEach(i => {
+      lines.push(`- ${i.name} × ${i.qty} = ${formatMoney(i.price * i.qty)}`);
+    });
+    lines.push('');
+    lines.push(`المجموع: ${formatMoney(order.subtotal ?? 0)}`);
+    lines.push(`الشحن: ${order.shippingFee ? formatMoney(order.shippingFee) : LumiereI18n.t('checkout_shipping_free')}`);
+    lines.push(`الإجمالي: ${formatMoney(order.total)}`);
+    lines.push(`الدفع: ${order.paymentMethodLabel || paymentLabel()}`);
+    lines.push('');
+    lines.push('تم إرسال الطلب من الموقع — برجاء تأكيد الأوردر.');
+    const text = lines.filter(Boolean).join('\n');
+    return `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}`;
+  }
+
+  function formatOrderDate(order) {
+    const raw = order.createdAt || order.date;
+    try {
+      const d = raw?.includes?.('T') ? new Date(raw) : new Date(String(raw) + 'T12:00:00');
+      if (Number.isNaN(d.getTime())) return order.date || '—';
+      return d.toLocaleDateString(LumiereI18n.getLang() === 'ar' ? 'ar-EG' : 'en-GB', {
+        year: 'numeric', month: 'long', day: 'numeric'
+      });
+    } catch (_) {
+      return order.date || '—';
+    }
+  }
+
+  function bindCheckoutForm(form) {
     const countrySelect = form.querySelector('[name="country"]');
     const govSelect = form.querySelector('[name="governorate"]');
 
@@ -175,15 +181,16 @@
       updateTotals(form);
     };
 
+    if (form.dataset.defaultGov) { /* keep */ }
     countrySelect?.addEventListener('change', refreshGovernorates);
     govSelect?.addEventListener('change', () => updateTotals(form));
-    form.querySelectorAll('input[name="payment"]').forEach(r => {
-      r.addEventListener('change', () => syncPaymentDetails(form));
-    });
-    syncPaymentDetails(form);
 
     form.querySelectorAll('input, select, textarea').forEach(input => {
       input.addEventListener('input', () => {
+        input.classList.remove('input-error');
+        input.closest('.form-group')?.classList.remove('field-error');
+      });
+      input.addEventListener('change', () => {
         input.classList.remove('input-error');
         input.closest('.form-group')?.classList.remove('field-error');
       });
@@ -204,9 +211,6 @@
       const country = CheckoutShipping.findCountry(countryCode);
       const zone = CheckoutShipping.findZone(countryCode, zoneId);
       const { fee, grand } = updateTotals(form);
-      const paymentId = fd.get('payment');
-      const paymentMethod = CheckoutShipping.getConfig().paymentMethods.find(m => m.id === paymentId);
-      const isInstapay = paymentId === 'instapay';
 
       const orderItems = items.map(item => {
         const p = products.find(x => x.id === item.id);
@@ -221,98 +225,177 @@
         };
       }).filter(i => i.name);
 
-      const addressLine = [
-        fd.get('address'),
-        fd.get('landmark') ? `${LumiereI18n.t('checkout_landmark')}: ${fd.get('landmark')}` : ''
-      ].filter(Boolean).join(' — ');
+      const submitBtn = form.querySelector('[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = LumiereI18n.t('checkout_submitting');
+      }
 
-      await LumiereStore.init();
-      const order = await LumiereStore.placeOrder({
-        customerName: (fd.get('name') || '').trim(),
-        customerEmail: (fd.get('email') || '').trim(),
-        customerPhone: (fd.get('phone') || '').trim(),
-        customerPhone2: (fd.get('phone2') || '').trim(),
-        shippingAddress: {
-          country: countryCode,
-          countryName: country ? CheckoutShipping.countryLabel(country) : countryCode,
-          governorate: zoneId,
-          governorateName: zone ? CheckoutShipping.zoneLabel(zone) : zoneId,
-          city: (fd.get('city') || '').trim(),
-          address: addressLine,
-          landmark: (fd.get('landmark') || '').trim(),
-          notes: (fd.get('notes') || '').trim()
-        },
-        paymentMethod: paymentId,
-        paymentMethodLabel: paymentMethod ? CheckoutShipping.paymentLabel(paymentMethod) : '',
-        paymentStatus: isInstapay ? 'awaiting_confirmation' : 'cod',
-        status: isInstapay ? 'Awaiting Payment' : 'Pending',
-        subtotal: cartSubtotal,
-        shippingFee: fee,
-        total: grand,
-        items: orderItems,
-        userId: session?.id || null
-      });
+      try {
+        await LumiereStore.init();
+        const order = await LumiereStore.placeOrder({
+          customerName: (fd.get('name') || '').trim(),
+          customerEmail: (fd.get('email') || '').trim(),
+          customerPhone: (fd.get('phone') || '').trim(),
+          customerPhone2: (fd.get('phone2') || '').trim(),
+          shippingAddress: {
+            country: countryCode,
+            countryName: country ? CheckoutShipping.countryLabel(country) : countryCode,
+            governorate: zoneId,
+            governorateName: zone ? CheckoutShipping.zoneLabel(zone) : zoneId,
+            city: (fd.get('city') || '').trim(),
+            address: (fd.get('address') || '').trim(),
+            landmark: '',
+            notes: (fd.get('notes') || '').trim()
+          },
+          paymentMethod: DEPOSIT_PAYMENT.id,
+          paymentMethodLabel: paymentLabel(),
+          paymentStatus: 'awaiting_confirmation',
+          status: 'Awaiting Payment',
+          subtotal: cartSubtotal,
+          shippingFee: fee,
+          total: grand,
+          items: orderItems,
+          userId: session?.id || null
+        });
 
-      items.forEach(i => KwanzouCart.remove(KwanzouCart.lineKey(i)));
-      KwanzouCart.updateUI();
-      if (session) await LumiereAuth.refreshCurrentUser();
-      showOrderConfirmation(order, orderItems);
+        items.forEach(i => KwanzouCart.remove(KwanzouCart.lineKey(i)));
+        KwanzouCart.updateUI();
+        if (session) await LumiereAuth.refreshCurrentUser();
+        showOrderConfirmation(order, orderItems);
+      } catch (err) {
+        showToast(LumiereI18n.t('checkout_error'));
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = LumiereI18n.t('checkout_submit');
+        }
+      }
     };
   }
 
   function showOrderConfirmation(order, orderItems) {
+    if (waOpenTimer) {
+      clearTimeout(waOpenTimer);
+      waOpenTimer = null;
+    }
+
     const el = document.getElementById('cartContent');
-    const session = LumiereAuth.getSession();
-    const addr = order.shippingAddress || {};
-    const isInstapay = order.paymentMethod === 'instapay' || order.paymentStatus === 'awaiting_confirmation';
-    const itemsHtml = orderItems.map(i => {
-      const colorLabel = ProductUI.colorLabel(i.color);
-      const colorText = colorLabel ? ` — ${LumiereI18n.t('color_label')}: ${colorLabel}` : '';
-      return `<li>${i.name} × ${i.qty}${colorText} — ${formatMoney(i.price * i.qty)}</li>`;
+    const waUrl = buildWhatsAppUrl(order, orderItems);
+    const items = orderItems || order.items || [];
+
+    const rowsHtml = items.map(i => {
+      const colorLabel = ProductUI.colorLabel?.(i.color);
+      const colorText = colorLabel ? ` — ${colorLabel}` : '';
+      return `<tr>
+        <td>${i.name}${colorText} × ${i.qty}</td>
+        <td>${formatMoney(i.price * i.qty)}</td>
+      </tr>`;
     }).join('');
 
-    const instapayMethod = CheckoutShipping.getConfig().paymentMethods.find(m => m.id === 'instapay');
-    const instapayBlock = isInstapay ? `
-      <div class="order-success__instapay">
-        <p>${LumiereI18n.t('checkout_success_instapay')}</p>
-        <p class="payment-option__instructions">${CheckoutShipping.paymentInstructions(instapayMethod)}</p>
-        <a class="btn btn-outline payment-option__wa-btn" href="https://wa.me/${instapayMethod?.whatsapp || '201016164273'}" target="_blank" rel="noopener">
-          ${LumiereI18n.t('checkout_instapay_whatsapp')} ${instapayMethod?.phone || '01016164273'}
-        </a>
-      </div>` : '';
-
     el.innerHTML = `
-      <div class="order-success">
-        <div class="order-success__icon">✓</div>
-        <h2>${LumiereI18n.t(isInstapay ? 'checkout_success_title_instapay' : 'checkout_success_title')}</h2>
-        <p>${LumiereI18n.t(isInstapay ? 'checkout_success_desc_instapay' : 'checkout_success_desc')}</p>
-        ${instapayBlock}
-        <div class="order-success__card">
-          <p><strong>${LumiereI18n.t('checkout_order_id')}:</strong> ${order.id}</p>
-          <p><strong>${LumiereI18n.t('checkout_name')}:</strong> ${order.customerName}</p>
-          <p><strong>${LumiereI18n.t('checkout_phone')}:</strong> ${order.customerPhone}${order.customerPhone2 ? ` / ${order.customerPhone2}` : ''}</p>
-          <p><strong>${LumiereI18n.t('checkout_country')}:</strong> ${addr.countryName || '—'}</p>
-          <p><strong>${LumiereI18n.t('checkout_governorate')}:</strong> ${addr.governorateName || '—'}</p>
-          <p><strong>${LumiereI18n.t('checkout_city')}:</strong> ${addr.city || '—'}</p>
-          <p><strong>${LumiereI18n.t('checkout_address')}:</strong> ${addr.address || '—'}</p>
-          <p><strong>${LumiereI18n.t('checkout_payment')}:</strong> ${order.paymentMethodLabel || LumiereI18n.t('checkout_payment_cod')}</p>
-          <p><strong>${LumiereI18n.t('checkout_subtotal')}:</strong> ${formatMoney(order.subtotal ?? order.total)}</p>
-          <p><strong>${LumiereI18n.t('checkout_shipping')}:</strong> ${order.shippingFee ? formatMoney(order.shippingFee) : LumiereI18n.t('checkout_shipping_free')}</p>
-          <p><strong>${LumiereI18n.t('cart_total')}:</strong> ${formatMoney(order.total)}</p>
-          <div class="order-success__items">
-            <strong>${LumiereI18n.t('checkout_items')}:</strong>
-            <ul>${itemsHtml}</ul>
+      <div class="order-done">
+        <div class="order-done__wa-box">
+          <p class="order-done__wa-lead">${LumiereI18n.t('checkout_wa_lead')}</p>
+          <ol class="order-done__steps">
+            <li>${LumiereI18n.t('checkout_wa_step1')}</li>
+            <li>${LumiereI18n.t('checkout_wa_step2')}</li>
+            <li>${LumiereI18n.t('checkout_wa_step3')}</li>
+          </ol>
+          <p class="order-done__wa-foot">${LumiereI18n.t('checkout_wa_foot')}</p>
+          <a class="order-done__wa-btn" id="orderWaBtn" href="${waUrl}" target="_blank" rel="noopener">
+            ${LumiereI18n.t('checkout_wa_btn')}
+          </a>
+          <p class="order-done__wa-auto" id="orderWaAuto">${LumiereI18n.t('checkout_wa_auto')}</p>
+        </div>
+
+        <div class="order-done__meta">
+          <div><span>${LumiereI18n.t('checkout_order_id')}</span><strong>${order.id}</strong></div>
+          <div><span>${LumiereI18n.t('account_date')}</span><strong>${formatOrderDate(order)}</strong></div>
+          <div><span>${LumiereI18n.t('cart_total')}</span><strong>${formatMoney(order.total)}</strong></div>
+          <div class="order-done__meta-pay">
+            <span>${LumiereI18n.t('checkout_payment')}</span>
+            <strong>${order.paymentMethodLabel || paymentLabel()} ✓</strong>
           </div>
         </div>
-        <div class="order-success__actions">
-          ${session ? `<a href="account.html" class="btn btn-primary">${LumiereI18n.t('checkout_view_orders')}</a>` : ''}
-          <a href="shop.html" class="btn btn-outline">${LumiereI18n.t('checkout_back_shop')}</a>
+
+        <div class="order-done__details">
+          <h3>${LumiereI18n.t('checkout_order_details')}</h3>
+          <table class="order-done__table">
+            <tbody>
+              ${rowsHtml}
+              <tr><td>${LumiereI18n.t('checkout_subtotal')}</td><td>${formatMoney(order.subtotal ?? order.total)}</td></tr>
+              <tr><td>${LumiereI18n.t('checkout_shipping')}</td><td>${order.shippingFee ? formatMoney(order.shippingFee) : LumiereI18n.t('checkout_shipping_free')}</td></tr>
+              <tr class="order-done__total-row"><td>${LumiereI18n.t('cart_total')}</td><td>${formatMoney(order.total)}</td></tr>
+              <tr><td>${LumiereI18n.t('checkout_payment')}</td><td>${order.paymentMethodLabel || paymentLabel()}</td></tr>
+              ${order.shippingAddress?.notes ? `<tr><td>${LumiereI18n.t('checkout_notes')}</td><td>${order.shippingAddress.notes}</td></tr>` : ''}
+            </tbody>
+          </table>
+          <div class="order-done__actions">
+            <a class="order-done__pay" href="${waUrl}" target="_blank" rel="noopener">${LumiereI18n.t('checkout_wa_pay')}</a>
+            <a class="order-done__cancel" href="shop.html">${LumiereI18n.t('checkout_wa_cancel')}</a>
+          </div>
         </div>
       </div>`;
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    waOpenTimer = setTimeout(() => {
+      waOpenTimer = null;
+      const auto = document.getElementById('orderWaAuto');
+      if (auto) auto.textContent = LumiereI18n.t('checkout_wa_opened');
+      window.open(waUrl, '_blank', 'noopener');
+    }, 5000);
+  }
+
+  function orderSummaryTable(items, products) {
+    const rows = items.map(item => {
+      const p = products.find(x => x.id === item.id);
+      if (!p) return '';
+      const unit = ProductUI.effectivePrice(p);
+      const name = LumiereI18n.localized(p, 'name') || p.name;
+      const colorLabel = ProductUI.colorLabel(item.color);
+      const colorText = colorLabel ? ` — ${colorLabel}` : '';
+      return `<tr>
+        <td><span class="order-sheet__qty">${item.qty} ×</span> ${name}${colorText}</td>
+        <td>${formatMoney(unit * item.qty)}</td>
+      </tr>`;
+    }).join('');
+
+    return `
+      <div class="order-sheet__your">
+        <h3>${LumiereI18n.t('checkout_your_order')}</h3>
+        <table class="order-sheet__table">
+          <thead>
+            <tr>
+              <th>${LumiereI18n.t('checkout_product_col')}</th>
+              <th>${LumiereI18n.t('checkout_total_col')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows}
+            <tr>
+              <td>${LumiereI18n.t('checkout_subtotal')}</td>
+              <td data-checkout-subtotal>${formatMoney(cartSubtotal)}</td>
+            </tr>
+            <tr>
+              <td>${LumiereI18n.t('checkout_shipping')}</td>
+              <td data-checkout-shipping>—</td>
+            </tr>
+            <tr class="order-sheet__grand">
+              <td>${LumiereI18n.t('cart_total')}</td>
+              <td data-checkout-total>${formatMoney(cartSubtotal)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>`;
   }
 
   function renderCart() {
+    if (waOpenTimer) {
+      clearTimeout(waOpenTimer);
+      waOpenTimer = null;
+    }
+
     const el = document.getElementById('cartContent');
     const items = KwanzouCart.get();
     const products = LumiereStore.get().products;
@@ -355,96 +438,82 @@
     }).join('');
 
     el.innerHTML = `
-      <div class="cart-layout">
+      <div class="cart-layout cart-layout--order-sheet">
         <div class="cart-items">${rows}</div>
-        <div class="cart-sidebar">
-          <div class="cart-summary checkout-summary" id="checkoutSummary">
-            <div class="checkout-summary__row">
-              <span>${LumiereI18n.t('checkout_subtotal')}</span>
-              <strong id="checkoutSubtotal">${formatMoney(cartSubtotal)}</strong>
-            </div>
-            <div class="checkout-summary__row">
-              <span>${LumiereI18n.t('checkout_shipping')}</span>
-              <strong id="checkoutShipping">—</strong>
-            </div>
-            <p class="checkout-summary__note" id="checkoutFreeNote" hidden></p>
-            <div class="checkout-summary__row checkout-summary__total">
-              <span>${LumiereI18n.t('cart_total')}</span>
-              <strong id="checkoutGrandTotal">${formatMoney(cartSubtotal)}</strong>
-            </div>
+        <form class="checkout-form order-sheet" id="checkoutForm" novalidate>
+          <div class="order-sheet__alert">${LumiereI18n.t('checkout_phones_alert')}</div>
+
+          <h2 class="order-sheet__title">${LumiereI18n.t('checkout_billing_title')}</h2>
+
+          <div class="form-group">
+            <label>${LumiereI18n.t('checkout_fullname_full')} <span class="required">*</span></label>
+            <input type="text" name="name" autocomplete="name" value="${user?.name || session?.name || ''}">
+            <span class="field-error-msg"></span>
           </div>
-          <form class="checkout-form" id="checkoutForm" novalidate>
-            <h2>${LumiereI18n.t('checkout_title')}</h2>
-            <p class="checkout-form__hint">${LumiereI18n.t('checkout_required_hint')}</p>
 
-            <h3 class="checkout-form__section">${LumiereI18n.t('checkout_contact')}</h3>
-            <div class="form-group">
-              <label>${LumiereI18n.t('checkout_name')} <span class="required">*</span></label>
-              <input type="text" name="name" autocomplete="name" value="${user?.name || session?.name || ''}">
-              <span class="field-error-msg"></span>
-            </div>
-            <div class="form-row form-row--2">
-              <div class="form-group">
-                <label>${LumiereI18n.t('checkout_phone')} <span class="required">*</span></label>
-                <input type="tel" name="phone" autocomplete="tel" inputmode="tel" placeholder="01xxxxxxxxx" value="${profile.phone || user?.phone || session?.phone || ''}">
-                <span class="field-error-msg"></span>
-              </div>
-              <div class="form-group">
-                <label>${LumiereI18n.t('checkout_phone2')}</label>
-                <input type="tel" name="phone2" inputmode="tel" placeholder="01xxxxxxxxx" value="${profile.phone2 || ''}">
-                <span class="field-error-msg"></span>
-              </div>
-            </div>
-            <div class="form-group">
-              <label>${LumiereI18n.t('checkout_email')}</label>
-              <input type="email" name="email" autocomplete="email" value="${user?.email || session?.email || ''}">
-            </div>
+          <div class="form-group">
+            <label>${LumiereI18n.t('checkout_country')} <span class="required">*</span></label>
+            <select name="country">${countryOptions(profile.country || 'EG')}</select>
+            <span class="field-error-msg"></span>
+          </div>
 
-            <h3 class="checkout-form__section">${LumiereI18n.t('checkout_address_section')}</h3>
-            <div class="form-row form-row--2">
-              <div class="form-group">
-                <label>${LumiereI18n.t('checkout_country')} <span class="required">*</span></label>
-                <select name="country">${countryOptions(profile.country || 'EG')}</select>
-                <span class="field-error-msg"></span>
-              </div>
-              <div class="form-group">
-                <label>${LumiereI18n.t('checkout_governorate')} <span class="required">*</span></label>
-                <select name="governorate">
-                  <option value="">${LumiereI18n.t('checkout_select_governorate')}</option>
-                </select>
-                <span class="field-error-msg"></span>
-              </div>
-            </div>
-            <div class="form-group">
-              <label>${LumiereI18n.t('checkout_city')} <span class="required">*</span></label>
-              <input type="text" name="city" placeholder="${LumiereI18n.t('checkout_city_ph')}" value="${profile.city || ''}">
-              <span class="field-error-msg"></span>
-            </div>
-            <div class="form-group">
-              <label>${LumiereI18n.t('checkout_address')} <span class="required">*</span></label>
-              <textarea name="address" rows="2" placeholder="${LumiereI18n.t('checkout_address_ph')}">${profile.address || ''}</textarea>
-              <span class="field-error-msg"></span>
-            </div>
-            <div class="form-group">
-              <label>${LumiereI18n.t('checkout_landmark')}</label>
-              <input type="text" name="landmark" placeholder="${LumiereI18n.t('checkout_landmark_ph')}" value="${profile.landmark || ''}">
-            </div>
-            <div class="form-group">
-              <label>${LumiereI18n.t('checkout_notes')}</label>
-              <textarea name="notes" rows="2" placeholder="${LumiereI18n.t('checkout_notes_ph')}">${profile.notes || ''}</textarea>
-            </div>
+          <div class="form-group">
+            <label>${LumiereI18n.t('checkout_governorate')} <span class="required">*</span></label>
+            <select name="governorate">
+              <option value="">${LumiereI18n.t('checkout_select_option')}</option>
+            </select>
+            <span class="field-error-msg"></span>
+          </div>
 
-            <h3 class="checkout-form__section">${LumiereI18n.t('checkout_payment_section')}</h3>
-            <p class="checkout-payment-secure">${LumiereI18n.t('checkout_payment_secure')}</p>
-            <div class="payment-options">${paymentOptionsHTML()}</div>
+          <div class="form-group">
+            <label>${LumiereI18n.t('checkout_area')} <span class="required">*</span></label>
+            <input type="text" name="city" placeholder="${LumiereI18n.t('checkout_area_ph')}" value="${profile.city || ''}">
+            <span class="field-error-msg"></span>
+          </div>
 
-            <button type="submit" class="btn btn-primary btn-full">${LumiereI18n.t('checkout_submit')}</button>
-          </form>
-        </div>
+          <div class="form-group">
+            <label>${LumiereI18n.t('checkout_phone_wa')} <span class="required">*</span></label>
+            <input type="tel" name="phone" autocomplete="tel" inputmode="tel" placeholder="01xxxxxxxxx" value="${profile.phone || user?.phone || session?.phone || ''}">
+            <span class="field-error-msg"></span>
+          </div>
+
+          <div class="form-group">
+            <label>${LumiereI18n.t('checkout_phone2_required_label')} <span class="required">*</span></label>
+            <input type="tel" name="phone2" inputmode="tel" placeholder="01xxxxxxxxx" value="${profile.phone2 || ''}">
+            <span class="field-error-msg"></span>
+          </div>
+
+          <div class="form-group">
+            <label>${LumiereI18n.t('checkout_address')} <span class="required">*</span></label>
+            <input type="text" name="address" placeholder="${LumiereI18n.t('checkout_address_detail_ph')}" value="${profile.address || ''}">
+            <span class="field-error-msg"></span>
+            <p class="order-sheet__tip">${LumiereI18n.t('checkout_address_tip')}</p>
+          </div>
+
+          <h3 class="order-sheet__section">${LumiereI18n.t('checkout_extra_info')}</h3>
+          <div class="form-group">
+            <label>${LumiereI18n.t('checkout_notes_optional')}</label>
+            <textarea name="notes" rows="3" placeholder="${LumiereI18n.t('checkout_notes_order_ph')}">${profile.notes || ''}</textarea>
+          </div>
+
+          ${orderSummaryTable(items, products)}
+
+          <h3 class="order-sheet__section">${LumiereI18n.t('checkout_payment_section')}</h3>
+          <input type="hidden" name="payment" value="${DEPOSIT_PAYMENT.id}">
+          <div class="order-sheet__pay" aria-checked="true">
+            <span class="order-sheet__check" aria-hidden="true">✓</span>
+            <span>${paymentLabel()}</span>
+          </div>
+          <p class="order-sheet__wa-note">${LumiereI18n.t('checkout_after_wa_note')}</p>
+
+          <button type="submit" class="order-sheet__submit">${LumiereI18n.t('checkout_submit')}</button>
+        </form>
       </div>`;
 
+    const form = document.getElementById('checkoutForm');
+    if (profile.governorate) form.dataset.defaultGov = profile.governorate;
     bindCartRowControls();
-    bindCheckoutForm(document.getElementById('checkoutForm'), profile);
+    bindCheckoutForm(form);
   }
 
   function bindCartRowControls() {

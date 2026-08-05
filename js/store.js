@@ -653,6 +653,26 @@ const LumiereStore = (() => {
     });
   }
 
+  function saveOrderInvoice(orderId, invoice, { confirm = true } = {}) {
+    return update(data => {
+      const order = data.orders.find(o => o.id === orderId);
+      if (!order) return;
+      order.invoice = { ...(order.invoice || {}), ...invoice };
+      if (confirm) {
+        order.status = 'Pending';
+        order.paymentStatus = 'confirmed';
+      }
+      if (order.userId) {
+        const user = data.users.find(u => u.id === order.userId);
+        const userOrder = user?.orders?.find(o => o.id === orderId);
+        if (userOrder) {
+          userOrder.status = order.status;
+          userOrder.invoice = order.invoice;
+        }
+      }
+    });
+  }
+
   async function changePasswordRemote(userId, email, currentPassword, newPassword) {
     if (_apiMode && !_adminMode) {
       const res = await fetch('/api/account/password', {
@@ -719,7 +739,7 @@ const LumiereStore = (() => {
     addCollection, updateCollection, deleteCollection,
     addTestimonial, updateTestimonial, deleteTestimonial,
     addNewsletter, deleteNewsletter,
-    placeOrder, getAllOrders, updateOrderStatus, deleteOrder
+    placeOrder, getAllOrders, updateOrderStatus, saveOrderInvoice, deleteOrder
   };
 })();
 

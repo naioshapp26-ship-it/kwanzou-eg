@@ -356,19 +356,44 @@ function renderOrders() {
       </td>
       <td class="table-actions">
         <button class="btn-icon" onclick="viewOrder('${o.id}')" title="${LumiereI18n.t('admin_view')}">👁</button>
+        <button class="btn btn-sm btn-outline" onclick="openOrderInvoice('${o.id}')" title="${LumiereI18n.t('admin_invoice_btn')}">${LumiereI18n.t('admin_invoice_short')}</button>
         <button class="btn-icon btn-icon--danger" onclick="deleteOrder('${o.id}')" title="${LumiereI18n.t('admin_delete')}">🗑</button>
       </td>
     </tr>`;
   }).join('');
   tbody.querySelectorAll('.order-status-select').forEach(sel => {
     sel.onchange = () => {
-      LumiereStore.updateOrderStatus(sel.dataset.id, sel.value);
+      const id = sel.dataset.id;
+      const order = LumiereStore.getAllOrders().find(o => o.id === id);
+      const next = sel.value;
+      const confirmingPayment = next === 'Pending' && order && (
+        order.status === 'Awaiting Payment' ||
+        order.paymentStatus === 'awaiting_confirmation' ||
+        order.paymentMethod === 'deposit_cod' ||
+        order.paymentMethod === 'instapay'
+      ) && !order.invoice;
+
+      if (confirmingPayment && typeof AdminInvoice !== 'undefined') {
+        AdminInvoice.open(id, { confirmStatus: true });
+        renderOrders();
+        return;
+      }
+
+      LumiereStore.updateOrderStatus(id, next);
       renderOrders();
       renderDashboard();
       toast(LumiereI18n.t('admin_saved'));
     };
   });
 }
+
+window.openOrderInvoice = function(id) {
+  if (typeof AdminInvoice === 'undefined') return;
+  const order = LumiereStore.getAllOrders().find(o => o.id === id);
+  AdminInvoice.open(id, {
+    confirmStatus: !!(order && (order.status === 'Awaiting Payment' || order.paymentStatus === 'awaiting_confirmation'))
+  });
+};
 
 function orderItemColorLabel(color) {
   if (!color) return '';
@@ -423,6 +448,10 @@ window.viewOrder = function(id) {
       </p>
       <p><strong>${LumiereI18n.t('account_date')}:</strong> ${o.date}</p>
       <p><strong>${LumiereI18n.t('account_status')}:</strong> ${LumiereI18n.translateStatus(o.status)}</p>
+      ${o.invoice ? `
+        <p><strong>${LumiereI18n.t('admin_invoice_deposit')}:</strong> ${o.invoice.deposit?.toLocaleString()} ${sym}</p>
+        <p><strong>${LumiereI18n.t('admin_invoice_remaining')}:</strong> <span style="color:#e53935;font-weight:700">${o.invoice.remaining?.toLocaleString()} ${sym}</span></p>
+      ` : ''}
       <table class="admin-table order-items-table">
         <thead><tr><th>${LumiereI18n.t('admin_product')}</th><th>${LumiereI18n.t('admin_qty')}</th><th>${LumiereI18n.t('admin_price')}</th><th>${LumiereI18n.t('admin_subtotal')}</th></tr></thead>
         <tbody>${rows}</tbody>
@@ -432,6 +461,9 @@ window.viewOrder = function(id) {
           <tr><td colspan="3"><strong>${LumiereI18n.t('account_total')}</strong></td><td><strong>${o.total?.toLocaleString()} ${sym}</strong></td></tr>
         </tfoot>
       </table>
+      <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" class="btn btn-primary btn-sm" onclick="openOrderInvoice('${o.id}')">${o.invoice ? LumiereI18n.t('admin_invoice_view') : LumiereI18n.t('admin_invoice_confirm')}</button>
+      </div>
     </div>
   `);
 };

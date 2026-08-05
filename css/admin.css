@@ -1043,3 +1043,92 @@ html[dir="rtl"] .admin-notifications__panel {
   gap: 8px;
   margin-bottom: 8px;
 }
+
+/* —— Deposit invoice (Care-style) —— */
+.inv-editor__hint {
+  margin: 0 0 14px;
+  font-size: 0.88rem;
+  color: var(--text-muted, #666);
+  line-height: 1.5;
+}
+.inv-editor__preview {
+  margin: 16px 0;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fff;
+  padding: 16px;
+  max-height: 55vh;
+  overflow: auto;
+}
+.inv-editor__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+.inv-remain-num { color: #e53935; }
+.inv-doc {
+  color: #111;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  direction: rtl;
+  text-align: right;
+}
+.inv-doc__brand {
+  text-align: center;
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+  letter-spacing: 0.02em;
+}
+.inv-doc__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 16px;
+  font-weight: 600;
+  flex-wrap: wrap;
+}
+.inv-doc__title { font-size: 1.05rem; }
+.inv-doc__date { font-size: 0.95rem; }
+.inv-doc__section { margin: 16px 0; }
+.inv-doc__section p { margin: 4px 0; }
+.inv-doc__section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  margin: 0 0 10px;
+  font-weight: 700;
+}
+.inv-doc__bar {
+  display: inline-block;
+  width: 4px;
+  height: 1.15em;
+  background: #111;
+  flex-shrink: 0;
+}
+.inv-doc__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+.inv-doc__table th,
+.inv-doc__table td {
+  border: 1px solid #ccc;
+  padding: 8px 6px;
+  text-align: center;
+}
+.inv-doc__table th:first-child,
+.inv-doc__table td:first-child {
+  text-align: right;
+}
+.inv-doc__section--summary .inv-doc__summary {
+  text-align: center;
+  line-height: 1.95;
+}
+.inv-doc__remain strong {
+  color: #e53935;
+  font-size: 1.05rem;
+}
